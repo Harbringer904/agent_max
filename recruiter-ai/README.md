@@ -49,12 +49,22 @@ nothing breaks, you just don't get the `reasoning` text.
 - **Weighted, transparent scoring** — every candidate shows a per-criterion `raw` fit (0–1),
   `weighted` contribution, `max` possible, and a human-readable `note` explaining the
   judgment, plus an overall `totalScore` (0–100) and `rank1to10` (1–10).
-- **Six data sources** — real GitHub profiles, real Stack Overflow top-answerers, real local
-  businesses/professionals via Google Places (any field, any city), the **official SEBI
-  Registered Investment Adviser registry** (real, 1000+ India-wide financial consultants —
-  the default source for the finance field), bundled synthetic sample datasets (any field),
-  and recruiter-supplied CSV/JSON upload — which can optionally be **combined** with that
-  field's default data source instead of searching your upload alone.
+- **Seven data sources** — real GitHub profiles, real Stack Overflow top-answerers, real local
+  businesses via Google Places (any field/city, needs a paid-tier key) or **OpenStreetMap**
+  (any field/city, completely free, no key — but coverage and uptime are best-effort, see
+  below), the **official SEBI Registered Investment Adviser registry** (real, 1000+
+  India-wide financial consultants — the default source for the finance field), bundled
+  synthetic sample datasets (any field), and recruiter-supplied CSV/JSON upload — which can
+  optionally be **combined** with that field's default data source instead of searching your
+  upload alone.
+
+  **On `osm` (OpenStreetMap):** it's genuinely free (no key, no card), but it depends on two
+  things outside our control: OpenStreetMap's free public Overpass API instances (shared,
+  rate-limited, no uptime SLA — can be slow or return `429` under load) and volunteer tagging
+  density (thinner for professional-services offices than Google's index, especially outside
+  major cities). It is deliberately **not** set as any field's default for this reason — treat
+  it as a free bonus attempt, not a primary source. It fails gracefully (returns no results,
+  never crashes search) whenever the public infrastructure is unavailable.
 - **Optional AI reasoning** — when one of `ANTHROPIC_API_KEY` / `GROQ_API_KEY` /
   `GEMINI_API_KEY` is set and the toggle is on, the active provider scores each candidate
   against each criterion and supplies a 1–2 sentence `reasoning` field, with the same weight

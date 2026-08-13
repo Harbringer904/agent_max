@@ -13,6 +13,7 @@ import { provider as upload } from "./upload.js";
 import { provider as stackoverflow } from "./stackoverflow.js";
 import { provider as googlePlaces } from "./googlePlaces.js";
 import { provider as sebiRia } from "./sebiRia.js";
+import { provider as osm } from "./osm.js";
 
 const PROVIDERS = {
   github,
@@ -21,6 +22,7 @@ const PROVIDERS = {
   stackoverflow,
   google_places: googlePlaces,
   sebi_ria: sebiRia,
+  osm,
 };
 
 /** The provider a field should search by default when the user hasn't

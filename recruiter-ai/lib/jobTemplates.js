@@ -57,6 +57,16 @@ export const JOB_TEMPLATES = [
   },
   {
     field: "healthcare",
+    title: "Physician / Doctor",
+    location: null,
+    criteria: [
+      { key: "certifications", label: "Certifications", weight: 5, requiredCerts: ["NMC Registered"] },
+      { key: "experience", label: "Years Since Qualifying", weight: 3, minYears: 1 },
+      { key: "location", label: "Location Preference", weight: 2, desiredLocation: "" },
+    ],
+  },
+  {
+    field: "healthcare",
     title: "Medical Lab Technician",
     location: null,
     criteria: [

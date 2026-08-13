@@ -14,6 +14,7 @@ import { provider as stackoverflow } from "./stackoverflow.js";
 import { provider as googlePlaces } from "./googlePlaces.js";
 import { provider as sebiRia } from "./sebiRia.js";
 import { provider as osm } from "./osm.js";
+import { provider as nmc } from "./nmc.js";
 
 const PROVIDERS = {
   github,
@@ -23,6 +24,7 @@ const PROVIDERS = {
   google_places: googlePlaces,
   sebi_ria: sebiRia,
   osm,
+  nmc,
 };
 
 /** The provider a field should search by default when the user hasn't
@@ -31,6 +33,7 @@ const PROVIDERS = {
 export function defaultProviderForField(field) {
   const f = String(field || "").toLowerCase().trim();
   if (f === "finance") return "sebi_ria";
+  if (f === "healthcare") return "nmc";
   return "sample";
 }
 

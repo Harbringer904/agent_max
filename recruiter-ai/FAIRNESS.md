@@ -90,3 +90,19 @@ ICAI's member data is fragmented across regional-branch PDFs with no consolidate
 we could verify as reliable, unlike SEBI's single, stable, paginated public listing. Rather
 than ship a fragile scraper against an unverified target, we left it out — see the project's
 build notes for more.
+
+## 8. `nmc` is a live query against a registry with limited fields
+
+Unlike `sebi_ria`, the NMC (National Medical Commission) provider queries India's official
+doctor registry live, on every search — it's too large (1M+ doctors nationally) to bundle.
+Real limitations to know about:
+- **No city-level filter exists in the source data.** NMC only exposes State Medical Council,
+  so "Delhi" actually means "registered with the Delhi Medical Council" — which includes
+  doctors who registered there but may now practice elsewhere, and excludes doctors practicing
+  in Delhi who registered with a different state's council.
+- **`yearsExperience` is "years since medical degree,"** not verified current practice years or
+  specialization-specific experience.
+- **No specialization/skills data** is available from NMC's public API — `skills` here is just
+  the medical degree (e.g. "MBBS"), not a specific medical specialty.
+- Detail enrichment (degree, university, address) is best-effort per doctor; when it fails for
+  a given candidate, that candidate still appears with less detail rather than being dropped.

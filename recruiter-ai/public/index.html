@@ -848,6 +848,7 @@
     // A field only shows the cards its /api/fields entry actually lists.
     const SOURCE_META = {
       sebi_ria: { label: 'SEBI Registered Advisers', desc: 'Real official govt. registry — India, finance only' },
+      nmc: { label: 'NMC Registered Doctors', desc: 'Real official govt. registry — India, healthcare only' },
       github: { label: 'GitHub', desc: 'Real developer profiles (software field only)' },
       stackoverflow: { label: 'Stack Overflow', desc: 'Real top-answerer profiles (software field only)' },
       google_places: { label: 'Google Places', desc: 'Real local businesses, any field/city (needs a paid-tier key)' },
@@ -856,7 +857,7 @@
       upload: { label: 'Upload CSV/JSON', desc: 'Paste your own candidate data' },
     };
     // Preference order for auto-selecting a sensible default per field.
-    const SOURCE_PRIORITY = ['sebi_ria', 'github', 'stackoverflow', 'sample'];
+    const SOURCE_PRIORITY = ['sebi_ria', 'nmc', 'github', 'stackoverflow', 'sample'];
 
     const sourceOptionsEl = document.getElementById('sourceOptions');
 

@@ -49,14 +49,27 @@ nothing breaks, you just don't get the `reasoning` text.
 - **Weighted, transparent scoring** — every candidate shows a per-criterion `raw` fit (0–1),
   `weighted` contribution, `max` possible, and a human-readable `note` explaining the
   judgment, plus an overall `totalScore` (0–100) and `rank1to10` (1–10).
-- **Seven data sources** — real GitHub profiles, real Stack Overflow top-answerers, real local
+- **Eight data sources** — real GitHub profiles, real Stack Overflow top-answerers, real local
   businesses via Google Places (any field/city, needs a paid-tier key) or **OpenStreetMap**
   (any field/city, completely free, no key — but coverage and uptime are best-effort, see
   below), the **official SEBI Registered Investment Adviser registry** (real, 1000+
-  India-wide financial consultants — the default source for the finance field), bundled
-  synthetic sample datasets (any field), and recruiter-supplied CSV/JSON upload — which can
-  optionally be **combined** with that field's default data source instead of searching your
-  upload alone.
+  India-wide financial consultants — the default source for the finance field), the **official
+  NMC Registered Doctor registry** (real, 31,000+ doctors under Delhi's council alone — the
+  default source for the healthcare field, live-queried and filterable by major Indian
+  city/state), bundled synthetic sample datasets (any field), and recruiter-supplied CSV/JSON
+  upload — which can optionally be **combined** with that field's default data source instead
+  of searching your upload alone.
+
+  **On `nmc`:** unlike `sebi_ria` (a small bundled snapshot), this is a **live** query against
+  India's National Medical Commission registry — it's too large to bundle. It filters by State
+  Medical Council (India has no city-level doctor registry; a handful of major cities are
+  mapped to their state's council in `lib/providers/nmc.js`'s `CITY_TO_SMC_ID`) and enriches
+  each result with a per-doctor detail call (degree, university, address) on a best-effort
+  basis. **TLS note:** nmc.org.in's certificate chain is missing an intermediate cert (a known
+  misconfiguration on some Indian institutional sites — verified independently, the leaf cert
+  is genuinely Sectigo-issued); this provider uses a dedicated `https.Agent` that skips chain
+  verification for *only* its own requests. Every other provider in the app keeps full TLS
+  verification.
 
   **On `osm` (OpenStreetMap):** it's genuinely free (no key, no card), but it depends on two
   things outside our control: OpenStreetMap's free public Overpass API instances (shared,

@@ -10,8 +10,9 @@ import { provider as github } from "./github.js";
 import { provider as sample } from "./sample.js";
 import { provider as upload } from "./upload.js";
 import { provider as stackoverflow } from "./stackoverflow.js";
+import { provider as googlePlaces } from "./googlePlaces.js";
 
-const PROVIDERS = { github, sample, upload, stackoverflow };
+const PROVIDERS = { github, sample, upload, stackoverflow, google_places: googlePlaces };
 
 export function getProvider(key) {
   const provider = PROVIDERS[key];

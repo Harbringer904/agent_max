@@ -27,6 +27,7 @@ runs with zero configuration using the `sample` and `upload` providers.
 | Variable            | Purpose                                                                                          |
 | -------------------- | ------------------------------------------------------------------------------------------------- |
 | `GITHUB_TOKEN`       | Raises the GitHub provider's rate limit from 60 req/hr to 5000 req/hr. Create one at https://github.com/settings/tokens (no scopes needed — only public data is read). Without it, the `github` provider still works, just slower. |
+| `GOOGLE_PLACES_API_KEY` | Enables the `google_places` provider — real local businesses/professionals for **any field, any city** (e.g. "financial consultants in Delhi"), via Google's Places API (New) Text Search. Requires a Google Cloud project with billing enabled; the free monthly credit covers normal use. Without it, the provider silently returns no results. |
 | `ANTHROPIC_API_KEY`  | Enables the "🧠 AI reasoning" toggle, routing scoring through Claude (`claude-sonnet-5`) for a natural-language per-candidate justification (`lib/scoring/llm.js`). |
 | `GROQ_API_KEY`       | Same AI reasoning toggle, routed through Groq's free tier (`llama-3.3-70b-versatile`) instead of Claude. Get a free key at https://console.groq.com. |
 | `GEMINI_API_KEY`     | Same AI reasoning toggle, routed through Google's free tier (`gemini-2.0-flash`) instead of Claude. Get a free key at https://aistudio.google.com. |
@@ -48,8 +49,9 @@ nothing breaks, you just don't get the `reasoning` text.
 - **Weighted, transparent scoring** — every candidate shows a per-criterion `raw` fit (0–1),
   `weighted` contribution, `max` possible, and a human-readable `note` explaining the
   judgment, plus an overall `totalScore` (0–100) and `rank1to10` (1–10).
-- **Three data sources** — real GitHub profiles, bundled synthetic sample datasets (any
-  field), and recruiter-supplied CSV/JSON upload.
+- **Five data sources** — real GitHub profiles, real Stack Overflow top-answerers, real local
+  businesses/professionals via Google Places (any field, any city), bundled synthetic sample
+  datasets (any field), and recruiter-supplied CSV/JSON upload.
 - **Optional AI reasoning** — when one of `ANTHROPIC_API_KEY` / `GROQ_API_KEY` /
   `GEMINI_API_KEY` is set and the toggle is on, the active provider scores each candidate
   against each criterion and supplies a 1–2 sentence `reasoning` field, with the same weight
@@ -69,7 +71,7 @@ for what each code actually means.
 ### `GET /api/health`
 
 ```json
-{ "ok": true, "githubAuth": false, "llmAvailable": false, "llmProvider": null }
+{ "ok": true, "githubAuth": false, "googlePlacesAvailable": false, "llmAvailable": false, "llmProvider": null }
 ```
 
 `llmProvider` is `"anthropic" | "groq" | "gemini" | null` — whichever backend is active per

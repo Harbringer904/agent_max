@@ -1,0 +1,122 @@
+[
+  {
+    "name": "Rachel Thompson",
+    "field": "healthcare",
+    "headline": "Registered Nurse — Med-Surg",
+    "location": "Denver, CO",
+    "yearsExperience": 6,
+    "education": "Bachelor of Science in Nursing (BSN)",
+    "educationLevel": 3,
+    "skills": ["patient care", "EHR", "IV therapy", "patient education"],
+    "certifications": ["RN", "BLS", "ACLS"],
+    "summary": "Registered nurse with six years of med-surg experience and strong EHR documentation skills."
+  },
+  {
+    "name": "Michael Osei",
+    "field": "healthcare",
+    "headline": "Registered Nurse — Emergency Department",
+    "location": "Houston, TX",
+    "yearsExperience": 2,
+    "education": "Bachelor of Science in Nursing (BSN)",
+    "educationLevel": 3,
+    "skills": ["patient care", "EHR", "triage"],
+    "certifications": ["RN", "BLS"],
+    "summary": "ED nurse focused on rapid triage and patient care under high-volume conditions."
+  },
+  {
+    "name": "Linda Park",
+    "field": "healthcare",
+    "headline": "Medical Lab Technician",
+    "location": "Phoenix, AZ",
+    "yearsExperience": 4,
+    "education": "Associate degree in Medical Laboratory Technology",
+    "educationLevel": 2,
+    "skills": ["lab testing", "specimen handling", "quality control"],
+    "certifications": ["MLT", "ASCP"],
+    "summary": "Lab technician performing routine and specialized diagnostic testing with strong QC discipline."
+  },
+  {
+    "name": "Fatima Al-Sayed",
+    "field": "healthcare",
+    "headline": "Registered Nurse — Pediatrics",
+    "location": "Chicago, IL",
+    "yearsExperience": 9,
+    "education": "Master of Science in Nursing (MSN)",
+    "educationLevel": 4,
+    "skills": ["patient care", "EHR", "pediatric care"],
+    "certifications": ["RN", "BLS", "PALS"],
+    "summary": "Pediatric RN with advanced degree and nine years of hands-on patient care experience."
+  },
+  {
+    "name": "James Whitfield",
+    "field": "healthcare",
+    "headline": "Certified Nursing Assistant",
+    "location": "Remote",
+    "yearsExperience": 1,
+    "education": "High school diploma",
+    "educationLevel": 1,
+    "skills": ["patient care"],
+    "certifications": ["BLS", "CNA"],
+    "summary": "CNA transitioning into nursing school, focused on direct patient care."
+  },
+  {
+    "name": "Nora Fitzgerald",
+    "field": "healthcare",
+    "headline": "Medical Lab Technician",
+    "location": "Atlanta, GA",
+    "yearsExperience": 1,
+    "education": "Associate degree in Medical Laboratory Technology",
+    "educationLevel": 2,
+    "skills": ["lab testing", "quality control"],
+    "certifications": ["MLT"],
+    "summary": "Early-career lab technician performing specimen testing and quality control checks."
+  },
+  {
+    "name": "Samuel Yates",
+    "field": "healthcare",
+    "headline": "Registered Nurse — Critical Care",
+    "location": "Boston, MA",
+    "yearsExperience": 12,
+    "education": "Bachelor of Science in Nursing (BSN)",
+    "educationLevel": 4,
+    "skills": ["patient care", "EHR", "critical care"],
+    "certifications": ["RN", "BLS", "ACLS", "CCRN"],
+    "summary": "Critical care RN with over a decade of ICU experience and advanced life support certifications."
+  },
+  {
+    "name": "Priya Nair",
+    "field": "healthcare",
+    "headline": "Medical Laboratory Scientist",
+    "location": "Seattle, WA",
+    "yearsExperience": 6,
+    "education": "Bachelor of Science in Medical Laboratory Science",
+    "educationLevel": 3,
+    "skills": ["lab testing", "specimen handling"],
+    "certifications": ["MLT", "ASCP"],
+    "summary": "Lab scientist with a bachelor's degree and six years of specimen testing experience."
+  },
+  {
+    "name": "Derek Simmons",
+    "field": "healthcare",
+    "headline": "Registered Nurse — General Medicine",
+    "location": "Remote",
+    "yearsExperience": 3,
+    "education": "Bachelor of Science in Nursing (BSN)",
+    "educationLevel": 3,
+    "skills": ["patient care"],
+    "certifications": ["RN"],
+    "summary": "General medicine RN with three years of bedside patient care experience."
+  },
+  {
+    "name": "Wanda Alvarez",
+    "field": "healthcare",
+    "headline": "Registered Nurse — Chronic Care Management",
+    "location": "Miami, FL",
+    "yearsExperience": 15,
+    "education": "Doctor of Nursing Practice (DNP)",
+    "educationLevel": 5,
+    "skills": ["patient care", "EHR", "chronic disease management"],
+    "certifications": ["RN", "BLS", "FNP"],
+    "summary": "Veteran RN with a doctorate, specializing in chronic disease management and care coordination."
+  }
+]

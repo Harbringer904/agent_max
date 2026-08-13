@@ -1,0 +1,112 @@
+[
+  {
+    "name": "Natalie Brooks",
+    "headline": "UX Designer",
+    "location": "Seattle, WA",
+    "yearsExperience": 4,
+    "education": "Bachelor's in Design",
+    "educationLevel": 3,
+    "skills": ["Figma", "user research", "wireframing", "prototyping"],
+    "certifications": [],
+    "summary": "UX designer passionate about design systems and usability testing."
+  },
+  {
+    "name": "Ryan Patel",
+    "headline": "Product Designer",
+    "location": "Remote",
+    "yearsExperience": 6,
+    "education": "Bachelor's in Graphic Design",
+    "educationLevel": 3,
+    "skills": ["Figma", "wireframing", "prototyping", "Sketch"],
+    "certifications": ["Google UX Design Certificate"],
+    "summary": "Product designer and design systems advocate with a usability-first approach."
+  },
+  {
+    "name": "Ji-woo Kang",
+    "headline": "Junior UX Designer",
+    "location": "Los Angeles, CA",
+    "yearsExperience": 1,
+    "education": "Bachelor's in Human-Computer Interaction",
+    "educationLevel": 3,
+    "skills": ["Figma", "user research", "wireframing"],
+    "certifications": [],
+    "summary": "Junior UX designer conducting usability testing and early-stage UX research."
+  },
+  {
+    "name": "Oliver Bennett",
+    "headline": "Senior Product Designer",
+    "location": "New York, NY",
+    "yearsExperience": 10,
+    "education": "Master's in Interaction Design",
+    "educationLevel": 4,
+    "skills": ["Figma", "prototyping", "user research", "design systems"],
+    "certifications": [],
+    "summary": "Senior product designer and design systems architect leading UX strategy."
+  },
+  {
+    "name": "Maria Gonzalez",
+    "headline": "UX/UI Designer",
+    "location": "Remote",
+    "yearsExperience": 3,
+    "education": "Associate degree in Graphic Design",
+    "educationLevel": 2,
+    "skills": ["Figma", "wireframing", "prototyping", "Adobe XD"],
+    "certifications": ["Google UX Design Certificate"],
+    "summary": "UX/UI designer focused on usability and clean interface design."
+  },
+  {
+    "name": "Ethan Wallace",
+    "headline": "UX Researcher",
+    "location": "Austin, TX",
+    "yearsExperience": 5,
+    "education": "Master's in Cognitive Psychology",
+    "educationLevel": 4,
+    "skills": ["user research", "wireframing", "Figma"],
+    "certifications": [],
+    "summary": "UX researcher generating usability insights that inform product design decisions."
+  },
+  {
+    "name": "Priyanka Desai",
+    "headline": "Product Designer",
+    "location": "Remote",
+    "yearsExperience": 7,
+    "education": "Bachelor's in Design",
+    "educationLevel": 3,
+    "skills": ["Figma", "prototyping", "user research"],
+    "certifications": [],
+    "summary": "Product designer driving design systems and UX strategy across teams."
+  },
+  {
+    "name": "Zoe Mitchell",
+    "headline": "Junior Designer",
+    "location": "Chicago, IL",
+    "yearsExperience": 1,
+    "education": "Bachelor's in Fine Arts",
+    "educationLevel": 3,
+    "skills": ["Figma", "wireframing"],
+    "certifications": [],
+    "summary": "Junior designer learning UX and usability principles on a growing product team."
+  },
+  {
+    "name": "Ben Foster",
+    "headline": "UX Designer",
+    "location": "San Francisco, CA",
+    "yearsExperience": 4,
+    "education": "Bachelor's in Design",
+    "educationLevel": 3,
+    "skills": ["Figma", "user research", "prototyping", "wireframing"],
+    "certifications": [],
+    "summary": "UX designer and design systems advocate focused on usability."
+  },
+  {
+    "name": "Ana Kowalski",
+    "headline": "Design Lead",
+    "location": "Remote",
+    "yearsExperience": 9,
+    "education": "Master's in Design",
+    "educationLevel": 4,
+    "skills": ["Figma", "design systems", "prototyping", "user research"],
+    "certifications": [],
+    "summary": "Design lead directing UX and design systems strategy across product lines."
+  }
+]

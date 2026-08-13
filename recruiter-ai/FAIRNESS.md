@@ -1,0 +1,75 @@
+# Fairness & Bias Notes
+
+Honest notes on what this tool is, what it isn't, and where its numbers can mislead a
+recruiter who doesn't know how they were built. Read this before using scores to make or
+influence a hiring decision.
+
+## 1. This is decision-support, not an autonomous filter
+
+Recruiter AI ranks candidates against **recruiter-defined, weighted criteria** and produces a
+`totalScore` (0–100) and `rank1to10`. It does not accept, reject, or auto-advance anyone. No
+score from this tool should ever be the sole reason a candidate is dropped from a process —
+it is an input to a human decision, not a replacement for one.
+
+## 2. We do not add protected-attribute criteria
+
+The `Criterion` schema (`skills`, `experience`, `education`, `certifications`, `location`,
+`keyword`) intentionally has no field for race, gender, age, disability, national origin,
+religion, or other protected characteristics, and none should ever be added. `location` is
+a proxy that can correlate with protected classes (e.g. national origin, immigration status)
+depending on how a recruiter uses it — use it to express legitimate work-authorization or
+timezone needs, not as a stand-in for anything else.
+
+## 3. GitHub signals are proxies, not direct measurements
+
+The GitHub provider (`lib/providers/github.js`) infers two fields that are **not** what they
+appear to be:
+
+- `yearsExperience` is actually **years since the GitHub account was created**
+  (`yearsSinceAccountCreated`). Someone who has coded professionally for a decade but only
+  created a GitHub account last year will score as a 1-year candidate. Someone who made an
+  account in college and never worked professionally will score as more experienced than
+  they are.
+- `skills` is the candidate's **most-used languages across their own public, non-fork repos**
+  (`getUserTopLanguages`). This favors people with public open-source activity and
+  under-counts (or completely misses) skills exercised only in private repos, at work behind
+  a corporate GitHub Enterprise instance, or in ecosystems the candidate doesn't push code
+  for publicly (e.g. a backend engineer who also does undocumented but substantial infra
+  work).
+
+Net effect: the GitHub provider systematically favors candidates who are active in public
+open source and have held a GitHub account for a long time, and under-credits candidates
+whose real experience lives in private/enterprise codebases. Treat GitHub-sourced scores as
+a rough signal to investigate further, not a measurement of actual skill or tenure.
+
+## 4. LLM scores are not deterministic
+
+When AI reasoning is enabled (`lib/scoring/llm.js`), the same candidate can receive a
+different `raw` score or `reasoning` text on a re-run against the identical `jobSpec`, since
+the underlying model call is not guaranteed to return byte-identical output every time. The
+weight math on top (`applyWeights`) is deterministic — only the LLM's per-criterion judgment
+varies. Don't treat a single LLM run as a precise, reproducible measurement; if a
+close-call ranking matters, re-run it or have a human read the `reasoning` field directly.
+
+## 5. Always have a human review results before acting on them
+
+Every ranked list is a starting point for a recruiter to review, not a final verdict.
+Before contacting, advancing, or rejecting any candidate:
+
+- Read the `criteriaScores[key].note` / `reasoning` fields — they explain *why* a score
+  landed where it did, and often reveal a proxy artifact (see §3) rather than a real gap.
+- Cross-check low scores caused by **missing data** (e.g. `"no experience data"`,
+  `"no skills data"`) against the candidate's actual background — a `0` raw score from
+  absent data is not the same as a `0` raw score from a documented mismatch.
+- Apply your organization's own equal-opportunity review process; this tool does not
+  replace it.
+
+## 6. Sample datasets are synthetic
+
+The bundled datasets under `data/samples/*.json` (software, design, finance, sales, nursing)
+are **fabricated demo data** for exercising the UI and scoring engine end-to-end. They do not
+represent real people, and any resemblance of a sample candidate's name or profile to a real
+person is coincidental. Do not use sample-dataset results to make claims about real labor
+markets or real candidates. Only the `upload` provider (recruiter-supplied CSV/JSON) and the
+`github` provider (live GitHub API) reflect real candidate data — and per §3, `github`'s
+fields are proxies, not ground truth.

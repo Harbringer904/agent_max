@@ -1,0 +1,112 @@
+[
+  {
+    "name": "Priya Sharma",
+    "headline": "Frontend Engineer focused on accessible, responsive UIs",
+    "location": "San Francisco, CA",
+    "yearsExperience": 5,
+    "education": "Bachelor's in Computer Science",
+    "educationLevel": 3,
+    "skills": ["JavaScript", "React", "TypeScript", "CSS", "HTML", "Redux"],
+    "certifications": [],
+    "summary": "Frontend engineer specializing in accessibility and responsive design for consumer web apps."
+  },
+  {
+    "name": "Marcus Chen",
+    "headline": "Backend Engineer — microservices and scalability",
+    "location": "Austin, TX",
+    "yearsExperience": 7,
+    "education": "Bachelor's in Software Engineering",
+    "educationLevel": 3,
+    "skills": ["Node.js", "Python", "SQL", "REST API", "PostgreSQL", "Docker"],
+    "certifications": [],
+    "summary": "Backend engineer building scalable microservices and REST APIs for high-traffic platforms."
+  },
+  {
+    "name": "Elena Rodriguez",
+    "headline": "Data Scientist — modeling and analytics",
+    "location": "Remote",
+    "yearsExperience": 4,
+    "education": "Master's in Data Science",
+    "educationLevel": 4,
+    "skills": ["Python", "SQL", "Machine Learning", "Statistics", "Pandas", "TensorFlow"],
+    "certifications": [],
+    "summary": "Data scientist focused on predictive modeling and analytics for e-commerce."
+  },
+  {
+    "name": "Jamal Washington",
+    "headline": "Full-stack Engineer",
+    "location": "New York, NY",
+    "yearsExperience": 3,
+    "education": "Bachelor's in Computer Science",
+    "educationLevel": 3,
+    "skills": ["JavaScript", "React", "Node.js", "TypeScript", "SQL"],
+    "certifications": [],
+    "summary": "Full-stack engineer working across React frontends and Node.js APIs."
+  },
+  {
+    "name": "Sofia Nowak",
+    "headline": "Junior Frontend Developer",
+    "location": "Remote",
+    "yearsExperience": 1,
+    "education": "Bachelor's in Computer Science",
+    "educationLevel": 3,
+    "skills": ["JavaScript", "CSS", "React"],
+    "certifications": [],
+    "summary": "Early-career frontend developer building UI components with React."
+  },
+  {
+    "name": "David Kim",
+    "headline": "Senior Backend Engineer",
+    "location": "Seattle, WA",
+    "yearsExperience": 10,
+    "education": "Master's in Computer Science",
+    "educationLevel": 4,
+    "skills": ["Python", "Node.js", "SQL", "REST API", "Kubernetes"],
+    "certifications": ["AWS Certified Solutions Architect"],
+    "summary": "Senior backend engineer leading platform scalability and infrastructure reliability efforts."
+  },
+  {
+    "name": "Aisha Bello",
+    "headline": "Machine Learning Engineer",
+    "location": "Boston, MA",
+    "yearsExperience": 6,
+    "education": "PhD in Computer Science",
+    "educationLevel": 5,
+    "skills": ["Python", "Machine Learning", "Statistics", "SQL", "Scikit-learn"],
+    "certifications": [],
+    "summary": "ML engineer building production statistical models and machine learning pipelines."
+  },
+  {
+    "name": "Tom O'Brien",
+    "headline": "Frontend Developer",
+    "location": "Chicago, IL",
+    "yearsExperience": 2,
+    "education": "Associate degree in Web Development",
+    "educationLevel": 2,
+    "skills": ["JavaScript", "TypeScript", "CSS", "React", "Vue.js"],
+    "certifications": [],
+    "summary": "Frontend developer with a focus on component libraries and responsive design."
+  },
+  {
+    "name": "Grace Liu",
+    "headline": "Backend / DevOps Engineer",
+    "location": "Remote",
+    "yearsExperience": 8,
+    "education": "Bachelor's in Computer Engineering",
+    "educationLevel": 3,
+    "skills": ["Python", "SQL", "REST API", "Docker", "AWS"],
+    "certifications": ["AWS Certified Developer"],
+    "summary": "Backend engineer with strong DevOps background, focused on scalable microservices."
+  },
+  {
+    "name": "Carlos Mendes",
+    "headline": "Data Scientist",
+    "location": "Miami, FL",
+    "yearsExperience": 2,
+    "education": "Master's in Statistics",
+    "educationLevel": 4,
+    "skills": ["Python", "SQL", "Statistics", "Machine Learning", "R"],
+    "certifications": [],
+    "summary": "Data scientist early in career, focused on statistical modeling and analytics."
+  }
+]

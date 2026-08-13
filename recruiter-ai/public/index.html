@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recruiter AI — Find & Rank Candidates, Any Field</title>
+  <style>
+    :root {
+      --bg: #EFE6D6;
+      --surface: #FBF6EC;
+      --surface-2: #F1E7D5;
+      --surface-hover: #EADDC6;
+      --border: #D8C6A8;
+      --border-strong: #C4AC85;
+      --text: #3A2E22;
+      --text-muted: #8B765C;
+      --accent: #9A6A3C;
+      --accent-hover: #825836;
+      --accent-contrast: #FBF6EC;
+      --accent-soft: #ECDDC6;
+      --green: #6E8B4E;
+      --yellow: #B9872E;
+      --orange: #BE6C36;
+      --red: #A8492F;
+      --radius: 14px;
+      --shadow-sm: 0 1px 2px rgba(74, 54, 36, 0.06);
+      --shadow-lg: 0 8px 24px rgba(74, 54, 36, 0.07);
+      --font-serif: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, "Iowan Old Style", serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font-sans);
+      background: linear-gradient(180deg, #F4EDDF 0%, var(--bg) 320px);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
+
+    /* Header */
+    header { text-align: center; padding: 40px 0 32px; }
+    header h1 { font-family: var(--font-serif); font-size: 2.15rem; font-weight: 700; letter-spacing: 0.01em; color: var(--text); }
+    header h1 span { color: var(--accent); }
+    header p { color: var(--text-muted); margin-top: 8px; font-size: 1.05rem; }
+
+    /* Footer */
+    .app-footer {
+      text-align: center;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+      display: none;
+    }
+    .panel.visible { display: block; }
+    .panel-title {
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 16px;
+    }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    input[type="text"], input[type="number"], select, textarea {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    input::placeholder, textarea::placeholder { color: #A99878; }
+    .hint { font-size: 0.78rem; color: #9C8A6C; }
+
+    /* Criteria rows */
+    .criteria-list { display: flex; flex-direction: column; gap: 14px; }
+    .criterion-row {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: grid;
+      grid-template-columns: 160px 160px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .criterion-label { font-weight: 600; font-size: 0.92rem; padding-top: 6px; display: flex; flex-direction: column; gap: 6px; }
+    .required-toggle { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+    .required-toggle input { accent-color: var(--accent); cursor: pointer; }
+    .required-toggle:has(input:checked) { color: var(--accent); }
+    .weight-control { display: flex; flex-direction: column; gap: 4px; }
+    .weight-control .weight-row { display: flex; align-items: center; gap: 8px; }
+    .weight-control input[type="range"] { flex: 1; accent-color: var(--accent); }
+    .weight-value {
+      min-width: 20px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 0.9rem;
+    }
+    .criterion-input { display: flex; flex-direction: column; gap: 8px; }
+
+    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px 4px 10px;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text);
+    }
+    .tag-chip button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      line-height: 1;
+      padding: 0;
+    }
+    .tag-chip button:hover { color: var(--red); }
+    .tag-add-row { display: flex; gap: 8px; }
+    .tag-add-row input { flex: 1; }
+    .tag-add-row button {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0 14px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: border-color 0.15s;
+    }
+    .tag-add-row button:hover { border-color: var(--accent); }
+
+    /* Data source */
+    .source-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .source-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .source-card:hover { border-color: var(--border-strong); }
+    .source-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+    .source-card.disabled { opacity: 0.45; cursor: not-allowed; }
+    .source-card.disabled:hover { border-color: var(--border); }
+    .source-card input { margin-top: 3px; accent-color: var(--accent); }
+    .source-card-body strong { display: block; font-size: 0.92rem; }
+    .source-card-body span { font-size: 0.78rem; color: var(--text-muted); }
+    #uploadArea { margin-top: 14px; display: none; }
+    #uploadArea.visible { display: block; }
+    #uploadArea textarea { min-height: 140px; resize: vertical; font-family: ui-monospace, monospace; font-size: 0.82rem; }
+
+    .form-actions { display: flex; align-items: center; gap: 16px; margin-top: 4px; }
+    .btn-search {
+      background: var(--accent);
+      color: var(--accent-contrast);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-search:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+    .btn-search:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: var(--shadow-sm); }
+
+    .status { color: var(--text-muted); font-size: 0.9rem; }
+    .status.error { color: var(--red); }
+
+    .ai-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text); cursor: pointer; }
+    .ai-toggle input { accent-color: var(--accent); cursor: pointer; }
+
+    .llm-fallback-banner {
+      background: rgba(185, 135, 46, 0.14);
+      border: 1px solid var(--yellow);
+      color: #7A5A17;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+    }
+
+    .reasoning-block {
+      margin-top: 8px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .reasoning-block strong { color: var(--text); }
+
+    /* Results */
+    .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .results-header h2 { font-family: var(--font-serif); font-size: 1.35rem; font-weight: 700; }
+    .results-count { color: var(--text-muted); font-size: 0.9rem; }
+
+    .candidate-list { display: flex; flex-direction: column; gap: 12px; }
+    .candidate-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 16px;
+      align-items: start;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .candidate-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-lg); }
+
+    .rank-badge {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .rank-gold { background: #F3E6C4; color: #B08322; }
+    .rank-silver { background: #E8E1D3; color: #6B6255; }
+    .rank-bronze { background: #EED9C3; color: #A5673A; }
+    .rank-normal { background: var(--surface-2); color: var(--text-muted); }
+
+    .candidate-info h3 { font-size: 1.05rem; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .candidate-info h3 a { color: var(--text); text-decoration: none; }
+    .candidate-info h3 a:hover { color: var(--accent); text-decoration: underline; }
+    .avatar { width: 28px; height: 28px; border-radius: 50%; vertical-align: middle; object-fit: cover; }
+    .candidate-headline { color: var(--text-muted); font-size: 0.88rem; margin-top: 2px; }
+    .candidate-meta { color: var(--text-muted); font-size: 0.85rem; margin-top: 6px; display: flex; flex-wrap: wrap; gap: 12px; }
+    .candidate-meta span { display: flex; align-items: center; gap: 4px; }
+    .candidate-summary { color: var(--text-muted); font-size: 0.88rem; margin-top: 6px; font-style: italic; }
+
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .skill-tag { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; font-size: 0.78rem; color: var(--text-muted); }
+    .skill-tag.matched { border-color: var(--green); color: var(--green); }
+    .skill-tag.cert { border-color: var(--accent); color: var(--accent); }
+
+    .score-col { text-align: right; flex-shrink: 0; min-width: 150px; }
+    .total-score { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+    .score-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .rating-row { margin-top: 4px; font-size: 0.82rem; color: var(--text-muted); }
+    .score-breakdown { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; text-align: left; }
+    .score-bar-row { display: flex; flex-direction: column; gap: 2px; font-size: 0.7rem; color: #9C8A6C; }
+    .score-bar-top { display: flex; justify-content: space-between; }
+    .score-bar { height: 4px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+    .score-bar-note { font-size: 0.68rem; color: #AD9A7B; }
+    .required-marker { margin-left: 6px; font-size: 0.6rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; vertical-align: middle; }
+
+    .score-high { color: var(--green); }
+    .score-mid { color: var(--yellow); }
+    .score-low { color: var(--orange); }
+    .score-poor { color: var(--red); }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .empty-state p { font-size: 1.1rem; }
+
+    .loading-dots span { animation: blink 1.4s infinite both; }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
+
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .criterion-row { grid-template-columns: 1fr; }
+      .source-options { grid-template-columns: 1fr; }
+      .candidate-card { grid-template-columns: 1fr; }
+      .score-col { text-align: left; }
+      .score-col { min-width: 0; }
+    }
+
+    /* Header actions (Shortlist / History) */
+    .header-actions { display: flex; justify-content: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    .icon-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .icon-btn:hover { border-color: var(--accent); box-shadow: var(--shadow-lg); }
+
+    /* Read-only shared-result banner */
+    .readonly-banner {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .readonly-banner.visible { display: flex; }
+    .readonly-banner strong { color: var(--accent-hover); }
+    .btn-new-search {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .btn-new-search:hover { border-color: var(--accent); }
+
+    /* Results toolbar */
+    .results-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+    .toolbar-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, opacity 0.15s;
+    }
+    .toolbar-btn:hover:not(:disabled) { border-color: var(--accent); }
+    .toolbar-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .toolbar-btn.active { border-color: var(--accent); color: var(--accent); }
+
+    /* Card controls: star + compare checkbox, stacked with the rank badge */
+    .card-controls { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .star-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.3rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+    }
+    .star-btn.starred { color: var(--yellow); }
+    .compare-check { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 0.62rem; color: var(--text-muted); }
+    .compare-check input { accent-color: var(--accent); cursor: pointer; }
+
+    /* Modal overlay (Shortlist / History / Compare) */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(58, 46, 34, 0.55);
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    .modal-overlay.visible { display: flex; }
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 26px;
+      width: 100%;
+      max-width: 720px;
+      max-height: 100%;
+      box-shadow: var(--shadow-lg);
+    }
+    .modal-box.wide { max-width: 1000px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .modal-header h2 { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 700; }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.3rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+
+    .panel-list { display: flex; flex-direction: column; gap: 10px; max-height: 55vh; overflow-y: auto; }
+    .panel-list-item {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      cursor: default;
+    }
+    .panel-list-item .item-main { min-width: 0; }
+    .panel-list-item .item-title { font-weight: 600; font-size: 0.92rem; }
+    .panel-list-item .item-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+    .panel-list-item.clickable { cursor: pointer; }
+    .panel-list-item.clickable:hover { border-color: var(--accent); }
+    .panel-list-item .item-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .panel-list-item .item-remove:hover { color: var(--red); }
+    .panel-list-item .item-save {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .panel-list-item .item-save:hover { border-color: var(--accent); color: var(--accent); }
+    .item-main.clickable { cursor: pointer; }
+    .item-main.clickable:hover .item-title { color: var(--accent); }
+    .panel-empty { color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 20px 0; }
+
+    /* Compare table */
+    .compare-table-wrap { overflow-x: auto; }
+    table.compare-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    table.compare-table th, table.compare-table td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    table.compare-table th { background: var(--surface-2); color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    table.compare-table td.row-label { color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+    table.compare-table td.total-cell { font-weight: 800; font-size: 1rem; }
+
+    /* Share box */
+    .share-box { margin-top: 16px; display: none; }
+    .share-box.visible { display: block; }
+    .share-url-row { display: flex; gap: 8px; margin-top: 8px; }
+    .share-url-row input {
+      flex: 1;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: var(--text);
+      font-size: 0.85rem;
+      font-family: ui-monospace, monospace;
+    }
+
+    @media print {
+      body { background: #fff; color: #111; }
+      .header-actions, .panel, .readonly-banner, .results-toolbar,
+      .star-btn, .compare-check, .modal-overlay { display: none !important; }
+      header p { color: #444; }
+      .container { max-width: 100%; padding: 0; }
+      .candidate-card {
+        border: 1px solid #ccc;
+        background: #fff;
+        color: #111;
+        break-inside: avoid;
+        grid-template-columns: auto 1fr auto;
+      }
+      .candidate-headline, .candidate-meta, .candidate-summary, .score-label, .rating-row, .score-bar-note { color: #444; }
+      .skill-tag { border-color: #ccc; color: #333; }
+      .reasoning-block { background: #f3f4f6; border-color: #ddd; color: #333; }
+      .reasoning-block strong { color: #111; }
+      .card-controls { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🤖 Recruiter <span>AI</span></h1>
+      <p>Find and rank candidates in any field — weighted criteria, transparent scoring</p>
+      <div class="header-actions">
+        <button type="button" class="icon-btn" id="btnOpenShortlist">☆ Shortlist (0)</button>
+        <button type="button" class="icon-btn" id="btnOpenHistory">🕘 History (0)</button>
+        <button type="button" class="icon-btn" id="btnOpenSaved">★ Saved (0)</button>
+      </div>
+    </header>
+
+    <div class="readonly-banner" id="readonlyBanner">
+      <span>📎 Shared result — <strong id="readonlyBannerText"></strong></span>
+      <button type="button" class="btn-new-search" id="btnNewSearch">+ New search</button>
+    </div>
+
+    <!-- Step 1: field + template -->
+    <div class="panel visible" id="panelRole">
+      <div class="panel-title">1. Choose a Role</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="fieldSelect">Field</label>
+          <select id="fieldSelect">
+            <option value="">Loading fields…</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="templateSelect">Role Template</label>
+          <select id="templateSelect" disabled>
+            <option value="">Select a field first</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: criteria -->
+    <div class="panel" id="panelCriteria">
+      <div class="panel-title">2. Customize Criteria</div>
+      <p class="hint" style="margin-bottom: 18px;">Check <strong>Required</strong> on a criterion to only show candidates who fully meet it.</p>
+      <div class="form-grid" style="margin-bottom: 20px;">
+        <div class="form-group">
+          <label for="jobTitle">Job Title</label>
+          <input type="text" id="jobTitle" placeholder="e.g. Senior Frontend Engineer" />
+        </div>
+        <div class="form-group">
+          <label for="jobLocation">Location (optional)</label>
+          <input type="text" id="jobLocation" placeholder="e.g. Remote, New York" />
+        </div>
+      </div>
+      <div class="criteria-list" id="criteriaList"></div>
+    </div>
+
+    <!-- Step 3: data source -->
+    <div class="panel" id="panelSource">
+      <div class="panel-title">3. Data Source</div>
+      <div class="source-options" id="sourceOptions">
+        <label class="source-card" id="sourceCardGithub" data-provider="github">
+          <input type="radio" name="provider" value="github" />
+          <div class="source-card-body">
+            <strong>GitHub</strong>
+            <span>Real developer profiles (software field only)</span>
+          </div>
+        </label>
+        <label class="source-card" id="sourceCardSample" data-provider="sample">
+          <input type="radio" name="provider" value="sample" />
+          <div class="source-card-body">
+            <strong>Sample Dataset</strong>
+            <span>Bundled demo candidates, any field</span>
+          </div>
+        </label>
+        <label class="source-card" id="sourceCardUpload" data-provider="upload">
+          <input type="radio" name="provider" value="upload" />
+          <div class="source-card-body">
+            <strong>Upload CSV/JSON</strong>
+            <span>Paste your own candidate data</span>
+          </div>
+        </label>
+      </div>
+      <div id="uploadArea">
+        <label for="uploadData">Candidate Data (CSV or JSON)</label>
+        <textarea id="uploadData" placeholder="Paste CSV or JSON text here…"></textarea>
+        <span class="hint">CSV: one header row + one candidate per row. JSON: an array of candidate objects.</span>
+      </div>
+
+      <div class="form-actions" style="margin-top: 20px; flex-wrap: wrap;">
+        <button type="button" class="btn-search" id="btnSearch">🔍 Search &amp; Rank Candidates</button>
+        <label class="ai-toggle" id="aiToggleLabel">
+          <input type="checkbox" id="aiToggle" />
+          <span>🧠 AI reasoning (uses Claude)</span>
+        </label>
+        <span class="hint" id="aiToggleHint"></span>
+        <span class="status" id="status"></span>
+      </div>
+    </div>
+
+    <div id="results"></div>
+
+    <div class="app-footer">Decision-support only — review candidates yourself; scores are heuristic.</div>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box" id="modalBox"></div>
+  </div>
+
+  <script>
+    const EDU_LABELS = ['No requirement', 'High School', 'Associate', "Bachelor's", "Master's", 'Doctorate'];
+    const CRITERION_KIND = {
+      skills: 'tags',
+      certifications: 'tags',
+      keyword: 'tags',
+      experience: 'years',
+      education: 'education',
+      location: 'text',
+    };
+    const CRITERION_FIELD = {
+      skills: 'requiredSkills',
+      certifications: 'requiredCerts',
+      keyword: 'keywords',
+      experience: 'minYears',
+      education: 'minEducationLevel',
+      location: 'desiredLocation',
+    };
+
+    let allFields = [];
+    let allTemplates = [];
+    let currentTemplate = null;   // the raw JobSpec template selected
+    let criteriaValues = [];      // per-criterion mutable value (array for tags, number/string otherwise)
+    let criteriaRequired = [];    // per-criterion initial "required" checkbox state, from template/history/saved
+    let lastSubmittedJobSpec = null;
+
+    // Phase 3 state
+    const SHORTLIST_KEY = 'recruiter-shortlist';
+    const HISTORY_KEY = 'recruiter-history';
+    const HISTORY_CAP = 20;
+    let currentResultsData = null;  // last { candidates, totalFound, scoredBy } rendered
+    let currentJobSpec = null;      // jobSpec behind currentResultsData
+    let compareSelection = new Set(); // candidateKey() values selected for compare, current results only
+    let readOnlyMode = false;
+
+    // Phase 5 state
+    const SAVED_KEY = 'recruiter-saved-searches';
+    let lastSearchMeta = null; // { provider, options } behind currentJobSpec, for "Save search"
+
+    function candidateKey(c) { return `${c.id}|${c.name}`; }
+
+    const fieldSelect = document.getElementById('fieldSelect');
+    const templateSelect = document.getElementById('templateSelect');
+    const panelCriteria = document.getElementById('panelCriteria');
+    const panelSource = document.getElementById('panelSource');
+    const criteriaList = document.getElementById('criteriaList');
+    const jobTitleInput = document.getElementById('jobTitle');
+    const jobLocationInput = document.getElementById('jobLocation');
+    const uploadArea = document.getElementById('uploadArea');
+    const uploadData = document.getElementById('uploadData');
+    const btnSearch = document.getElementById('btnSearch');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const aiToggle = document.getElementById('aiToggle');
+    const aiToggleHint = document.getElementById('aiToggleHint');
+
+    let llmAvailable = false;
+
+    init();
+
+    async function init() {
+      updateShortlistCount();
+      updateHistoryCount();
+      updateSavedCount();
+      document.getElementById('btnOpenShortlist').addEventListener('click', openShortlistModal);
+      document.getElementById('btnOpenHistory').addEventListener('click', openHistoryModal);
+      document.getElementById('btnOpenSaved').addEventListener('click', openSavedModal);
+      document.getElementById('btnNewSearch').addEventListener('click', exitReadOnlyMode);
+      document.getElementById('modalOverlay').addEventListener('click', (e) => {
+        if (e.target.id === 'modalOverlay') closeModal();
+      });
+
+      const sharedId = new URLSearchParams(location.search).get('r');
+      if (sharedId) {
+        await loadSharedResult(sharedId);
+        return;
+      }
+
+      await loadFieldsAndTemplates();
+    }
+
+    async function loadFieldsAndTemplates() {
+      try {
+        const [fieldsRes, templatesRes, healthRes] = await Promise.all([
+          fetch('/api/fields'),
+          fetch('/api/templates'),
+          fetch('/api/health'),
+        ]);
+        allFields = await fieldsRes.json();
+        allTemplates = await templatesRes.json();
+        populateFieldSelect();
+
+        const health = await healthRes.json();
+        llmAvailable = !!health.llmAvailable;
+        aiToggleHint.textContent = llmAvailable ? '' : 'Set ANTHROPIC_API_KEY to enable';
+      } catch (err) {
+        fieldSelect.innerHTML = '<option value="">Failed to load fields</option>';
+        statusEl.textContent = `Failed to load fields/templates: ${err.message}`;
+        statusEl.className = 'status error';
+      }
+    }
+
+    function populateFieldSelect() {
+      fieldSelect.innerHTML = '<option value="">Select a field…</option>' +
+        allFields.map(f => `<option value="${f.key}">${f.label}</option>`).join('');
+    }
+
+    fieldSelect.addEventListener('change', () => {
+      const fieldKey = fieldSelect.value;
+      resetToRoleStep();
+      if (!fieldKey) {
+        templateSelect.disabled = true;
+        templateSelect.innerHTML = '<option value="">Select a field first</option>';
+        return;
+      }
+      const templates = allTemplates.filter(t => t.field === fieldKey);
+      templateSelect.disabled = false;
+      templateSelect.innerHTML = '<option value="">Select a role template…</option>' +
+        templates.map(t => `<option value="${t.title}">${t.title}</option>`).join('');
+      updateSourceAvailability(fieldKey);
+    });
+
+    templateSelect.addEventListener('change', () => {
+      const fieldKey = fieldSelect.value;
+      const title = templateSelect.value;
+      if (!title) {
+        panelCriteria.classList.remove('visible');
+        panelSource.classList.remove('visible');
+        resultsEl.innerHTML = '';
+        return;
+      }
+      currentTemplate = allTemplates.find(t => t.field === fieldKey && t.title === title);
+      loadTemplateIntoForm(currentTemplate);
+      panelCriteria.classList.add('visible');
+      panelSource.classList.add('visible');
+      resultsEl.innerHTML = '';
+    });
+
+    function resetToRoleStep() {
+      currentTemplate = null;
+      panelCriteria.classList.remove('visible');
+      panelSource.classList.remove('visible');
+      resultsEl.innerHTML = '';
+    }
+
+    function loadTemplateIntoForm(template) {
+      jobTitleInput.value = template.title || '';
+      jobLocationInput.value = template.location || '';
+      criteriaValues = template.criteria.map(c => {
+        const kind = CRITERION_KIND[c.key];
+        const field = CRITERION_FIELD[c.key];
+        if (kind === 'tags') return Array.isArray(c[field]) ? [...c[field]] : [];
+        if (kind === 'years') return typeof c[field] === 'number' ? c[field] : 0;
+        if (kind === 'education') return typeof c[field] === 'number' ? c[field] : 0;
+        if (kind === 'text') return c[field] || '';
+        return null;
+      });
+      criteriaRequired = template.criteria.map(c => !!c.required);
+      renderCriteriaPanel(template);
+    }
+
+    function renderCriteriaPanel(template) {
+      criteriaList.innerHTML = template.criteria.map((c, i) => {
+        const kind = CRITERION_KIND[c.key];
+        let inputHtml = '';
+        if (kind === 'tags') {
+          inputHtml = `
+            <div class="tag-list" id="tags-${i}"></div>
+            <div class="tag-add-row">
+              <input type="text" id="tag-input-${i}" placeholder="Add ${c.key === 'keyword' ? 'keyword' : c.key === 'certifications' ? 'certification' : 'skill'}, comma-separated" />
+              <button type="button" data-add-tag="${i}">Add</button>
+            </div>`;
+        } else if (kind === 'years') {
+          inputHtml = `<input type="number" id="crit-years-${i}" min="0" step="1" value="${criteriaValues[i]}" />`;
+        } else if (kind === 'education') {
+          inputHtml = `<select id="crit-edu-${i}">
+            ${EDU_LABELS.map((lbl, lvl) => `<option value="${lvl}" ${lvl === criteriaValues[i] ? 'selected' : ''}>${lbl}</option>`).join('')}
+          </select>`;
+        } else if (kind === 'text') {
+          inputHtml = `<input type="text" id="crit-text-${i}" value="${escapeAttr(criteriaValues[i])}" placeholder="e.g. Remote, New York" />`;
+        }
+        return `
+          <div class="criterion-row">
+            <div class="criterion-label">
+              ${c.label}
+              <label class="required-toggle" title="Candidate must fully meet this criterion to appear in results">
+                <input type="checkbox" id="crit-required-${i}" ${criteriaRequired[i] ? 'checked' : ''} />
+                <span>Required</span>
+              </label>
+            </div>
+            <div class="weight-control">
+              <div class="weight-row">
+                <input type="range" id="crit-weight-${i}" min="1" max="5" step="1" value="${c.weight}" />
+                <span class="weight-value" id="weight-value-${i}">${c.weight}</span>
+              </div>
+              <span class="hint">Importance (1–5)</span>
+            </div>
+            <div class="criterion-input">${inputHtml}</div>
+          </div>`;
+      }).join('');
+
+      template.criteria.forEach((c, i) => {
+        const weightInput = document.getElementById(`crit-weight-${i}`);
+        weightInput.addEventListener('input', () => {
+          document.getElementById(`weight-value-${i}`).textContent = weightInput.value;
+        });
+        if (CRITERION_KIND[c.key] === 'tags') {
+          renderTags(i);
+          const addBtn = criteriaList.querySelector(`[data-add-tag="${i}"]`);
+          const tagInput = document.getElementById(`tag-input-${i}`);
+          const addFromInput = () => {
+            const raw = tagInput.value.split(',').map(s => s.trim()).filter(Boolean);
+            if (!raw.length) return;
+            for (const val of raw) {
+              if (!criteriaValues[i].some(v => v.toLowerCase() === val.toLowerCase())) {
+                criteriaValues[i].push(val);
+              }
+            }
+            tagInput.value = '';
+            renderTags(i);
+          };
+          addBtn.addEventListener('click', addFromInput);
+          tagInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ',') {
+              e.preventDefault();
+              addFromInput();
+            }
+          });
+        }
+      });
+    }
+
+    function renderTags(i) {
+      const container = document.getElementById(`tags-${i}`);
+      container.innerHTML = criteriaValues[i].map((val, vi) => `
+        <span class="tag-chip">${escapeHtml(val)}<button type="button" data-remove-tag="${i}:${vi}">✕</button></span>
+      `).join('');
+      container.querySelectorAll('[data-remove-tag]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const [ci, vi] = btn.getAttribute('data-remove-tag').split(':').map(Number);
+          criteriaValues[ci].splice(vi, 1);
+          renderTags(ci);
+        });
+      });
+    }
+
+    function updateSourceAvailability(fieldKey) {
+      const fieldInfo = allFields.find(f => f.key === fieldKey);
+      const providers = fieldInfo ? fieldInfo.providers : [];
+      const githubCard = document.getElementById('sourceCardGithub');
+      const githubRadio = githubCard.querySelector('input');
+      const githubAvailable = providers.includes('github');
+      githubRadio.disabled = !githubAvailable;
+      githubCard.classList.toggle('disabled', !githubAvailable);
+
+      const defaultProvider = githubAvailable ? 'github' : 'sample';
+      document.querySelectorAll('input[name="provider"]').forEach(r => { r.checked = false; });
+      document.querySelector(`input[name="provider"][value="${defaultProvider}"]`).checked = true;
+      updateSourceCardSelection();
+      uploadArea.classList.toggle('visible', defaultProvider === 'upload');
+    }
+
+    document.querySelectorAll('.source-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        const radio = card.querySelector('input');
+        if (radio.disabled) { e.preventDefault(); return; }
+      });
+    });
+    document.querySelectorAll('input[name="provider"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        updateSourceCardSelection();
+        uploadArea.classList.toggle('visible', radio.value === 'upload' && radio.checked);
+      });
+    });
+
+    function updateSourceCardSelection() {
+      document.querySelectorAll('.source-card').forEach(card => {
+        const radio = card.querySelector('input');
+        card.classList.toggle('selected', radio.checked);
+      });
+    }
+
+    function getSelectedProvider() {
+      const checked = document.querySelector('input[name="provider"]:checked');
+      return checked ? checked.value : 'sample';
+    }
+
+    function buildJobSpec() {
+      const fieldKey = fieldSelect.value;
+      const criteria = currentTemplate.criteria.map((c, i) => {
+        const kind = CRITERION_KIND[c.key];
+        const field = CRITERION_FIELD[c.key];
+        const weight = Number(document.getElementById(`crit-weight-${i}`).value) || 1;
+        const requiredEl = document.getElementById(`crit-required-${i}`);
+        const out = { key: c.key, label: c.label, weight };
+        if (requiredEl && requiredEl.checked) out.required = true;
+        if (kind === 'tags') {
+          out[field] = [...criteriaValues[i]];
+        } else if (kind === 'years') {
+          out[field] = Number(document.getElementById(`crit-years-${i}`).value) || 0;
+        } else if (kind === 'education') {
+          out[field] = Number(document.getElementById(`crit-edu-${i}`).value) || 0;
+        } else if (kind === 'text') {
+          out[field] = document.getElementById(`crit-text-${i}`).value.trim();
+        }
+        return out;
+      });
+      return {
+        field: fieldKey,
+        title: jobTitleInput.value.trim() || currentTemplate.title,
+        location: jobLocationInput.value.trim() || null,
+        criteria,
+      };
+    }
+
+    btnSearch.addEventListener('click', async () => {
+      if (!currentTemplate) return;
+      const jobSpec = buildJobSpec();
+      const provider = getSelectedProvider();
+      const options = {};
+      if (aiToggle.checked) options.useLLM = true;
+      if (provider === 'upload') {
+        const data = uploadData.value.trim();
+        if (!data) {
+          statusEl.textContent = 'Paste CSV or JSON candidate data first.';
+          statusEl.className = 'status error';
+          return;
+        }
+        options.data = data;
+      }
+      await performSearch(jobSpec, provider, options);
+    });
+
+    async function performSearch(jobSpec, provider, options) {
+      const aiRequested = !!options.useLLM;
+      lastSubmittedJobSpec = jobSpec;
+      btnSearch.disabled = true;
+      statusEl.className = 'status';
+      statusEl.innerHTML = provider === 'github'
+        ? 'Searching GitHub <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span> this takes 15-60 seconds'
+        : 'Searching <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>';
+      resultsEl.innerHTML = '';
+
+      try {
+        const res = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobSpec, provider, options }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          statusEl.textContent = data.error || 'Search failed';
+          statusEl.className = 'status error';
+          return;
+        }
+
+        statusEl.textContent = '';
+        lastSearchMeta = { provider, options };
+        renderResults(data, jobSpec, aiRequested);
+        pushHistory({
+          ts: Date.now(),
+          field: jobSpec.field,
+          title: jobSpec.title,
+          provider,
+          count: data.candidates ? data.candidates.length : 0,
+          topScore: data.candidates && data.candidates.length ? data.candidates[0].totalScore : null,
+          jobSpec,
+          options,
+        });
+      } catch (err) {
+        statusEl.textContent = `Network error: ${err.message}`;
+        statusEl.className = 'status error';
+      } finally {
+        btnSearch.disabled = false;
+      }
+    }
+
+    function scoreColor(score) {
+      if (score >= 70) return 'score-high';
+      if (score >= 50) return 'score-mid';
+      if (score >= 30) return 'score-low';
+      return 'score-poor';
+    }
+
+    function barColor(raw) {
+      if (raw >= 0.7) return 'var(--green)';
+      if (raw >= 0.4) return 'var(--yellow)';
+      return 'var(--red)';
+    }
+
+    function rankClass(i) {
+      if (i === 0) return 'rank-gold';
+      if (i === 1) return 'rank-silver';
+      if (i === 2) return 'rank-bronze';
+      return 'rank-normal';
+    }
+
+    // Lightweight mirror of the server's word-boundary skill match, for display highlighting only.
+    function termMatches(term, haystackArr) {
+      const t = String(term || '').toLowerCase().trim();
+      if (!t || !Array.isArray(haystackArr)) return false;
+      return haystackArr.some(h => String(h).toLowerCase().trim() === t);
+    }
+
+    function renderResults(data, jobSpec, aiRequested) {
+      currentResultsData = data;
+      currentJobSpec = jobSpec;
+      compareSelection = new Set();
+
+      if (!data.candidates || data.candidates.length === 0) {
+        resultsEl.innerHTML = `
+          <div class="empty-state">
+            <p>😕 No candidates found matching your criteria.</p>
+            <p style="font-size:0.9rem;margin-top:8px;">Try loosening criteria, broadening location, or a different data source.</p>
+          </div>`;
+        return;
+      }
+
+      const fallbackBanner = (aiRequested && data.scoredBy === 'rules')
+        ? '<div class="llm-fallback-banner">⚠️ AI reasoning unavailable — showing rule-based scores.</div>'
+        : '';
+
+      const toolbar = `
+        <div class="results-toolbar">
+          <button type="button" class="toolbar-btn" id="btnExportCsv">⬇️ Export CSV</button>
+          <button type="button" class="toolbar-btn" id="btnSavePdf">🖨️ Save as PDF</button>
+          <button type="button" class="toolbar-btn" id="btnCompare" disabled>⚖️ Compare (0)</button>
+          <button type="button" class="toolbar-btn" id="btnShare">🔗 Share results</button>
+          ${readOnlyMode ? '' : '<button type="button" class="toolbar-btn" id="btnSaveSearch">★ Save search</button>'}
+        </div>
+        <div class="share-box" id="shareBox"></div>`;
+
+      const skillsCriterion = jobSpec.criteria.find(c => c.key === 'skills');
+      const requiredSkills = (skillsCriterion?.requiredSkills || []).map(s => s.toLowerCase());
+      const certsCriterion = jobSpec.criteria.find(c => c.key === 'certifications');
+      const requiredCerts = (certsCriterion?.requiredCerts || []).map(s => s.toLowerCase());
+      const labelByKey = {};
+      const requiredByKey = {};
+      jobSpec.criteria.forEach(c => { labelByKey[c.key] = c.label; requiredByKey[c.key] = !!c.required; });
+
+      let html = fallbackBanner + toolbar + `
+        <div class="results-header">
+          <h2>Top Candidates</h2>
+          <span class="results-count">Showing ${data.candidates.length} of ${data.totalFound ?? data.candidates.length} found</span>
+        </div>
+        <div class="candidate-list">`;
+
+      data.candidates.forEach((c, i) => {
+        const metaParts = [];
+        if (c.location) metaParts.push(`📍 ${escapeHtml(c.location)}`);
+        if (c.yearsExperience !== null && c.yearsExperience !== undefined) metaParts.push(`💼 ${c.yearsExperience} yrs exp`);
+        if (c.education) metaParts.push(`🎓 ${escapeHtml(c.education)}`);
+
+        const skillTags = (c.skills || []).slice(0, 10).map(skill => {
+          const isMatch = termMatches(skill, requiredSkills);
+          return `<span class="skill-tag ${isMatch ? 'matched' : ''}">${escapeHtml(skill)}</span>`;
+        }).join('');
+
+        const certTags = (c.certifications || []).map(cert => {
+          const isMatch = termMatches(cert, requiredCerts);
+          return `<span class="skill-tag cert ${isMatch ? 'matched' : ''}">${escapeHtml(cert)}</span>`;
+        }).join('');
+
+        const scoreBars = Object.entries(c.criteriaScores || {}).map(([key, val]) => {
+          const pct = Math.round((val.raw || 0) * 100);
+          const reqMarker = requiredByKey[key] ? '<span class="required-marker" title="Required">required</span>' : '';
+          return `
+            <div class="score-bar-row">
+              <div class="score-bar-top">
+                <span>${escapeHtml(labelByKey[key] || key)}${reqMarker}</span>
+                <span>${val.weighted}/${val.max}</span>
+              </div>
+              <div class="score-bar">
+                <div class="score-bar-fill" style="width:${pct}%;background:${barColor(val.raw || 0)}"></div>
+              </div>
+              <span class="score-bar-note">${escapeHtml(val.note || '')}</span>
+            </div>`;
+        }).join('');
+
+        const nameHtml = c.sourceUrl
+          ? `<a href="${c.sourceUrl}" target="_blank" rel="noopener">${escapeHtml(c.name)}</a>`
+          : escapeHtml(c.name);
+
+        const key = candidateKey(c);
+        const starred = isShortlisted(c);
+
+        html += `
+          <div class="candidate-card">
+            <div class="card-controls">
+              <div class="rank-badge ${rankClass(i)}">#${i + 1}</div>
+              <button type="button" class="star-btn ${starred ? 'starred' : ''}" data-star-key="${escapeAttr(key)}" title="Shortlist">${starred ? '★' : '☆'}</button>
+              <label class="compare-check">
+                <input type="checkbox" data-compare-key="${escapeAttr(key)}" ${compareSelection.has(key) ? 'checked' : ''} />
+                compare
+              </label>
+            </div>
+            <div class="candidate-info">
+              <h3>
+                ${c.avatarUrl ? `<img class="avatar" src="${c.avatarUrl}" alt="" />` : ''}
+                ${nameHtml}
+              </h3>
+              ${c.headline ? `<div class="candidate-headline">${escapeHtml(c.headline)}</div>` : ''}
+              <div class="candidate-meta">${metaParts.map(p => `<span>${p}</span>`).join('')}</div>
+              ${c.summary ? `<div class="candidate-summary">"${escapeHtml(c.summary)}"</div>` : ''}
+              <div class="skill-tags">${skillTags}${certTags}</div>
+              ${c.reasoning ? `<div class="reasoning-block"><strong>💡 Why this rank:</strong> ${escapeHtml(c.reasoning)}</div>` : ''}
+            </div>
+            <div class="score-col">
+              <div class="total-score ${scoreColor(c.totalScore)}">${c.totalScore}</div>
+              <div class="score-label">out of 100</div>
+              <div class="rating-row">Rating: <strong>${c.rank1to10}</strong>/10</div>
+              <div class="score-breakdown">${scoreBars}</div>
+            </div>
+          </div>`;
+      });
+
+      html += '</div>';
+      resultsEl.innerHTML = html;
+      wireResultsControls();
+    }
+
+    function wireResultsControls() {
+      resultsEl.querySelectorAll('[data-star-key]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-star-key');
+          const candidate = currentResultsData.candidates.find(c => candidateKey(c) === key);
+          if (!candidate) return;
+          toggleShortlist(candidate);
+          const starred = isShortlisted(candidate);
+          btn.textContent = starred ? '★' : '☆';
+          btn.classList.toggle('starred', starred);
+        });
+      });
+
+      resultsEl.querySelectorAll('[data-compare-key]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          const key = cb.getAttribute('data-compare-key');
+          if (cb.checked) {
+            if (compareSelection.size >= 4) {
+              cb.checked = false;
+              alert('You can compare up to 4 candidates at a time.');
+              return;
+            }
+            compareSelection.add(key);
+          } else {
+            compareSelection.delete(key);
+          }
+          updateCompareButton();
+        });
+      });
+
+      const btnCompare = document.getElementById('btnCompare');
+      if (btnCompare) btnCompare.addEventListener('click', openCompareModal);
+
+      const btnExportCsv = document.getElementById('btnExportCsv');
+      if (btnExportCsv) btnExportCsv.addEventListener('click', exportCsv);
+
+      const btnSavePdf = document.getElementById('btnSavePdf');
+      if (btnSavePdf) btnSavePdf.addEventListener('click', () => window.print());
+
+      const btnShare = document.getElementById('btnShare');
+      if (btnShare) btnShare.addEventListener('click', shareResults);
+
+      const btnSaveSearch = document.getElementById('btnSaveSearch');
+      if (btnSaveSearch) btnSaveSearch.addEventListener('click', promptSaveSearch);
+
+      updateCompareButton();
+    }
+
+    function updateCompareButton() {
+      const btn = document.getElementById('btnCompare');
+      if (!btn) return;
+      const n = compareSelection.size;
+      btn.textContent = `⚖️ Compare (${n})`;
+      btn.disabled = n < 2 || n > 4;
+    }
+
+    // ---------- Modal helpers ----------
+    function showModal(html, wide) {
+      const box = document.getElementById('modalBox');
+      box.className = 'modal-box' + (wide ? ' wide' : '');
+      box.innerHTML = html;
+      document.getElementById('modalOverlay').classList.add('visible');
+    }
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('visible');
+      document.getElementById('modalBox').innerHTML = '';
+    }
+
+    // ---------- Shortlist ----------
+    function getShortlist() {
+      try {
+        const raw = localStorage.getItem(SHORTLIST_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch { return []; }
+    }
+    function saveShortlistList(list) {
+      localStorage.setItem(SHORTLIST_KEY, JSON.stringify(list));
+      updateShortlistCount();
+    }
+    function isShortlisted(c) {
+      return getShortlist().some(item => candidateKey(item) === candidateKey(c));
+    }
+    function toggleShortlist(c) {
+      const list = getShortlist();
+      const key = candidateKey(c);
+      const idx = list.findIndex(item => candidateKey(item) === key);
+      if (idx >= 0) {
+        list.splice(idx, 1);
+      } else {
+        list.push(c);
+      }
+      saveShortlistList(list);
+    }
+    function removeFromShortlist(key) {
+      saveShortlistList(getShortlist().filter(item => candidateKey(item) !== key));
+      openShortlistModal();
+      syncStarButtons();
+    }
+    function updateShortlistCount() {
+      document.getElementById('btnOpenShortlist').textContent = `☆ Shortlist (${getShortlist().length})`;
+    }
+    function syncStarButtons() {
+      resultsEl.querySelectorAll('[data-star-key]').forEach(btn => {
+        const key = btn.getAttribute('data-star-key');
+        const candidate = currentResultsData && currentResultsData.candidates.find(c => candidateKey(c) === key);
+        const starred = candidate ? isShortlisted(candidate) : false;
+        btn.textContent = starred ? '★' : '☆';
+        btn.classList.toggle('starred', starred);
+      });
+    }
+
+    function openShortlistModal() {
+      const list = getShortlist();
+      const items = list.length
+        ? list.map(c => `
+          <div class="panel-list-item">
+            <div class="item-main">
+              <div class="item-title">${escapeHtml(c.name)}</div>
+              <div class="item-sub">${escapeHtml(c.headline || c.field || '')} · Score ${c.totalScore ?? '—'}/100</div>
+            </div>
+            <button type="button" class="item-remove" data-remove-shortlist="${escapeAttr(candidateKey(c))}" title="Remove">✕</button>
+          </div>`).join('')
+        : '<div class="panel-empty">No shortlisted candidates yet. Click the ☆ on any candidate card to add them.</div>';
+
+      showModal(`
+        <div class="modal-header">
+          <h2>☆ Shortlist (${list.length})</h2>
+          <button type="button" class="modal-close" id="modalCloseBtn">✕</button>
+        </div>
+        <div class="panel-list">${items}</div>
+        ${list.length ? '<div class="modal-actions"><button type="button" class="toolbar-btn" id="btnClearShortlist">Clear all</button></div>' : ''}
+      `);
+      document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+      const clearBtn = document.getElementById('btnClearShortlist');
+      if (clearBtn) clearBtn.addEventListener('click', () => { saveShortlistList([]); openShortlistModal(); syncStarButtons(); });
+      document.querySelectorAll('[data-remove-shortlist]').forEach(btn => {
+        btn.addEventListener('click', () => removeFromShortlist(btn.getAttribute('data-remove-shortlist')));
+      });
+    }
+
+    // ---------- History ----------
+    function getHistory() {
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch { return []; }
+    }
+    function pushHistory(entry) {
+      const list = getHistory();
+      list.unshift(entry);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, HISTORY_CAP)));
+      updateHistoryCount();
+    }
+    function updateHistoryCount() {
+      document.getElementById('btnOpenHistory').textContent = `🕘 History (${getHistory().length})`;
+    }
+
+    function openHistoryModal() {
+      const list = getHistory();
+      const items = list.length
+        ? list.map((entry, i) => `
+          <div class="panel-list-item">
+            <div class="item-main clickable" data-run-history="${i}">
+              <div class="item-title">${escapeHtml(entry.title || entry.field)}</div>
+              <div class="item-sub">${escapeHtml(entry.field)} · ${escapeHtml(entry.provider)} · ${entry.count} found${entry.topScore != null ? ` · top ${entry.topScore}/100` : ''} · ${new Date(entry.ts).toLocaleString()}</div>
+            </div>
+            <button type="button" class="item-save" data-save-history="${i}" title="Save this search">☆ Save</button>
+          </div>`).join('')
+        : '<div class="panel-empty">No searches yet. Run a search to build history.</div>';
+
+      showModal(`
+        <div class="modal-header">
+          <h2>🕘 Search History (${list.length})</h2>
+          <button type="button" class="modal-close" id="modalCloseBtn">✕</button>
+        </div>
+        <div class="panel-list">${items}</div>
+        ${list.length ? '<div class="modal-actions"><button type="button" class="toolbar-btn" id="btnClearHistory">Clear all</button></div>' : ''}
+      `);
+      document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+      const clearBtn = document.getElementById('btnClearHistory');
+      if (clearBtn) clearBtn.addEventListener('click', () => { localStorage.setItem(HISTORY_KEY, '[]'); updateHistoryCount(); openHistoryModal(); });
+      document.querySelectorAll('[data-run-history]').forEach(row => {
+        row.addEventListener('click', () => {
+          const entry = list[Number(row.getAttribute('data-run-history'))];
+          closeModal();
+          runHistoryEntry(entry);
+        });
+      });
+      document.querySelectorAll('[data-save-history]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const entry = list[Number(btn.getAttribute('data-save-history'))];
+          promoteHistoryEntry(entry);
+        });
+      });
+    }
+
+    // ---------- Saved Searches ----------
+    function getSavedSearches() {
+      try {
+        const raw = localStorage.getItem(SAVED_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch { return []; }
+    }
+    function saveSavedSearchesList(list) {
+      localStorage.setItem(SAVED_KEY, JSON.stringify(list));
+      updateSavedCount();
+    }
+    function addSavedSearch(entry) {
+      const list = getSavedSearches();
+      list.unshift(entry);
+      saveSavedSearchesList(list);
+    }
+    function removeSavedSearch(index) {
+      const list = getSavedSearches();
+      list.splice(index, 1);
+      saveSavedSearchesList(list);
+      openSavedModal();
+    }
+    function updateSavedCount() {
+      document.getElementById('btnOpenSaved').textContent = `★ Saved (${getSavedSearches().length})`;
+    }
+
+    // Prompt for a name and save the current results' jobSpec+provider+options.
+    function promptSaveSearch() {
+      if (!currentJobSpec || !lastSearchMeta) return;
+      const name = window.prompt('Name this saved search:', currentJobSpec.title || currentJobSpec.field || 'Saved search');
+      if (!name || !name.trim()) return;
+      addSavedSearch({
+        name: name.trim(),
+        ts: Date.now(),
+        field: currentJobSpec.field,
+        title: currentJobSpec.title,
+        provider: lastSearchMeta.provider,
+        jobSpec: currentJobSpec,
+        options: lastSearchMeta.options,
+      });
+    }
+
+    // Promote a History entry (same shape jobSpec/provider/options) to a named Saved search.
+    function promoteHistoryEntry(entry) {
+      const name = window.prompt('Name this saved search:', entry.title || entry.field || 'Saved search');
+      if (!name || !name.trim()) return;
+      addSavedSearch({
+        name: name.trim(),
+        ts: Date.now(),
+        field: entry.jobSpec.field,
+        title: entry.jobSpec.title,
+        provider: entry.provider,
+        jobSpec: entry.jobSpec,
+        options: entry.options,
+      });
+    }
+
+    function openSavedModal() {
+      const list = getSavedSearches();
+      const items = list.length
+        ? list.map((entry, i) => `
+          <div class="panel-list-item">
+            <div class="item-main clickable" data-run-saved="${i}">
+              <div class="item-title">${escapeHtml(entry.name)}</div>
+              <div class="item-sub">${escapeHtml(entry.field)} · ${escapeHtml(entry.title || '')} · ${escapeHtml(entry.provider)} · saved ${new Date(entry.ts).toLocaleString()}</div>
+            </div>
+            <button type="button" class="item-remove" data-remove-saved="${i}" title="Remove">✕</button>
+          </div>`).join('')
+        : '<div class="panel-empty">No saved searches yet. Click ★ Save search on a results page, or ☆ Save on a history entry.</div>';
+
+      showModal(`
+        <div class="modal-header">
+          <h2>★ Saved Searches (${list.length})</h2>
+          <button type="button" class="modal-close" id="modalCloseBtn">✕</button>
+        </div>
+        <div class="panel-list">${items}</div>
+        ${list.length ? '<div class="modal-actions"><button type="button" class="toolbar-btn" id="btnClearSaved">Clear all</button></div>' : ''}
+      `);
+      document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+      const clearBtn = document.getElementById('btnClearSaved');
+      if (clearBtn) clearBtn.addEventListener('click', () => { saveSavedSearchesList([]); openSavedModal(); });
+      document.querySelectorAll('[data-run-saved]').forEach(row => {
+        row.addEventListener('click', () => {
+          const entry = list[Number(row.getAttribute('data-run-saved'))];
+          closeModal();
+          runHistoryEntry(entry);
+        });
+      });
+      document.querySelectorAll('[data-remove-saved]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeSavedSearch(Number(btn.getAttribute('data-remove-saved')));
+        });
+      });
+    }
+
+    async function runHistoryEntry(entry) {
+      if (readOnlyMode) await exitReadOnlyMode();
+      if (!allFields.length) await loadFieldsAndTemplates();
+
+      fieldSelect.value = entry.jobSpec.field;
+      updateSourceAvailability(entry.jobSpec.field);
+
+      const templates = allTemplates.filter(t => t.field === entry.jobSpec.field);
+      templateSelect.disabled = false;
+      templateSelect.innerHTML = '<option value="">Select a role template…</option>' +
+        templates.map(t => `<option value="${t.title}" ${t.title === entry.jobSpec.title ? 'selected' : ''}>${t.title}</option>`).join('');
+
+      currentTemplate = {
+        field: entry.jobSpec.field,
+        title: entry.jobSpec.title,
+        location: entry.jobSpec.location,
+        criteria: entry.jobSpec.criteria,
+      };
+      loadTemplateIntoForm(currentTemplate);
+      panelCriteria.classList.add('visible');
+      panelSource.classList.add('visible');
+      resultsEl.innerHTML = '';
+
+      document.querySelectorAll('input[name="provider"]').forEach(r => { r.checked = (r.value === entry.provider); });
+      updateSourceCardSelection();
+      const isUpload = entry.provider === 'upload';
+      uploadArea.classList.toggle('visible', isUpload);
+      if (isUpload && entry.options && entry.options.data) uploadData.value = entry.options.data;
+      aiToggle.checked = !!(entry.options && entry.options.useLLM);
+
+      performSearch(entry.jobSpec, entry.provider, entry.options || {});
+    }
+
+    // ---------- Compare ----------
+    function openCompareModal() {
+      const selected = currentResultsData.candidates.filter(c => compareSelection.has(candidateKey(c)));
+      if (selected.length < 2) return;
+
+      const criteria = currentJobSpec.criteria;
+      const cols = selected.map(c => `<th>${escapeHtml(c.name)}</th>`).join('');
+      const criteriaRows = criteria.map(crit => {
+        const cells = selected.map(c => {
+          const val = (c.criteriaScores || {})[crit.key];
+          if (!val) return '<td>—</td>';
+          return `<td>${val.weighted}/${val.max}${val.note ? `<div class="item-sub">${escapeHtml(val.note)}</div>` : ''}</td>`;
+        }).join('');
+        return `<tr><td class="row-label">${escapeHtml(crit.label)}</td>${cells}</tr>`;
+      }).join('');
+      const totalRow = `<tr><td class="row-label">Total</td>${selected.map(c => `<td class="total-cell">${c.totalScore}/100</td>`).join('')}</tr>`;
+      const ratingRow = `<tr><td class="row-label">Rating</td>${selected.map(c => `<td>${c.rank1to10}/10</td>`).join('')}</tr>`;
+
+      showModal(`
+        <div class="modal-header">
+          <h2>⚖️ Compare Candidates</h2>
+          <button type="button" class="modal-close" id="modalCloseBtn">✕</button>
+        </div>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead><tr><th></th>${cols}</tr></thead>
+            <tbody>${criteriaRows}${totalRow}${ratingRow}</tbody>
+          </table>
+        </div>
+      `, true);
+      document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+    }
+
+    // ---------- Export CSV ----------
+    function csvField(val) {
+      const s = String(val ?? '');
+      return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+    function exportCsv() {
+      if (!currentResultsData || !currentJobSpec) return;
+      const criteria = currentJobSpec.criteria;
+      const header = [
+        'name', 'field', 'location', 'yearsExperience', 'education',
+        'certifications', 'skills', 'totalScore', 'rank1to10',
+        ...criteria.map(c => c.label),
+      ];
+      const rows = currentResultsData.candidates.map(c => [
+        c.name, c.field || '', c.location ?? '', c.yearsExperience ?? '', c.education ?? '',
+        (c.certifications || []).join('; '), (c.skills || []).join('; '),
+        c.totalScore, c.rank1to10,
+        ...criteria.map(crit => (c.criteriaScores || {})[crit.key]?.weighted ?? ''),
+      ]);
+      const csv = [header, ...rows].map(row => row.map(csvField).join(',')).join('\r\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `candidates-${Date.now()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ---------- Share ----------
+    async function shareResults() {
+      if (!currentResultsData || !currentJobSpec) return;
+      const btn = document.getElementById('btnShare');
+      const box = document.getElementById('shareBox');
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/results', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jobSpec: currentJobSpec,
+            candidates: currentResultsData.candidates,
+            scoredBy: currentResultsData.scoredBy,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          box.innerHTML = `<span class="status error">${escapeHtml(data.error || 'Failed to create share link')}</span>`;
+          box.classList.add('visible');
+          return;
+        }
+        const fullUrl = location.origin + data.url;
+        box.innerHTML = `
+          <div class="hint">Shareable link (works on this machine):</div>
+          <div class="share-url-row">
+            <input type="text" id="shareUrlInput" readonly value="${escapeAttr(fullUrl)}" />
+            <button type="button" class="toolbar-btn" id="btnCopyShareUrl">Copy</button>
+          </div>`;
+        box.classList.add('visible');
+        document.getElementById('btnCopyShareUrl').addEventListener('click', () => {
+          const input = document.getElementById('shareUrlInput');
+          input.select();
+          navigator.clipboard?.writeText(fullUrl).catch(() => {});
+          document.getElementById('btnCopyShareUrl').textContent = 'Copied!';
+          setTimeout(() => { document.getElementById('btnCopyShareUrl').textContent = 'Copy'; }, 1500);
+        });
+      } catch (err) {
+        box.innerHTML = `<span class="status error">Network error: ${escapeHtml(err.message)}</span>`;
+        box.classList.add('visible');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ---------- Read-only shared result mode ----------
+    async function loadSharedResult(id) {
+      try {
+        const res = await fetch(`/api/results/${encodeURIComponent(id)}`);
+        const data = await res.json();
+        if (!res.ok) {
+          statusEl.textContent = data.error || 'Shared result not found.';
+          statusEl.className = 'status error';
+          return;
+        }
+        enterReadOnlyMode(data);
+      } catch (err) {
+        statusEl.textContent = `Network error: ${err.message}`;
+        statusEl.className = 'status error';
+      }
+    }
+
+    function enterReadOnlyMode(payload) {
+      readOnlyMode = true;
+      document.getElementById('panelRole').classList.remove('visible');
+      panelCriteria.classList.remove('visible');
+      panelSource.classList.remove('visible');
+      document.getElementById('readonlyBannerText').textContent =
+        `${payload.jobSpec?.field || ''} / ${payload.jobSpec?.title || ''}`;
+      document.getElementById('readonlyBanner').classList.add('visible');
+      renderResults(
+        { candidates: payload.candidates, scoredBy: payload.scoredBy, totalFound: payload.candidates.length },
+        payload.jobSpec,
+        false
+      );
+    }
+
+    async function exitReadOnlyMode() {
+      readOnlyMode = false;
+      document.getElementById('readonlyBanner').classList.remove('visible');
+      history.replaceState(null, '', location.pathname);
+      resultsEl.innerHTML = '';
+      currentResultsData = null;
+      currentJobSpec = null;
+      document.getElementById('panelRole').classList.add('visible');
+      if (!allFields.length) await loadFieldsAndTemplates();
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      }[ch]));
+    }
+    function escapeAttr(str) {
+      return escapeHtml(str);
+    }
+  </script>
+</body>
+</html>

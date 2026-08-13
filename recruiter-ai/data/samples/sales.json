@@ -1,0 +1,112 @@
+[
+  {
+    "name": "Brian Cole",
+    "headline": "Sales Development Representative",
+    "location": "Remote",
+    "yearsExperience": 3,
+    "education": "Bachelor's in Business Administration",
+    "educationLevel": 3,
+    "skills": ["negotiation", "CRM", "cold calling", "Salesforce"],
+    "certifications": [],
+    "summary": "SDR who consistently exceeded quota in B2B SaaS sales with strong closing skills."
+  },
+  {
+    "name": "Monica Reyes",
+    "headline": "Account Executive",
+    "location": "Chicago, IL",
+    "yearsExperience": 5,
+    "education": "Bachelor's in Marketing",
+    "educationLevel": 3,
+    "skills": ["negotiation", "CRM", "cold calling", "HubSpot"],
+    "certifications": [],
+    "summary": "B2B enterprise account executive closing six-figure deals and consistently hitting quota."
+  },
+  {
+    "name": "Kevin Park",
+    "headline": "Inside Sales Representative",
+    "location": "Remote",
+    "yearsExperience": 1,
+    "education": "Associate degree in Business",
+    "educationLevel": 2,
+    "skills": ["cold calling", "CRM"],
+    "certifications": [],
+    "summary": "Inside sales rep focused on B2B lead generation and quota achievement."
+  },
+  {
+    "name": "Angela Brooks",
+    "headline": "Sales Manager",
+    "location": "New York, NY",
+    "yearsExperience": 8,
+    "education": "Master of Business Administration (MBA)",
+    "educationLevel": 4,
+    "skills": ["negotiation", "CRM", "leadership", "forecasting"],
+    "certifications": [],
+    "summary": "Sales manager leading a B2B team, closing major accounts and exceeding quota targets."
+  },
+  {
+    "name": "Diego Fernandez",
+    "headline": "Sales Development Representative",
+    "location": "Remote",
+    "yearsExperience": 2,
+    "education": "Bachelor's in Communications",
+    "educationLevel": 3,
+    "skills": ["cold calling", "CRM", "negotiation"],
+    "certifications": [],
+    "summary": "B2B SaaS SDR with strong quota attainment and cold outreach skills."
+  },
+  {
+    "name": "Hannah Lee",
+    "headline": "Account Manager",
+    "location": "Austin, TX",
+    "yearsExperience": 4,
+    "education": "Bachelor's in Business Administration",
+    "educationLevel": 3,
+    "skills": ["negotiation", "CRM"],
+    "certifications": [],
+    "summary": "B2B account manager focused on relationship management and closing renewals."
+  },
+  {
+    "name": "Robert Nguyen",
+    "headline": "Sales Representative",
+    "location": "Remote",
+    "yearsExperience": 6,
+    "education": "Associate degree in Business",
+    "educationLevel": 2,
+    "skills": ["cold calling", "negotiation", "CRM"],
+    "certifications": [],
+    "summary": "Quota-driven B2B sales rep and cold calling specialist."
+  },
+  {
+    "name": "Chloe Martin",
+    "headline": "Junior Sales Representative",
+    "location": "Boston, MA",
+    "yearsExperience": 1,
+    "education": "Bachelor's in Marketing",
+    "educationLevel": 3,
+    "skills": ["CRM", "cold calling"],
+    "certifications": [],
+    "summary": "Early-career sales development rep building B2B pipeline generation skills."
+  },
+  {
+    "name": "Victor Adeyemi",
+    "headline": "Enterprise Account Executive",
+    "location": "Remote",
+    "yearsExperience": 10,
+    "education": "Bachelor's in Business Administration",
+    "educationLevel": 3,
+    "skills": ["negotiation", "CRM", "closing"],
+    "certifications": [],
+    "summary": "Enterprise B2B account executive and quota overachiever closing complex contracts."
+  },
+  {
+    "name": "Isabella Rossi",
+    "headline": "Sales Representative",
+    "location": "Miami, FL",
+    "yearsExperience": 3,
+    "education": "Bachelor's in Business Administration",
+    "educationLevel": 3,
+    "skills": ["cold calling", "negotiation", "CRM", "Salesforce"],
+    "certifications": [],
+    "summary": "B2B sales representative with consistent quota-closing performance."
+  }
+]

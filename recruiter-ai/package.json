@@ -1,0 +1,20 @@
+{
+  "name": "recruiter-ai",
+  "version": "1.0.0",
+  "description": "Simple agentic AI that finds and ranks developer candidates from GitHub",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^5.1.0"
+  }
+}

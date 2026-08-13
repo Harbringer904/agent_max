@@ -1,0 +1,112 @@
+[
+  {
+    "name": "Andrew Miller",
+    "headline": "Staff Accountant",
+    "location": "Dallas, TX",
+    "yearsExperience": 4,
+    "education": "Bachelor's in Accounting",
+    "educationLevel": 3,
+    "skills": ["bookkeeping", "excel", "reconciliation", "GAAP"],
+    "certifications": ["CPA"],
+    "summary": "Staff accountant handling monthly close, reconciliations, and GAAP-compliant reporting."
+  },
+  {
+    "name": "Susan Zhang",
+    "headline": "Senior Accountant",
+    "location": "Remote",
+    "yearsExperience": 9,
+    "education": "Bachelor's in Accounting",
+    "educationLevel": 3,
+    "skills": ["bookkeeping", "excel", "reconciliation", "GAAP", "audit"],
+    "certifications": ["CPA"],
+    "summary": "Senior accountant with audit background and strong GAAP reconciliation skills."
+  },
+  {
+    "name": "Peter Novak",
+    "headline": "Financial Analyst",
+    "location": "New York, NY",
+    "yearsExperience": 3,
+    "education": "Master's in Finance",
+    "educationLevel": 4,
+    "skills": ["financial modeling", "excel", "valuation", "forecasting"],
+    "certifications": ["CFA"],
+    "summary": "Financial analyst building valuation models and forecasts for equity research."
+  },
+  {
+    "name": "Rachel Adams",
+    "headline": "Financial Analyst",
+    "location": "Chicago, IL",
+    "yearsExperience": 5,
+    "education": "Master's in Finance",
+    "educationLevel": 4,
+    "skills": ["financial modeling", "excel", "valuation", "DCF"],
+    "certifications": ["CFA Level II"],
+    "summary": "Financial analyst specializing in DCF valuation and financial modeling for M&A."
+  },
+  {
+    "name": "Omar Farouk",
+    "headline": "Bookkeeper",
+    "location": "Remote",
+    "yearsExperience": 2,
+    "education": "Associate degree in Accounting",
+    "educationLevel": 2,
+    "skills": ["bookkeeping", "excel", "reconciliation"],
+    "certifications": [],
+    "summary": "Bookkeeper managing accounts payable/receivable and monthly reconciliations for small businesses."
+  },
+  {
+    "name": "Jennifer Wu",
+    "headline": "Controller",
+    "location": "San Francisco, CA",
+    "yearsExperience": 12,
+    "education": "Master's in Accounting",
+    "educationLevel": 4,
+    "skills": ["bookkeeping", "excel", "reconciliation", "GAAP", "forecasting"],
+    "certifications": ["CPA", "CMA"],
+    "summary": "Controller overseeing GAAP-compliant close processes and financial forecasting."
+  },
+  {
+    "name": "Luis Garcia",
+    "headline": "Junior Financial Analyst",
+    "location": "Miami, FL",
+    "yearsExperience": 1,
+    "education": "Bachelor's in Finance",
+    "educationLevel": 3,
+    "skills": ["financial modeling", "excel", "forecasting"],
+    "certifications": [],
+    "summary": "Junior analyst supporting financial modeling and forecasting for the FP&A team."
+  },
+  {
+    "name": "Karen O'Sullivan",
+    "headline": "Accountant",
+    "location": "Boston, MA",
+    "yearsExperience": 6,
+    "education": "Bachelor's in Accounting",
+    "educationLevel": 3,
+    "skills": ["bookkeeping", "excel", "GAAP", "reconciliation"],
+    "certifications": ["CPA"],
+    "summary": "Accountant responsible for GAAP reporting and monthly reconciliations."
+  },
+  {
+    "name": "Michael Torres",
+    "headline": "Senior Financial Analyst",
+    "location": "Remote",
+    "yearsExperience": 8,
+    "education": "Master of Business Administration (MBA)",
+    "educationLevel": 4,
+    "skills": ["financial modeling", "valuation", "excel", "forecasting"],
+    "certifications": ["CFA"],
+    "summary": "Senior financial analyst leading valuation and forecasting work for corporate finance."
+  },
+  {
+    "name": "Emily Carter",
+    "headline": "Staff Accountant",
+    "location": "Atlanta, GA",
+    "yearsExperience": 1,
+    "education": "Bachelor's in Accounting",
+    "educationLevel": 3,
+    "skills": ["bookkeeping", "excel", "reconciliation"],
+    "certifications": [],
+    "summary": "Entry-level staff accountant supporting monthly close and reconciliations."
+  }
+]

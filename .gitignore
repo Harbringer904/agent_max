@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+
+# env / secrets — NEVER commit real keys or tokens
+.env
+.env.local
+.env.*.local
+
+# generated runtime data (shareable result sets)
+data/results/
+
+# logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# excluded from this repo (kept locally, not published)
+job-profile-mcp/

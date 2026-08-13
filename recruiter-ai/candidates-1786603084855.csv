@@ -1,0 +1,11 @@
+name,field,location,yearsExperience,education,certifications,skills,totalScore,rank1to10,Core Skills,Years of Experience,Education Level,Frontend Focus
+Priya Sharma,software,"San Francisco, CA",5,Bachelor's in Computer Science,,JavaScript; React; TypeScript; CSS; HTML; Redux,100,10,5,4,2,2
+Jamal Washington,software,"New York, NY",3,Bachelor's in Computer Science,,JavaScript; React; Node.js; TypeScript; SQL,75,8,3.75,4,2,0
+Tom O'Brien,software,"Chicago, IL",2,Associate degree in Web Development,,JavaScript; TypeScript; CSS; React; Vue.js,74.38,7,5,2.67,1.33,0.67
+Sofia Nowak,software,Remote,1,Bachelor's in Computer Science,,JavaScript; CSS; React,59.62,6,3.75,1.33,2,0.67
+Marcus Chen,software,"Austin, TX",7,Bachelor's in Software Engineering,,Node.js; Python; SQL; REST API; PostgreSQL; Docker,46.15,5,0,4,2,0
+Elena Rodriguez,software,Remote,4,Master's in Data Science,,Python; SQL; Machine Learning; Statistics; Pandas; TensorFlow,46.15,5,0,4,2,0
+David Kim,software,"Seattle, WA",10,Master's in Computer Science,AWS Certified Solutions Architect,Python; Node.js; SQL; REST API; Kubernetes,46.15,5,0,4,2,0
+Aisha Bello,software,"Boston, MA",6,PhD in Computer Science,,Python; Machine Learning; Statistics; SQL; Scikit-learn,46.15,5,0,4,2,0
+Grace Liu,software,Remote,8,Bachelor's in Computer Engineering,AWS Certified Developer,Python; SQL; REST API; Docker; AWS,46.15,5,0,4,2,0
+Carlos Mendes,software,"Miami, FL",2,Master's in Statistics,,Python; SQL; Statistics; Machine Learning; R,35.92,4,0,2.67,2,0

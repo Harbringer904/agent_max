@@ -49,9 +49,12 @@ nothing breaks, you just don't get the `reasoning` text.
 - **Weighted, transparent scoring** — every candidate shows a per-criterion `raw` fit (0–1),
   `weighted` contribution, `max` possible, and a human-readable `note` explaining the
   judgment, plus an overall `totalScore` (0–100) and `rank1to10` (1–10).
-- **Five data sources** — real GitHub profiles, real Stack Overflow top-answerers, real local
-  businesses/professionals via Google Places (any field, any city), bundled synthetic sample
-  datasets (any field), and recruiter-supplied CSV/JSON upload.
+- **Six data sources** — real GitHub profiles, real Stack Overflow top-answerers, real local
+  businesses/professionals via Google Places (any field, any city), the **official SEBI
+  Registered Investment Adviser registry** (real, 1000+ India-wide financial consultants —
+  the default source for the finance field), bundled synthetic sample datasets (any field),
+  and recruiter-supplied CSV/JSON upload — which can optionally be **combined** with that
+  field's default data source instead of searching your upload alone.
 - **Optional AI reasoning** — when one of `ANTHROPIC_API_KEY` / `GROQ_API_KEY` /
   `GEMINI_API_KEY` is set and the toggle is on, the active provider scores each candidate
   against each criterion and supplies a 1–2 sentence `reasoning` field, with the same weight

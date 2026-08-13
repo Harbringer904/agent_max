@@ -566,33 +566,15 @@
     <!-- Step 3: data source -->
     <div class="panel" id="panelSource">
       <div class="panel-title">3. Data Source</div>
-      <div class="source-options" id="sourceOptions">
-        <label class="source-card" id="sourceCardGithub" data-provider="github">
-          <input type="radio" name="provider" value="github" />
-          <div class="source-card-body">
-            <strong>GitHub</strong>
-            <span>Real developer profiles (software field only)</span>
-          </div>
-        </label>
-        <label class="source-card" id="sourceCardSample" data-provider="sample">
-          <input type="radio" name="provider" value="sample" />
-          <div class="source-card-body">
-            <strong>Sample Dataset</strong>
-            <span>Bundled demo candidates, any field</span>
-          </div>
-        </label>
-        <label class="source-card" id="sourceCardUpload" data-provider="upload">
-          <input type="radio" name="provider" value="upload" />
-          <div class="source-card-body">
-            <strong>Upload CSV/JSON</strong>
-            <span>Paste your own candidate data</span>
-          </div>
-        </label>
-      </div>
+      <div class="source-options" id="sourceOptions"></div>
       <div id="uploadArea">
         <label for="uploadData">Candidate Data (CSV or JSON)</label>
         <textarea id="uploadData" placeholder="Paste CSV or JSON text here…"></textarea>
         <span class="hint">CSV: one header row + one candidate per row. JSON: an array of candidate objects.</span>
+        <label class="ai-toggle" id="combineToggleLabel" style="margin-top: 10px;">
+          <input type="checkbox" id="combineToggle" />
+          <span>Also include results from our database for this field</span>
+        </label>
       </div>
 
       <div class="form-actions" style="margin-top: 20px; flex-wrap: wrap;">
@@ -665,6 +647,7 @@
     const jobLocationInput = document.getElementById('jobLocation');
     const uploadArea = document.getElementById('uploadArea');
     const uploadData = document.getElementById('uploadData');
+    const combineToggle = document.getElementById('combineToggle');
     const btnSearch = document.getElementById('btnSearch');
     const statusEl = document.getElementById('status');
     const resultsEl = document.getElementById('results');
@@ -861,44 +844,67 @@
       });
     }
 
+    // Every provider the backend can register, with beginner-friendly copy.
+    // A field only shows the cards its /api/fields entry actually lists.
+    const SOURCE_META = {
+      sebi_ria: { label: 'SEBI Registered Advisers', desc: 'Real official govt. registry — India, finance only' },
+      github: { label: 'GitHub', desc: 'Real developer profiles (software field only)' },
+      stackoverflow: { label: 'Stack Overflow', desc: 'Real top-answerer profiles (software field only)' },
+      google_places: { label: 'Google Places', desc: 'Real local businesses, any field/city (needs a key)' },
+      sample: { label: 'Sample Dataset', desc: 'Bundled demo candidates, any field' },
+      upload: { label: 'Upload CSV/JSON', desc: 'Paste your own candidate data' },
+    };
+    // Preference order for auto-selecting a sensible default per field.
+    const SOURCE_PRIORITY = ['sebi_ria', 'github', 'stackoverflow', 'sample'];
+
+    const sourceOptionsEl = document.getElementById('sourceOptions');
+
     function updateSourceAvailability(fieldKey) {
       const fieldInfo = allFields.find(f => f.key === fieldKey);
-      const providers = fieldInfo ? fieldInfo.providers : [];
-      const githubCard = document.getElementById('sourceCardGithub');
-      const githubRadio = githubCard.querySelector('input');
-      const githubAvailable = providers.includes('github');
-      githubRadio.disabled = !githubAvailable;
-      githubCard.classList.toggle('disabled', !githubAvailable);
+      const available = fieldInfo ? fieldInfo.providers : [];
 
-      const defaultProvider = githubAvailable ? 'github' : 'sample';
-      document.querySelectorAll('input[name="provider"]').forEach(r => { r.checked = false; });
-      document.querySelector(`input[name="provider"][value="${defaultProvider}"]`).checked = true;
+      const cardKeys = Object.keys(SOURCE_META).filter(k => k === 'upload' || available.includes(k));
+      sourceOptionsEl.innerHTML = cardKeys.map(key => {
+        const meta = SOURCE_META[key];
+        const disabled = key !== 'upload' && !available.includes(key);
+        return `
+          <label class="source-card${disabled ? ' disabled' : ''}" data-provider="${key}">
+            <input type="radio" name="provider" value="${key}" ${disabled ? 'disabled' : ''} />
+            <div class="source-card-body">
+              <strong>${meta.label}</strong>
+              <span>${meta.desc}</span>
+            </div>
+          </label>`;
+      }).join('');
+
+      sourceOptionsEl.querySelectorAll('.source-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+          if (card.querySelector('input').disabled) { e.preventDefault(); return; }
+        });
+      });
+      sourceOptionsEl.querySelectorAll('input[name="provider"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+          updateSourceCardSelection();
+          uploadArea.classList.toggle('visible', radio.value === 'upload' && radio.checked);
+        });
+      });
+
+      const defaultProvider = SOURCE_PRIORITY.find(k => available.includes(k)) || 'sample';
+      const defaultRadio = sourceOptionsEl.querySelector(`input[name="provider"][value="${defaultProvider}"]`);
+      if (defaultRadio) defaultRadio.checked = true;
       updateSourceCardSelection();
       uploadArea.classList.toggle('visible', defaultProvider === 'upload');
     }
 
-    document.querySelectorAll('.source-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        const radio = card.querySelector('input');
-        if (radio.disabled) { e.preventDefault(); return; }
-      });
-    });
-    document.querySelectorAll('input[name="provider"]').forEach(radio => {
-      radio.addEventListener('change', () => {
-        updateSourceCardSelection();
-        uploadArea.classList.toggle('visible', radio.value === 'upload' && radio.checked);
-      });
-    });
-
     function updateSourceCardSelection() {
-      document.querySelectorAll('.source-card').forEach(card => {
+      sourceOptionsEl.querySelectorAll('.source-card').forEach(card => {
         const radio = card.querySelector('input');
         card.classList.toggle('selected', radio.checked);
       });
     }
 
     function getSelectedProvider() {
-      const checked = document.querySelector('input[name="provider"]:checked');
+      const checked = sourceOptionsEl.querySelector('input[name="provider"]:checked');
       return checked ? checked.value : 'sample';
     }
 
@@ -944,6 +950,7 @@
           return;
         }
         options.data = data;
+        if (combineToggle.checked) options.combineWithDefault = true;
       }
       await performSearch(jobSpec, provider, options);
     });
@@ -1458,6 +1465,7 @@
       const isUpload = entry.provider === 'upload';
       uploadArea.classList.toggle('visible', isUpload);
       if (isUpload && entry.options && entry.options.data) uploadData.value = entry.options.data;
+      combineToggle.checked = !!(entry.options && entry.options.combineWithDefault);
       aiToggle.checked = !!(entry.options && entry.options.useLLM);
 
       performSearch(entry.jobSpec, entry.provider, entry.options || {});

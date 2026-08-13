@@ -90,6 +90,17 @@ export const JOB_TEMPLATES = [
       { key: "experience", label: "Years of Experience", weight: 3, minYears: 3 },
     ],
   },
+  {
+    field: "finance",
+    title: "Financial Consultant / Investment Adviser",
+    location: null,
+    criteria: [
+      { key: "certifications", label: "Certifications", weight: 5, requiredCerts: ["SEBI RIA"] },
+      { key: "skills", label: "Core Skills", weight: 3, requiredSkills: ["investment advisory", "financial planning"] },
+      { key: "experience", label: "Years Registered", weight: 2, minYears: 1 },
+      { key: "location", label: "Location Preference", weight: 2, desiredLocation: "" },
+    ],
+  },
 
   // ---- sales ----
   {

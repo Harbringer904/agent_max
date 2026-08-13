@@ -70,6 +70,23 @@ The bundled datasets under `data/samples/*.json` (software, design, finance, sal
 are **fabricated demo data** for exercising the UI and scoring engine end-to-end. They do not
 represent real people, and any resemblance of a sample candidate's name or profile to a real
 person is coincidental. Do not use sample-dataset results to make claims about real labor
-markets or real candidates. Only the `upload` provider (recruiter-supplied CSV/JSON) and the
-`github` provider (live GitHub API) reflect real candidate data — and per §3, `github`'s
-fields are proxies, not ground truth.
+markets or real candidates. The `upload` provider (recruiter-supplied CSV/JSON), the `github`
+provider (live GitHub API), and the `stackoverflow` / `google_places` / `sebi_ria` providers
+(below) reflect real candidate data — and per §3, `github`'s fields are proxies, not ground
+truth.
+
+## 7. `sebi_ria` is a periodic snapshot, not a live feed
+
+`data/registries/sebi_ria.json` is a downloaded copy of SEBI's own public, no-login Registered
+Investment Adviser directory (sebi.gov.in), fetched by `scripts/fetch-sebi-ria.mjs`. It is real,
+official government data — but it is a **point-in-time snapshot**, not a live query on every
+search. A recently-registered or recently-deregistered adviser may not be reflected until the
+snapshot is refreshed. Always verify an individual adviser's current status directly at
+sebi.gov.in before relying on it for a real decision. `yearsExperience` here is "years since
+SEBI registration," a tenure proxy — not total career experience.
+
+We evaluated ICAI's Chartered Accountant directory for the same treatment and did not add it:
+ICAI's member data is fragmented across regional-branch PDFs with no consolidated bulk source
+we could verify as reliable, unlike SEBI's single, stable, paginated public listing. Rather
+than ship a fragile scraper against an unverified target, we left it out — see the project's
+build notes for more.

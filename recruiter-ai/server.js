@@ -40,7 +40,7 @@ app.use("/api/search", searchRouter);
 app.use("/api/results", resultsRouter);
 
 app.listen(PORT, () => {
-  console.log(`\n  🚀 Recruiter AI running at http://localhost:${PORT}`);
+  console.log(`\n  🚀 agent_max running at http://localhost:${PORT}`);
   console.log(
     `  📡 GitHub API: ${hasToken() ? "authenticated (5000 req/hr)" : "unauthenticated (60 req/hr — add GITHUB_TOKEN for more)"}\n`
   );

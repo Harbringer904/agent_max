@@ -16,6 +16,13 @@ import { provider as sebiRia } from "./sebiRia.js";
 import { provider as osm } from "./osm.js";
 import { provider as nmc } from "./nmc.js";
 import { provider as openWeb } from "./openWeb.js";
+import { provider as hnHiring } from "./hnHiring.js";
+import { provider as devto } from "./devto.js";
+import { provider as huggingface } from "./huggingface.js";
+import { provider as npiRegistry } from "./npiRegistry.js";
+import { provider as finraBrokerCheck } from "./finraBrokerCheck.js";
+import { provider as orcid } from "./orcid.js";
+import { provider as openalex } from "./openalex.js";
 
 const PROVIDERS = {
   github,
@@ -27,6 +34,13 @@ const PROVIDERS = {
   osm,
   nmc,
   open_web: openWeb,
+  hn_hiring: hnHiring,
+  devto,
+  huggingface,
+  npi: npiRegistry,
+  finra: finraBrokerCheck,
+  orcid,
+  openalex,
 };
 
 /** The provider a field should search by default when the user hasn't
@@ -36,6 +50,8 @@ export function defaultProviderForField(field) {
   const f = String(field || "").toLowerCase().trim();
   if (f === "finance") return "sebi_ria";
   if (f === "healthcare") return "nmc";
+  if (f === "software") return "github";
+  if (f === "research") return "openalex";
   return "sample";
 }
 

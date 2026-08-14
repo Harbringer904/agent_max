@@ -6,7 +6,7 @@ influence a hiring decision.
 
 ## 1. This is decision-support, not an autonomous filter
 
-Recruiter AI ranks candidates against **recruiter-defined, weighted criteria** and produces a
+agent_max ranks candidates against **recruiter-defined, weighted criteria** and produces a
 `totalScore` (0–100) and `rank1to10`. It does not accept, reject, or auto-advance anyone. No
 score from this tool should ever be the sole reason a candidate is dropped from a process —
 it is an input to a human decision, not a replacement for one.

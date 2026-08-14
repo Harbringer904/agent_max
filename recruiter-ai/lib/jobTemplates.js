@@ -151,6 +151,32 @@ export const JOB_TEMPLATES = [
     ],
   },
 
+  // ---- research ----
+  {
+    field: "research",
+    title: "Research Scientist",
+    location: null,
+    criteria: [
+      { key: "skills", label: "Core Skills", weight: 5, requiredSkills: ["research", "data analysis", "statistics"] },
+      { key: "education", label: "Education Level", weight: 4, minEducationLevel: 5 },
+      { key: "experience", label: "Years of Experience", weight: 3, minYears: 3 },
+      { key: "keyword", label: "Research Focus", weight: 2, keywords: ["publications", "peer-reviewed", "grants"] },
+      { key: "location", label: "Location Preference", weight: 1, desiredLocation: "" },
+    ],
+  },
+  {
+    field: "research",
+    title: "Postdoctoral Researcher",
+    location: null,
+    criteria: [
+      { key: "skills", label: "Core Skills", weight: 4, requiredSkills: ["research", "experimental design"] },
+      { key: "education", label: "Education Level", weight: 4, minEducationLevel: 4 },
+      { key: "keyword", label: "Research Focus", weight: 3, keywords: ["postdoc", "publications", "laboratory"] },
+      { key: "experience", label: "Years of Experience", weight: 2, minYears: 1 },
+      { key: "location", label: "Location Preference", weight: 1, desiredLocation: "" },
+    ],
+  },
+
   // ---- operations ----
   {
     field: "operations",

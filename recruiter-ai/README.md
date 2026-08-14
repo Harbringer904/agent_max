@@ -1,4 +1,4 @@
-# Recruiter AI
+# agent_max
 
 A **field-agnostic** candidate sourcing and ranking tool. Pick a job field (software,
 healthcare, sales, finance, design, …), define weighted requirements, choose a data source,

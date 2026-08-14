@@ -1,4 +1,4 @@
-# Recruiter AI — Master Plan
+# agent_max — Master Plan
 
 > **Planned by** Opus 4.8 (ultracode). **Implemented by** Sonnet 5 subagents (high effort).
 > This file is the single source of truth for the roadmap. Each phase is token-bounded so

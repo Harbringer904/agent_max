@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recruiter AI — Find & Rank Candidates, Any Field</title>
+  <title>agent_max — Find & Rank Candidates, Any Field</title>
   <style>
     :root {
       --bg: #EFE6D6;
@@ -513,7 +513,7 @@
 <body>
   <div class="container">
     <header>
-      <h1>🤖 Recruiter <span>AI</span></h1>
+      <h1>🤖 agent<span>_max</span></h1>
       <p>Find and rank candidates in any field — weighted criteria, transparent scoring</p>
       <div class="header-actions">
         <button type="button" class="icon-btn" id="btnOpenShortlist">☆ Shortlist (0)</button>
@@ -854,11 +854,18 @@
       google_places: { label: 'Google Places', desc: 'Real local businesses, any field/city (needs a paid-tier key)' },
       osm: { label: 'OpenStreetMap', desc: 'Free, no key — real businesses, but can be slow or sparse' },
       open_web: { label: 'Open Web Search (AI agent)', desc: 'AI searches the web itself, any field/city — needs a free LLM key + a free Tavily key' },
+      hn_hiring: { label: 'HN: Who Wants To Be Hired', desc: 'Devs actively seeking work right now (monthly HN thread)' },
+      devto: { label: 'Dev.to', desc: 'Public developer/ML profiles' },
+      huggingface: { label: 'Hugging Face (ML/AI)', desc: 'Public developer/ML profiles' },
+      npi: { label: 'NPI Registry', desc: 'Official US healthcare provider registry' },
+      finra: { label: 'FINRA BrokerCheck', desc: 'Official US financial-industry registry' },
+      orcid: { label: 'ORCID', desc: 'Public researcher/academic records' },
+      openalex: { label: 'OpenAlex', desc: 'Public researcher/academic records' },
       sample: { label: 'Sample Dataset', desc: 'Bundled demo candidates, any field' },
       upload: { label: 'Upload CSV/JSON', desc: 'Paste your own candidate data' },
     };
     // Preference order for auto-selecting a sensible default per field.
-    const SOURCE_PRIORITY = ['sebi_ria', 'nmc', 'github', 'stackoverflow', 'sample'];
+    const SOURCE_PRIORITY = ['sebi_ria', 'nmc', 'npi', 'finra', 'hn_hiring', 'github', 'openalex', 'stackoverflow', 'sample'];
 
     const sourceOptionsEl = document.getElementById('sourceOptions');
 

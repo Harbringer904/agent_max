@@ -1,4 +1,4 @@
-# Recruiter AI
+# agent_max
 
 **A field-agnostic candidate sourcing & ranking engine.** Define what you want in a hire —
 weighted by importance — pick a data source, and get candidates ranked **0–100** (plus a **1–10**

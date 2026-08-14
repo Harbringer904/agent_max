@@ -1,7 +1,7 @@
 {
-  "name": "recruiter-ai",
+  "name": "agent_max",
   "version": "1.0.0",
-  "description": "Simple agentic AI that finds and ranks developer candidates from GitHub",
+  "description": "Autonomous, field-agnostic candidate sourcing and ranking agent",
   "type": "module",
   "main": "server.js",
   "scripts": {

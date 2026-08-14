@@ -106,3 +106,16 @@ Real limitations to know about:
   the medical degree (e.g. "MBBS"), not a specific medical specialty.
 - Detail enrichment (degree, university, address) is best-effort per doctor; when it fails for
   a given candidate, that candidate still appears with less detail rather than being dropped.
+
+## 9. `open_web` results are unverified — treat them as leads, not confirmed candidates
+
+Unlike every other provider, `open_web`'s data isn't from a structured, authoritative source —
+it's whatever an LLM found via web search and decided looked relevant. Concretely:
+- The LLM extracts name/skills/location from free text on a page. It can misread, misattribute,
+  or hallucinate details despite being instructed not to invent people.
+- A page turning up in search doesn't mean the person is actually job-seeking, actually skilled
+  as described, or that the page is current.
+- **Always click through to `sourceUrl` and verify a candidate yourself** before treating an
+  `open_web` result as real — more so than for any other source in this app.
+- It only sees what a legitimate search index (Tavily) surfaces from the public, crawlable web
+  — it does not and cannot access LinkedIn or other login-gated/ToS-restricted platforms.

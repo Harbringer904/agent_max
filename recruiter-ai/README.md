@@ -49,16 +49,29 @@ nothing breaks, you just don't get the `reasoning` text.
 - **Weighted, transparent scoring** — every candidate shows a per-criterion `raw` fit (0–1),
   `weighted` contribution, `max` possible, and a human-readable `note` explaining the
   judgment, plus an overall `totalScore` (0–100) and `rank1to10` (1–10).
-- **Eight data sources** — real GitHub profiles, real Stack Overflow top-answerers, real local
+- **Nine data sources** — real GitHub profiles, real Stack Overflow top-answerers, real local
   businesses via Google Places (any field/city, needs a paid-tier key) or **OpenStreetMap**
   (any field/city, completely free, no key — but coverage and uptime are best-effort, see
   below), the **official SEBI Registered Investment Adviser registry** (real, 1000+
   India-wide financial consultants — the default source for the finance field), the **official
   NMC Registered Doctor registry** (real, 31,000+ doctors under Delhi's council alone — the
   default source for the healthcare field, live-queried and filterable by major Indian
-  city/state), bundled synthetic sample datasets (any field), and recruiter-supplied CSV/JSON
-  upload — which can optionally be **combined** with that field's default data source instead
-  of searching your upload alone.
+  city/state), **`open_web`** — a genuinely agentic source: an LLM in a multi-turn tool-calling
+  loop that searches the open web and reads pages *on its own* to find candidates for any
+  field/city (see below), bundled synthetic sample datasets (any field), and recruiter-supplied
+  CSV/JSON upload — which can optionally be **combined** with that field's default data source
+  instead of searching your upload alone.
+
+  **On `open_web`:** every other provider runs one fixed, hardcoded query. This one is different
+  — the LLM decides for itself how many searches to run, which pages to read, and when it has
+  enough (capped at 6 loop turns / 10 candidates). It needs **two separate free keys**: an LLM
+  (`GROQ_API_KEY`/`GEMINI_API_KEY`/`ANTHROPIC_API_KEY`, same as the reasoning toggle) to drive
+  the loop, plus `TAVILY_API_KEY` (free, no card, from [tavily.com](https://tavily.com) — a
+  search+extract API built specifically for AI agents) as its web-search tool. Generic public
+  search engines (DuckDuckGo's HTML endpoint, public SearXNG instances) were tested first and
+  rejected automated/sandboxed traffic with bot-detection challenges before Tavily was chosen.
+  It never touches LinkedIn or any ToS-gated site — it only sees what Tavily's index surfaces.
+  Without both keys it returns no results (never crashes search) — confirmed live.
 
   **On `nmc`:** unlike `sebi_ria` (a small bundled snapshot), this is a **live** query against
   India's National Medical Commission registry — it's too large to bundle. It filters by State

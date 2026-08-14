@@ -15,6 +15,7 @@ import { provider as googlePlaces } from "./googlePlaces.js";
 import { provider as sebiRia } from "./sebiRia.js";
 import { provider as osm } from "./osm.js";
 import { provider as nmc } from "./nmc.js";
+import { provider as openWeb } from "./openWeb.js";
 
 const PROVIDERS = {
   github,
@@ -25,6 +26,7 @@ const PROVIDERS = {
   sebi_ria: sebiRia,
   osm,
   nmc,
+  open_web: openWeb,
 };
 
 /** The provider a field should search by default when the user hasn't

@@ -247,15 +247,52 @@ Each phase is independently shippable and separately verifiable.
   `{ maxTurns: 3 }` through as a forward-compatible no-op, but it currently has **zero effect**;
   `MAX_TURNS` stays a hardcoded `6` inside `openWeb.js` until Phase 3 threads it through for real.
 
-### Phase 2 — Autonomous frontend
-- **Remove** the data-source card grid entirely.
-- **Add** an `N candidates` control to the criteria panel; keep the CSV/JSON upload as an
-  optional collapsed section.
-- **Add** per-card trust badge + completeness bar; add the methodology panel
-  (`sourcePlan` + `agentLog` + `sourcesQueried`) so the agent's reasoning is visible.
-- **Add** the "group by confidence" view toggle.
-- **Verify:** drive the real UI in the browser end-to-end; confirm no source picker remains and
-  a search returns one consolidated ranked list.
+### Phase 2 — Autonomous frontend — ✅ DONE (2026-08-15)
+- **Removed** the data-source card grid entirely: `#sourceOptions`, `SOURCE_META`,
+  `SOURCE_PRIORITY`, `updateSourceAvailability()`, `updateSourceCardSelection()`,
+  `getSelectedProvider()`, the `combineToggle`/`combineToggleLabel` checkbox, and the
+  `.source-card`/`.source-options` CSS — confirmed zero references remain anywhere in
+  `public/index.html`.
+- **Added** an `N candidates` control (`#topN`, clamped 1–50, defaults to 10) to the criteria
+  panel; the CSV/JSON upload is a collapsed `<details>` section that always merges into the
+  agent's search (no separate toggle).
+- **Added** per-card trust badge (`VERIFIED`/etc.) + completeness bar (`Data NN%`); added the
+  methodology panel rendering `sourcePlan` + `sourcesQueried` + the `agentLog` **string**
+  (newline-joined, rendered as preformatted text, not iterated as an array).
+- **Added** the "Group by confidence" toolbar toggle (OFF = single list, ON = sections by
+  `sourceTrust`).
+- **Rewrote** `performSearch(jobSpec, topN, options)` to be provider-less, posting to
+  `POST /api/agent-search`; rewrote `runHistoryEntry()` so History/Saved-search replay works for
+  both new entries (`topN`) and pre-Phase-2 entries (`provider`, ignored, `topN` falls back to
+  the clamped default) without throwing.
+- **Verified**, driving the real UI in a browser against `PORT=3071 node server.js`:
+  - No source picker anywhere in the DOM (`#sourceOptions`, `input[name="provider"]`,
+    `.source-card`, `#combineToggle` all absent) and no orphaned JS references.
+  - finance + "Delhi", topN=3 → sourcePlan `[sebi_ria, finra, osm]`, "Showing 3 of 33 found" —
+    topN honored as a ceiling, one consolidated ranked list with `VERIFIED` badges and
+    `Data 100%` completeness bars on every card.
+  - Methodology panel renders `sourcePlan`/`sourcesQueried`/the `agentLog` string correctly as
+    text with no console error.
+  - "Group by confidence" toggles a `Verified (3)` grouped view and back to a flat list cleanly.
+  - CSV upload: pasted a 1-row CSV, re-ran the same search → agentLog showed
+    `upload: 1 candidate(s) in 0ms (ok)` and total went from 33 to 34 found — the uploaded
+    candidate merges into the pool as designed.
+  - Regression sweep all passed: shortlist (star persists across reload via localStorage),
+    compare modal (2 candidates, table renders), CSV export and Save-as-PDF trigger with no new
+    console errors, History replay (including a synthetic **old-format** entry seeded with a
+    `provider` field and no `topN` — replayed through the agent with no `ReferenceError`, topN
+    correctly fell back to 10), Saved Searches (saved via a stubbed `window.prompt`, persisted
+    across reload, replayed correctly with `N=3` shown), share link (`POST /api/results` → new
+    tab on `/?r=<id>` rendered a clean read-only "Shared result" banner with no `Save search`
+    button and no console errors).
+  - Empty-state path: field "sales" with no location → honest message "No candidates found
+    matching your criteria. The agent found no sources to query for this field/location
+    combination. Synthetic sample data is deliberately excluded from agent search…" — no silent
+    empty screen.
+  - Browser console free of errors across every scenario above (verified in a fresh tab where
+    stale errors from earlier manual `window.prompt()` probes couldn't leak in).
+  - `npm test` → **106/106 pass**, unchanged, confirming the CSS/JS-only rewrite didn't touch
+    `lib/`/`routes/`/`test/`.
 
 ### Phase 3 — Open-web reach & quality
 - Thread the shrunk `maxTurns`/`timeoutMs` budget into `openWeb.search()`.

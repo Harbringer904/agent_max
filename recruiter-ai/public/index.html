@@ -159,29 +159,73 @@
     }
     .tag-add-row button:hover { border-color: var(--accent); }
 
-    /* Data source */
-    .source-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .source-card {
+    /* Optional upload (collapsed by default) */
+    .upload-details {
       background: var(--surface-2);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 14px 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      transition: border-color 0.15s, background 0.15s;
     }
-    .source-card:hover { border-color: var(--border-strong); }
-    .source-card.selected { border-color: var(--accent); background: var(--accent-soft); }
-    .source-card.disabled { opacity: 0.45; cursor: not-allowed; }
-    .source-card.disabled:hover { border-color: var(--border); }
-    .source-card input { margin-top: 3px; accent-color: var(--accent); }
-    .source-card-body strong { display: block; font-size: 0.92rem; }
-    .source-card-body span { font-size: 0.78rem; color: var(--text-muted); }
-    #uploadArea { margin-top: 14px; display: none; }
-    #uploadArea.visible { display: block; }
-    #uploadArea textarea { min-height: 140px; resize: vertical; font-family: ui-monospace, monospace; font-size: 0.82rem; }
+    .upload-details summary {
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--accent);
+      list-style: none;
+    }
+    .upload-details summary::-webkit-details-marker { display: none; }
+    .upload-details summary::before { content: '▸ '; }
+    .upload-details[open] summary::before { content: '▾ '; }
+    .upload-details-body { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .upload-details-body textarea { min-height: 140px; resize: vertical; font-family: ui-monospace, monospace; font-size: 0.82rem; }
+
+    /* Methodology panel (sourcePlan / sourcesQueried / agentLog) */
+    .methodology-panel {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .methodology-panel summary {
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--accent);
+      list-style: none;
+    }
+    .methodology-panel summary::-webkit-details-marker { display: none; }
+    .methodology-panel summary::before { content: '▸ '; }
+    .methodology-panel[open] summary::before { content: '▾ '; }
+    .methodology-body { margin-top: 12px; display: flex; flex-direction: column; gap: 14px; }
+    .methodology-section ul { padding-left: 18px; font-size: 0.82rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; }
+    .methodology-section li strong { color: var(--text); }
+    .methodology-heading { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; }
+    .agent-log { white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 0.78rem; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+
+    /* Trust badge + completeness bar (per-candidate provenance) */
+    .trust-badge {
+      display: inline-block;
+      border: 1px solid var(--text-muted);
+      border-radius: 6px;
+      padding: 1px 8px;
+      font-size: 0.66rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      cursor: help;
+    }
+    .completeness-wrap { margin-top: 8px; display: flex; align-items: center; gap: 8px; cursor: help; }
+    .completeness-label { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; }
+    .completeness-bar { flex: 1; max-width: 120px; height: 4px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
+    .completeness-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+    .source-line { font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; }
+    .provenance-note { margin-left: 6px; }
+    .dup-marker { margin-left: 6px; color: var(--orange); font-weight: 600; cursor: help; }
+
+    /* Grouped-by-confidence view */
+    .candidate-group { margin-bottom: 20px; }
+    .candidate-group-heading { font-family: var(--font-serif); font-size: 1rem; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; }
 
     .form-actions { display: flex; align-items: center; gap: 16px; margin-top: 4px; }
     .btn-search {
@@ -298,7 +342,6 @@
     @media (max-width: 640px) {
       .form-grid { grid-template-columns: 1fr; }
       .criterion-row { grid-template-columns: 1fr; }
-      .source-options { grid-template-columns: 1fr; }
       .candidate-card { grid-template-columns: 1fr; }
       .score-col { text-align: left; }
       .score-col { min-width: 0; }
@@ -492,7 +535,7 @@
     @media print {
       body { background: #fff; color: #111; }
       .header-actions, .panel, .readonly-banner, .results-toolbar,
-      .star-btn, .compare-check, .modal-overlay { display: none !important; }
+      .star-btn, .compare-check, .modal-overlay, .methodology-panel { display: none !important; }
       header p { color: #444; }
       .container { max-width: 100%; padding: 0; }
       .candidate-card {
@@ -559,23 +602,26 @@
           <label for="jobLocation">Location (optional)</label>
           <input type="text" id="jobLocation" placeholder="e.g. Remote, New York" />
         </div>
+        <div class="form-group">
+          <label for="topN">How many candidates?</label>
+          <input type="number" id="topN" min="1" max="50" value="10" />
+          <span class="hint">The agent returns up to this many best matches — a ceiling, not a guarantee.</span>
+        </div>
       </div>
       <div class="criteria-list" id="criteriaList"></div>
     </div>
 
-    <!-- Step 3: data source -->
+    <!-- Step 3: search -->
     <div class="panel" id="panelSource">
-      <div class="panel-title">3. Data Source</div>
-      <div class="source-options" id="sourceOptions"></div>
-      <div id="uploadArea">
-        <label for="uploadData">Candidate Data (CSV or JSON)</label>
-        <textarea id="uploadData" placeholder="Paste CSV or JSON text here…"></textarea>
-        <span class="hint">CSV: one header row + one candidate per row. JSON: an array of candidate objects.</span>
-        <label class="ai-toggle" id="combineToggleLabel" style="margin-top: 10px;">
-          <input type="checkbox" id="combineToggle" />
-          <span>Also include results from our database for this field</span>
-        </label>
-      </div>
+      <div class="panel-title">3. Search</div>
+      <details class="upload-details" id="uploadDetails">
+        <summary>Optional: add your own candidates (CSV or JSON)</summary>
+        <div class="upload-details-body">
+          <label for="uploadData">Candidate Data (CSV or JSON)</label>
+          <textarea id="uploadData" placeholder="Paste CSV or JSON text here…"></textarea>
+          <span class="hint">CSV: one header row + one candidate per row. JSON: an array of candidate objects. The agent automatically merges this with everything else it finds — there's no separate toggle needed.</span>
+        </div>
+      </details>
 
       <div class="form-actions" style="margin-top: 20px; flex-wrap: wrap;">
         <button type="button" class="btn-search" id="btnSearch">🔍 Search &amp; Rank Candidates</button>
@@ -631,10 +677,12 @@
     let currentJobSpec = null;      // jobSpec behind currentResultsData
     let compareSelection = new Set(); // candidateKey() values selected for compare, current results only
     let readOnlyMode = false;
+    let lastAiRequested = false;   // aiRequested flag behind currentResultsData, for the fallback banner
+    let groupByConfidence = false; // "group by confidence" toggle; default OFF = one consolidated list
 
     // Phase 5 state
     const SAVED_KEY = 'recruiter-saved-searches';
-    let lastSearchMeta = null; // { provider, options } behind currentJobSpec, for "Save search"
+    let lastSearchMeta = null; // { topN, options } behind currentJobSpec, for "Save search"
 
     function candidateKey(c) { return `${c.id}|${c.name}`; }
 
@@ -645,9 +693,9 @@
     const criteriaList = document.getElementById('criteriaList');
     const jobTitleInput = document.getElementById('jobTitle');
     const jobLocationInput = document.getElementById('jobLocation');
-    const uploadArea = document.getElementById('uploadArea');
+    const topNInput = document.getElementById('topN');
+    const uploadDetails = document.getElementById('uploadDetails');
     const uploadData = document.getElementById('uploadData');
-    const combineToggle = document.getElementById('combineToggle');
     const btnSearch = document.getElementById('btnSearch');
     const statusEl = document.getElementById('status');
     const resultsEl = document.getElementById('results');
@@ -717,7 +765,6 @@
       templateSelect.disabled = false;
       templateSelect.innerHTML = '<option value="">Select a role template…</option>' +
         templates.map(t => `<option value="${t.title}">${t.title}</option>`).join('');
-      updateSourceAvailability(fieldKey);
     });
 
     templateSelect.addEventListener('change', () => {
@@ -844,80 +891,6 @@
       });
     }
 
-    // Every provider the backend can register, with beginner-friendly copy.
-    // A field only shows the cards its /api/fields entry actually lists.
-    const SOURCE_META = {
-      sebi_ria: { label: 'SEBI Registered Advisers', desc: 'Real official govt. registry — India, finance only' },
-      nmc: { label: 'NMC Registered Doctors', desc: 'Real official govt. registry — India, healthcare only' },
-      github: { label: 'GitHub', desc: 'Real developer profiles (software field only)' },
-      stackoverflow: { label: 'Stack Overflow', desc: 'Real top-answerer profiles (software field only)' },
-      google_places: { label: 'Google Places', desc: 'Real local businesses, any field/city (needs a paid-tier key)' },
-      osm: { label: 'OpenStreetMap', desc: 'Free, no key — real businesses, but can be slow or sparse' },
-      open_web: { label: 'Open Web Search (AI agent)', desc: 'AI searches the web itself, any field/city — needs a free LLM key + a free Tavily key' },
-      hn_hiring: { label: 'HN: Who Wants To Be Hired', desc: 'Devs actively seeking work right now (monthly HN thread)' },
-      devto: { label: 'Dev.to', desc: 'Public developer/ML profiles' },
-      huggingface: { label: 'Hugging Face (ML/AI)', desc: 'Public developer/ML profiles' },
-      npi: { label: 'NPI Registry', desc: 'Official US healthcare provider registry' },
-      finra: { label: 'FINRA BrokerCheck', desc: 'Official US financial-industry registry' },
-      orcid: { label: 'ORCID', desc: 'Public researcher/academic records' },
-      openalex: { label: 'OpenAlex', desc: 'Public researcher/academic records' },
-      sample: { label: 'Sample Dataset', desc: 'Bundled demo candidates, any field' },
-      upload: { label: 'Upload CSV/JSON', desc: 'Paste your own candidate data' },
-    };
-    // Preference order for auto-selecting a sensible default per field.
-    const SOURCE_PRIORITY = ['sebi_ria', 'nmc', 'npi', 'finra', 'hn_hiring', 'github', 'openalex', 'stackoverflow', 'sample'];
-
-    const sourceOptionsEl = document.getElementById('sourceOptions');
-
-    function updateSourceAvailability(fieldKey) {
-      const fieldInfo = allFields.find(f => f.key === fieldKey);
-      const available = fieldInfo ? fieldInfo.providers : [];
-
-      const cardKeys = Object.keys(SOURCE_META).filter(k => k === 'upload' || available.includes(k));
-      sourceOptionsEl.innerHTML = cardKeys.map(key => {
-        const meta = SOURCE_META[key];
-        const disabled = key !== 'upload' && !available.includes(key);
-        return `
-          <label class="source-card${disabled ? ' disabled' : ''}" data-provider="${key}">
-            <input type="radio" name="provider" value="${key}" ${disabled ? 'disabled' : ''} />
-            <div class="source-card-body">
-              <strong>${meta.label}</strong>
-              <span>${meta.desc}</span>
-            </div>
-          </label>`;
-      }).join('');
-
-      sourceOptionsEl.querySelectorAll('.source-card').forEach(card => {
-        card.addEventListener('click', (e) => {
-          if (card.querySelector('input').disabled) { e.preventDefault(); return; }
-        });
-      });
-      sourceOptionsEl.querySelectorAll('input[name="provider"]').forEach(radio => {
-        radio.addEventListener('change', () => {
-          updateSourceCardSelection();
-          uploadArea.classList.toggle('visible', radio.value === 'upload' && radio.checked);
-        });
-      });
-
-      const defaultProvider = SOURCE_PRIORITY.find(k => available.includes(k)) || 'sample';
-      const defaultRadio = sourceOptionsEl.querySelector(`input[name="provider"][value="${defaultProvider}"]`);
-      if (defaultRadio) defaultRadio.checked = true;
-      updateSourceCardSelection();
-      uploadArea.classList.toggle('visible', defaultProvider === 'upload');
-    }
-
-    function updateSourceCardSelection() {
-      sourceOptionsEl.querySelectorAll('.source-card').forEach(card => {
-        const radio = card.querySelector('input');
-        card.classList.toggle('selected', radio.checked);
-      });
-    }
-
-    function getSelectedProvider() {
-      const checked = sourceOptionsEl.querySelector('input[name="provider"]:checked');
-      return checked ? checked.value : 'sample';
-    }
-
     function buildJobSpec() {
       const fieldKey = fieldSelect.value;
       const criteria = currentTemplate.criteria.map((c, i) => {
@@ -946,40 +919,40 @@
       };
     }
 
+    // Clamp topN to [1, 50], defaulting to 10 on anything non-numeric.
+    function clampTopN(n) {
+      const num = Number(n);
+      if (!Number.isFinite(num)) return 10;
+      return Math.min(50, Math.max(1, Math.round(num)));
+    }
+    topNInput.addEventListener('change', () => { topNInput.value = clampTopN(topNInput.value); });
+
     btnSearch.addEventListener('click', async () => {
       if (!currentTemplate) return;
       const jobSpec = buildJobSpec();
-      const provider = getSelectedProvider();
+      const topN = clampTopN(topNInput.value);
       const options = {};
       if (aiToggle.checked) options.useLLM = true;
-      if (provider === 'upload') {
-        const data = uploadData.value.trim();
-        if (!data) {
-          statusEl.textContent = 'Paste CSV or JSON candidate data first.';
-          statusEl.className = 'status error';
-          return;
-        }
-        options.data = data;
-        if (combineToggle.checked) options.combineWithDefault = true;
-      }
-      await performSearch(jobSpec, provider, options);
+      const uploadValue = uploadData.value.trim();
+      if (uploadValue) options.data = uploadValue;
+      await performSearch(jobSpec, topN, options);
     });
 
-    async function performSearch(jobSpec, provider, options) {
+    // Posts to POST /api/agent-search — the recruiter no longer chooses a
+    // provider; the agent decides which of the registered sources to query.
+    async function performSearch(jobSpec, topN, options) {
       const aiRequested = !!options.useLLM;
       lastSubmittedJobSpec = jobSpec;
       btnSearch.disabled = true;
       statusEl.className = 'status';
-      statusEl.innerHTML = provider === 'github'
-        ? 'Searching GitHub <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span> this takes 15-60 seconds'
-        : 'Searching <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>';
+      statusEl.innerHTML = 'Searching every available source <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span> this can take 20–60 seconds';
       resultsEl.innerHTML = '';
 
       try {
-        const res = await fetch('/api/search', {
+        const res = await fetch('/api/agent-search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ jobSpec, provider, options }),
+          body: JSON.stringify({ jobSpec, topN, options }),
         });
         const data = await res.json();
 
@@ -990,13 +963,13 @@
         }
 
         statusEl.textContent = '';
-        lastSearchMeta = { provider, options };
+        lastSearchMeta = { topN, options };
         renderResults(data, jobSpec, aiRequested);
         pushHistory({
           ts: Date.now(),
           field: jobSpec.field,
           title: jobSpec.title,
-          provider,
+          topN,
           count: data.candidates ? data.candidates.length : 0,
           topScore: data.candidates && data.candidates.length ? data.candidates[0].totalScore : null,
           jobSpec,
@@ -1037,16 +1010,228 @@
       return haystackArr.some(h => String(h).toLowerCase().trim() === t);
     }
 
+    // Trust-tier display metadata. Colors reuse existing theme tokens only
+    // (--green / --yellow / --text-muted) — there is no --amber token.
+    const TRUST_META = {
+      verified: { label: 'Verified', color: 'var(--green)', title: 'From an official registry or your own upload' },
+      profile: { label: 'Profile', color: 'var(--yellow)', title: 'A real, self-maintained public profile — the claims on it are not independently verified' },
+      lead: { label: 'Lead', color: 'var(--text-muted)', title: 'A thin or inferred hit — may or may not be a strong match; verify by hand before contacting' },
+    };
+
+    function trustBadgeHtml(trust) {
+      if (!trust) return '';
+      const meta = TRUST_META[trust] || TRUST_META.lead;
+      return `<span class="trust-badge" style="border-color:${meta.color};color:${meta.color}" title="${escapeAttr(meta.title)}">${meta.label}</span>`;
+    }
+
+    function clamp01(n) {
+      const v = Number(n);
+      return Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0;
+    }
+
+    function completenessBarHtml(completeness) {
+      if (completeness === null || completeness === undefined) return '';
+      const pct = Math.round(clamp01(completeness) * 100);
+      return `
+        <div class="completeness-wrap" title="How much of your criteria this source could actually speak to">
+          <span class="completeness-label">Data ${pct}%</span>
+          <div class="completeness-bar"><div class="completeness-fill" style="width:${pct}%"></div></div>
+        </div>`;
+    }
+
+    // "also found via: X, Y" (from provenance, when merged from >1 source) +
+    // a subtle "possible duplicate" marker (flag-only dedupe tier, never merged).
+    function provenanceHtml(c) {
+      const bits = [];
+      if (Array.isArray(c.provenance) && c.provenance.length > 1) {
+        const others = c.provenance.filter(p => p && p.source && p.source !== c.source);
+        if (others.length) {
+          bits.push(`<span class="provenance-note">also found via: ${others.map(p => escapeHtml(p.source)).join(', ')}</span>`);
+        }
+      }
+      if (c.possibleDuplicateOf) {
+        bits.push(`<span class="dup-marker" title="Another candidate in this list may be the same person — not auto-merged because there wasn't enough corroborating evidence">possible duplicate</span>`);
+      }
+      return bits.join(' ');
+    }
+
+    function buildCriteriaMaps(jobSpec) {
+      const skillsCriterion = jobSpec.criteria.find(c => c.key === 'skills');
+      const requiredSkills = (skillsCriterion?.requiredSkills || []).map(s => s.toLowerCase());
+      const certsCriterion = jobSpec.criteria.find(c => c.key === 'certifications');
+      const requiredCerts = (certsCriterion?.requiredCerts || []).map(s => s.toLowerCase());
+      const labelByKey = {};
+      const requiredByKey = {};
+      jobSpec.criteria.forEach(c => { labelByKey[c.key] = c.label; requiredByKey[c.key] = !!c.required; });
+      return { requiredSkills, requiredCerts, labelByKey, requiredByKey };
+    }
+
+    function renderCandidateCard(c, i, ctx) {
+      const { requiredSkills, requiredCerts, labelByKey, requiredByKey } = ctx;
+      const metaParts = [];
+      if (c.location) metaParts.push(`📍 ${escapeHtml(c.location)}`);
+      if (c.yearsExperience !== null && c.yearsExperience !== undefined) metaParts.push(`💼 ${c.yearsExperience} yrs exp`);
+      if (c.education) metaParts.push(`🎓 ${escapeHtml(c.education)}`);
+
+      const skillTags = (c.skills || []).slice(0, 10).map(skill => {
+        const isMatch = termMatches(skill, requiredSkills);
+        return `<span class="skill-tag ${isMatch ? 'matched' : ''}">${escapeHtml(skill)}</span>`;
+      }).join('');
+
+      const certTags = (c.certifications || []).map(cert => {
+        const isMatch = termMatches(cert, requiredCerts);
+        return `<span class="skill-tag cert ${isMatch ? 'matched' : ''}">${escapeHtml(cert)}</span>`;
+      }).join('');
+
+      const scoreBars = Object.entries(c.criteriaScores || {}).map(([key, val]) => {
+        const pct = Math.round((val.raw || 0) * 100);
+        const reqMarker = requiredByKey[key] ? '<span class="required-marker" title="Required">required</span>' : '';
+        return `
+          <div class="score-bar-row">
+            <div class="score-bar-top">
+              <span>${escapeHtml(labelByKey[key] || key)}${reqMarker}</span>
+              <span>${val.weighted}/${val.max}</span>
+            </div>
+            <div class="score-bar">
+              <div class="score-bar-fill" style="width:${pct}%;background:${barColor(val.raw || 0)}"></div>
+            </div>
+            <span class="score-bar-note">${escapeHtml(val.note || '')}</span>
+          </div>`;
+      }).join('');
+
+      const nameHtml = c.sourceUrl
+        ? `<a href="${c.sourceUrl}" target="_blank" rel="noopener">${escapeHtml(c.name)}</a>`
+        : escapeHtml(c.name);
+
+      const key = candidateKey(c);
+      const starred = isShortlisted(c);
+
+      // Headline rating is agentRank1to10 when present (agent-search results);
+      // falls back to the frozen rank1to10 for older shared/legacy results.
+      const headlineRank = c.agentRank1to10 != null ? c.agentRank1to10 : c.rank1to10;
+      const headlineColorClass = scoreColor((Number(headlineRank) || 0) * 10);
+
+      const sourceBits = [];
+      if (c.source) sourceBits.push(`Source: ${escapeHtml(c.source)}`);
+      const prov = provenanceHtml(c);
+      if (prov) sourceBits.push(prov);
+
+      return `
+        <div class="candidate-card">
+          <div class="card-controls">
+            <div class="rank-badge ${rankClass(i)}">#${i + 1}</div>
+            <button type="button" class="star-btn ${starred ? 'starred' : ''}" data-star-key="${escapeAttr(key)}" title="Shortlist">${starred ? '★' : '☆'}</button>
+            <label class="compare-check">
+              <input type="checkbox" data-compare-key="${escapeAttr(key)}" ${compareSelection.has(key) ? 'checked' : ''} />
+              compare
+            </label>
+          </div>
+          <div class="candidate-info">
+            <h3>
+              ${c.avatarUrl ? `<img class="avatar" src="${c.avatarUrl}" alt="" />` : ''}
+              ${nameHtml}
+              ${trustBadgeHtml(c.sourceTrust)}
+            </h3>
+            ${c.headline ? `<div class="candidate-headline">${escapeHtml(c.headline)}</div>` : ''}
+            <div class="candidate-meta">${metaParts.map(p => `<span>${p}</span>`).join('')}</div>
+            ${sourceBits.length ? `<div class="source-line">${sourceBits.join(' · ')}</div>` : ''}
+            ${completenessBarHtml(c.dataCompleteness)}
+            ${c.summary ? `<div class="candidate-summary">"${escapeHtml(c.summary)}"</div>` : ''}
+            <div class="skill-tags">${skillTags}${certTags}</div>
+            ${c.reasoning ? `<div class="reasoning-block"><strong>💡 Why this rank:</strong> ${escapeHtml(c.reasoning)}</div>` : ''}
+          </div>
+          <div class="score-col">
+            <div class="total-score ${headlineColorClass}">${headlineRank}<span style="font-size:1rem;">/10</span></div>
+            <div class="score-label">agent rating</div>
+            <div class="rating-row">Total score: <strong>${c.totalScore}</strong>/100</div>
+            <div class="score-breakdown">${scoreBars}</div>
+          </div>
+        </div>`;
+    }
+
+    function renderFlatList(candidates, jobSpec) {
+      const ctx = buildCriteriaMaps(jobSpec);
+      return `<div class="candidate-list">${candidates.map((c, i) => renderCandidateCard(c, i, ctx)).join('')}</div>`;
+    }
+
+    // "Group by confidence" view: bucket by sourceTrust into Verified / Profile
+    // / Lead sections, preserving each candidate's ORIGINAL overall rank badge
+    // and its order within its group (both already sorted by rankingScore).
+    function renderGroupedList(candidates, jobSpec) {
+      const ctx = buildCriteriaMaps(jobSpec);
+      const groups = { verified: [], profile: [], lead: [] };
+      candidates.forEach((c, i) => {
+        const trust = c.sourceTrust || 'lead';
+        (groups[trust] || groups.lead).push({ c, i });
+      });
+      const sections = [['verified', 'Verified'], ['profile', 'Profile'], ['lead', 'Lead']];
+      return `<div class="candidate-groups">${sections.map(([key, label]) => {
+        const items = groups[key];
+        if (!items.length) return '';
+        return `
+          <div class="candidate-group">
+            <div class="candidate-group-heading">${label} (${items.length})</div>
+            <div class="candidate-list">${items.map(({ c, i }) => renderCandidateCard(c, i, ctx)).join('')}</div>
+          </div>`;
+      }).join('')}</div>`;
+    }
+
+    // sourcePlan ("who and why") + sourcesQueried (what actually happened) +
+    // agentLog (a NEWLINE-SEPARATED STRING, not an array — render as-is with
+    // white-space:pre-wrap, never .map it). Collapsed by default.
+    function renderMethodology(data) {
+      const plan = data.sourcePlan || [];
+      const queried = data.sourcesQueried || [];
+      const planItems = plan.map(p => `<li><strong>${escapeHtml(p.providerKey)}</strong> — ${escapeHtml(p.reason)}</li>`).join('');
+      const queriedItems = queried.map(sq => `<li>${escapeHtml(sq.key)}: ${sq.count} candidate(s) in ${sq.ms}ms (${escapeHtml(sq.status)})</li>`).join('');
+      return `
+        <details class="methodology-panel">
+          <summary>How the agent searched (${plan.length} source${plan.length === 1 ? '' : 's'})</summary>
+          <div class="methodology-body">
+            <div class="methodology-section">
+              <div class="methodology-heading">Sources chosen</div>
+              <ul>${planItems || '<li>No sources selected.</li>'}</ul>
+            </div>
+            <div class="methodology-section">
+              <div class="methodology-heading">Sources queried</div>
+              <ul>${queriedItems || '<li>None queried.</li>'}</ul>
+            </div>
+            <div class="methodology-section">
+              <div class="methodology-heading">Agent log</div>
+              <pre class="agent-log">${escapeHtml(data.agentLog || '')}</pre>
+            </div>
+          </div>
+        </details>`;
+    }
+
     function renderResults(data, jobSpec, aiRequested) {
       currentResultsData = data;
       currentJobSpec = jobSpec;
       compareSelection = new Set();
+      lastAiRequested = aiRequested;
+      groupByConfidence = false;
+      renderResultsBody();
+    }
+
+    // Rebuilds the results DOM from currentResultsData/currentJobSpec + the
+    // groupByConfidence flag, without resetting compareSelection — this is
+    // what the "group by confidence" toggle re-invokes.
+    function renderResultsBody() {
+      const data = currentResultsData;
+      const jobSpec = currentJobSpec;
+      const aiRequested = lastAiRequested;
 
       if (!data.candidates || data.candidates.length === 0) {
+        const queried = data.sourcesQueried || [];
+        const queriedList = queried.length
+          ? `<ul style="text-align:left;max-width:440px;margin:12px auto 0;list-style:none;padding:0;">${queried.map(sq =>
+              `<li>${escapeHtml(sq.key)}: ${sq.count} found — ${escapeHtml(sq.status)}, ${sq.ms}ms</li>`).join('')}</ul>`
+          : '<p style="font-size:0.9rem;margin-top:8px;">The agent found no sources to query for this field/location combination.</p>';
         resultsEl.innerHTML = `
           <div class="empty-state">
             <p>😕 No candidates found matching your criteria.</p>
-            <p style="font-size:0.9rem;margin-top:8px;">Try loosening criteria, broadening location, or a different data source.</p>
+            ${queriedList}
+            <p style="font-size:0.85rem;margin-top:14px;color:var(--text-muted);">Synthetic sample data is deliberately excluded from agent search — only real sources are queried. Try loosening criteria, broadening location, or adding your own candidate data above.</p>
           </div>`;
         return;
       }
@@ -1055,8 +1240,11 @@
         ? '<div class="llm-fallback-banner">⚠️ AI reasoning unavailable — showing rule-based scores.</div>'
         : '';
 
+      const methodology = renderMethodology(data);
+
       const toolbar = `
         <div class="results-toolbar">
+          <button type="button" class="toolbar-btn${groupByConfidence ? ' active' : ''}" id="btnGroupConfidence">🗂️ Group by confidence</button>
           <button type="button" class="toolbar-btn" id="btnExportCsv">⬇️ Export CSV</button>
           <button type="button" class="toolbar-btn" id="btnSavePdf">🖨️ Save as PDF</button>
           <button type="button" class="toolbar-btn" id="btnCompare" disabled>⚖️ Compare (0)</button>
@@ -1065,91 +1253,17 @@
         </div>
         <div class="share-box" id="shareBox"></div>`;
 
-      const skillsCriterion = jobSpec.criteria.find(c => c.key === 'skills');
-      const requiredSkills = (skillsCriterion?.requiredSkills || []).map(s => s.toLowerCase());
-      const certsCriterion = jobSpec.criteria.find(c => c.key === 'certifications');
-      const requiredCerts = (certsCriterion?.requiredCerts || []).map(s => s.toLowerCase());
-      const labelByKey = {};
-      const requiredByKey = {};
-      jobSpec.criteria.forEach(c => { labelByKey[c.key] = c.label; requiredByKey[c.key] = !!c.required; });
+      const listHtml = groupByConfidence
+        ? renderGroupedList(data.candidates, jobSpec)
+        : renderFlatList(data.candidates, jobSpec);
 
-      let html = fallbackBanner + toolbar + `
+      const html = fallbackBanner + methodology + toolbar + `
         <div class="results-header">
           <h2>Top Candidates</h2>
           <span class="results-count">Showing ${data.candidates.length} of ${data.totalFound ?? data.candidates.length} found</span>
         </div>
-        <div class="candidate-list">`;
+        ${listHtml}`;
 
-      data.candidates.forEach((c, i) => {
-        const metaParts = [];
-        if (c.location) metaParts.push(`📍 ${escapeHtml(c.location)}`);
-        if (c.yearsExperience !== null && c.yearsExperience !== undefined) metaParts.push(`💼 ${c.yearsExperience} yrs exp`);
-        if (c.education) metaParts.push(`🎓 ${escapeHtml(c.education)}`);
-
-        const skillTags = (c.skills || []).slice(0, 10).map(skill => {
-          const isMatch = termMatches(skill, requiredSkills);
-          return `<span class="skill-tag ${isMatch ? 'matched' : ''}">${escapeHtml(skill)}</span>`;
-        }).join('');
-
-        const certTags = (c.certifications || []).map(cert => {
-          const isMatch = termMatches(cert, requiredCerts);
-          return `<span class="skill-tag cert ${isMatch ? 'matched' : ''}">${escapeHtml(cert)}</span>`;
-        }).join('');
-
-        const scoreBars = Object.entries(c.criteriaScores || {}).map(([key, val]) => {
-          const pct = Math.round((val.raw || 0) * 100);
-          const reqMarker = requiredByKey[key] ? '<span class="required-marker" title="Required">required</span>' : '';
-          return `
-            <div class="score-bar-row">
-              <div class="score-bar-top">
-                <span>${escapeHtml(labelByKey[key] || key)}${reqMarker}</span>
-                <span>${val.weighted}/${val.max}</span>
-              </div>
-              <div class="score-bar">
-                <div class="score-bar-fill" style="width:${pct}%;background:${barColor(val.raw || 0)}"></div>
-              </div>
-              <span class="score-bar-note">${escapeHtml(val.note || '')}</span>
-            </div>`;
-        }).join('');
-
-        const nameHtml = c.sourceUrl
-          ? `<a href="${c.sourceUrl}" target="_blank" rel="noopener">${escapeHtml(c.name)}</a>`
-          : escapeHtml(c.name);
-
-        const key = candidateKey(c);
-        const starred = isShortlisted(c);
-
-        html += `
-          <div class="candidate-card">
-            <div class="card-controls">
-              <div class="rank-badge ${rankClass(i)}">#${i + 1}</div>
-              <button type="button" class="star-btn ${starred ? 'starred' : ''}" data-star-key="${escapeAttr(key)}" title="Shortlist">${starred ? '★' : '☆'}</button>
-              <label class="compare-check">
-                <input type="checkbox" data-compare-key="${escapeAttr(key)}" ${compareSelection.has(key) ? 'checked' : ''} />
-                compare
-              </label>
-            </div>
-            <div class="candidate-info">
-              <h3>
-                ${c.avatarUrl ? `<img class="avatar" src="${c.avatarUrl}" alt="" />` : ''}
-                ${nameHtml}
-              </h3>
-              ${c.headline ? `<div class="candidate-headline">${escapeHtml(c.headline)}</div>` : ''}
-              <div class="candidate-meta">${metaParts.map(p => `<span>${p}</span>`).join('')}</div>
-              ${c.summary ? `<div class="candidate-summary">"${escapeHtml(c.summary)}"</div>` : ''}
-              <div class="skill-tags">${skillTags}${certTags}</div>
-              ${c.reasoning ? `<div class="reasoning-block"><strong>💡 Why this rank:</strong> ${escapeHtml(c.reasoning)}</div>` : ''}
-            </div>
-            <div class="score-col">
-              <div class="total-score ${scoreColor(c.totalScore)}">${c.totalScore}</div>
-              <div class="score-label">out of 100</div>
-              <div class="rating-row">Rating: <strong>${c.rank1to10}</strong>/10</div>
-              <div class="score-breakdown">${scoreBars}</div>
-            </div>
-          </div>`;
-      });
-
-      html += '</div>';
       resultsEl.innerHTML = html;
       wireResultsControls();
     }
@@ -1198,6 +1312,12 @@
 
       const btnSaveSearch = document.getElementById('btnSaveSearch');
       if (btnSaveSearch) btnSaveSearch.addEventListener('click', promptSaveSearch);
+
+      const btnGroupConfidence = document.getElementById('btnGroupConfidence');
+      if (btnGroupConfidence) btnGroupConfidence.addEventListener('click', () => {
+        groupByConfidence = !groupByConfidence;
+        renderResultsBody();
+      });
 
       updateCompareButton();
     }
@@ -1311,6 +1431,14 @@
       document.getElementById('btnOpenHistory').textContent = `🕘 History (${getHistory().length})`;
     }
 
+    // History/Saved entries from before PLAN_V2 Phase 2 carry a `provider`
+    // field instead of `topN` — show whichever the entry actually has, so old
+    // localStorage entries still render sensibly (they replay through the
+    // agent regardless — see runHistoryEntry).
+    function entrySourceLabel(entry) {
+      return entry.topN != null ? `N=${entry.topN}` : escapeHtml(entry.provider || '');
+    }
+
     function openHistoryModal() {
       const list = getHistory();
       const items = list.length
@@ -1318,7 +1446,7 @@
           <div class="panel-list-item">
             <div class="item-main clickable" data-run-history="${i}">
               <div class="item-title">${escapeHtml(entry.title || entry.field)}</div>
-              <div class="item-sub">${escapeHtml(entry.field)} · ${escapeHtml(entry.provider)} · ${entry.count} found${entry.topScore != null ? ` · top ${entry.topScore}/100` : ''} · ${new Date(entry.ts).toLocaleString()}</div>
+              <div class="item-sub">${escapeHtml(entry.field)} · ${entrySourceLabel(entry)} · ${entry.count} found${entry.topScore != null ? ` · top ${entry.topScore}/100` : ''} · ${new Date(entry.ts).toLocaleString()}</div>
             </div>
             <button type="button" class="item-save" data-save-history="${i}" title="Save this search">☆ Save</button>
           </div>`).join('')
@@ -1377,7 +1505,7 @@
       document.getElementById('btnOpenSaved').textContent = `★ Saved (${getSavedSearches().length})`;
     }
 
-    // Prompt for a name and save the current results' jobSpec+provider+options.
+    // Prompt for a name and save the current results' jobSpec+topN+options.
     function promptSaveSearch() {
       if (!currentJobSpec || !lastSearchMeta) return;
       const name = window.prompt('Name this saved search:', currentJobSpec.title || currentJobSpec.field || 'Saved search');
@@ -1387,13 +1515,14 @@
         ts: Date.now(),
         field: currentJobSpec.field,
         title: currentJobSpec.title,
-        provider: lastSearchMeta.provider,
+        topN: lastSearchMeta.topN,
         jobSpec: currentJobSpec,
         options: lastSearchMeta.options,
       });
     }
 
-    // Promote a History entry (same shape jobSpec/provider/options) to a named Saved search.
+    // Promote a History entry (same shape jobSpec/topN/options, or the legacy
+    // jobSpec/provider/options shape) to a named Saved search.
     function promoteHistoryEntry(entry) {
       const name = window.prompt('Name this saved search:', entry.title || entry.field || 'Saved search');
       if (!name || !name.trim()) return;
@@ -1402,7 +1531,7 @@
         ts: Date.now(),
         field: entry.jobSpec.field,
         title: entry.jobSpec.title,
-        provider: entry.provider,
+        topN: entry.topN != null ? entry.topN : clampTopN(10),
         jobSpec: entry.jobSpec,
         options: entry.options,
       });
@@ -1415,7 +1544,7 @@
           <div class="panel-list-item">
             <div class="item-main clickable" data-run-saved="${i}">
               <div class="item-title">${escapeHtml(entry.name)}</div>
-              <div class="item-sub">${escapeHtml(entry.field)} · ${escapeHtml(entry.title || '')} · ${escapeHtml(entry.provider)} · saved ${new Date(entry.ts).toLocaleString()}</div>
+              <div class="item-sub">${escapeHtml(entry.field)} · ${escapeHtml(entry.title || '')} · ${entrySourceLabel(entry)} · saved ${new Date(entry.ts).toLocaleString()}</div>
             </div>
             <button type="button" class="item-remove" data-remove-saved="${i}" title="Remove">✕</button>
           </div>`).join('')
@@ -1447,12 +1576,17 @@
       });
     }
 
+    // Replays a History or Saved-search entry through the agent. Handles BOTH
+    // shapes: new entries carry topN; entries saved before PLAN_V2 Phase 2
+    // carry a `provider` instead (from the old provider-picker UI). That old
+    // `provider` value is intentionally ignored — the agent decides sources
+    // on its own now — but the rest of the entry (jobSpec, options.data,
+    // options.useLLM) still replays correctly either way.
     async function runHistoryEntry(entry) {
       if (readOnlyMode) await exitReadOnlyMode();
       if (!allFields.length) await loadFieldsAndTemplates();
 
       fieldSelect.value = entry.jobSpec.field;
-      updateSourceAvailability(entry.jobSpec.field);
 
       const templates = allTemplates.filter(t => t.field === entry.jobSpec.field);
       templateSelect.disabled = false;
@@ -1470,15 +1604,16 @@
       panelSource.classList.add('visible');
       resultsEl.innerHTML = '';
 
-      document.querySelectorAll('input[name="provider"]').forEach(r => { r.checked = (r.value === entry.provider); });
-      updateSourceCardSelection();
-      const isUpload = entry.provider === 'upload';
-      uploadArea.classList.toggle('visible', isUpload);
-      if (isUpload && entry.options && entry.options.data) uploadData.value = entry.options.data;
-      combineToggle.checked = !!(entry.options && entry.options.combineWithDefault);
-      aiToggle.checked = !!(entry.options && entry.options.useLLM);
+      const topN = clampTopN(entry.topN != null ? entry.topN : 10);
+      topNInput.value = topN;
 
-      performSearch(entry.jobSpec, entry.provider, entry.options || {});
+      const options = entry.options || {};
+      const hasUploadData = !!options.data;
+      uploadDetails.open = hasUploadData;
+      uploadData.value = options.data || '';
+      aiToggle.checked = !!options.useLLM;
+
+      performSearch(entry.jobSpec, topN, options);
     }
 
     // ---------- Compare ----------

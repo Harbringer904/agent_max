@@ -7,7 +7,8 @@
 //   GET  /api/health      → health check
 //   GET  /api/fields      → fields + which providers serve each
 //   GET  /api/templates   → pre-built JobSpec templates
-//   POST /api/search      → search + score candidates via a provider
+//   POST /api/search       → search + score candidates via a provider
+//   POST /api/agent-search → autonomous multi-source search + consolidated ranking (PLAN_V2 Phase 1)
 //   POST /api/results     → save a result set, get back a shareable id/url
 //   GET  /api/results/:id → fetch a saved result set
 
@@ -22,6 +23,7 @@ import healthRouter from "./routes/health.js";
 import fieldsRouter from "./routes/fields.js";
 import templatesRouter from "./routes/templates.js";
 import searchRouter from "./routes/search.js";
+import agentSearchRouter from "./routes/agentSearch.js";
 import resultsRouter from "./routes/results.js";
 
 dotenv.config();
@@ -37,6 +39,7 @@ app.use("/api/health", healthRouter);
 app.use("/api/fields", fieldsRouter);
 app.use("/api/templates", templatesRouter);
 app.use("/api/search", searchRouter);
+app.use("/api/agent-search", agentSearchRouter);
 app.use("/api/results", resultsRouter);
 
 app.listen(PORT, () => {

@@ -207,14 +207,45 @@ export const CONSOLIDATION_WEIGHTS = {
 
 Each phase is independently shippable and separately verifiable.
 
-### Phase 1 — Orchestration core *(no UI change)*
-- **Add** `lib/agent/plan.js` (`selectSources`, deterministic + optional LLM add/skip),
+### Phase 1 — Orchestration core *(no UI change)* — ✅ DONE (2026-08-15)
+- **Added** `lib/agent/plan.js` (`selectSources`, deterministic + optional LLM add/skip),
   `lib/agent/orchestrate.js` (fan-out, timeouts, deadline, `agentLog`),
   `lib/agent/dedupe.js`, `lib/agent/consolidate.js`.
-- **Add** `POST /api/agent-search` as a **new route**, leaving `/api/search` untouched.
-- **Verify:** new unit tests for dedupe (URL merge, corroborated merge, name-only *not* merged)
-  and consolidate (completeness math, damping, trust ordering); existing 68 tests still green;
-  curl a finance + a healthcare search and confirm multi-source merged output.
+- **Added** `POST /api/agent-search` (`routes/agentSearch.js`) as a **new route**,
+  mounted in `server.js`; `routes/search.js` / `POST /api/search` left byte-for-byte untouched
+  and reverified working.
+- **Verified:**
+  - `node --check` on every new/changed file; full suite `npm test` → **104/104 tests pass**
+    (68 pre-existing + dedupe/consolidate/plan unit tests, no regressions).
+  - Server booted on a fresh port; 5 real `POST /api/agent-search` probes run against live
+    providers (`GROQ_API_KEY` + `GITHUB_TOKEN` configured, no Tavily/Google Places key):
+    1. finance + "Delhi" → `sebi_ria`(25) + `finra`(7) both contributed, dedupe merged 24
+       records by URL, 8 matched, `sebi_ria` (verified) ranked above `finra` (also verified)
+       as expected.
+    2. healthcare + "New York" → sources queried: `nmc`, `npi`, `osm`; only `npi`(20)
+       actually returned data (`nmc` is an Indian registry — correctly 0 hits for a US city;
+       `osm` found nothing) — sourcePlan/agentLog fully populated even though just one source
+       carried real candidates for this query.
+    3. software + ["javascript"] → all 5 planned sources (`github`, `stackoverflow`,
+       `hn_hiring`, `devto`, `huggingface`) contributed; 80 found → 61 after dedupe/filter.
+    4. research + ["machine learning"] → `openalex`(20) + LLM-added `huggingface`(15) +
+       `devto`(15) contributed (`orcid` returned 0 for this query); LLM source refinement
+       (`activeLLMProvider()` = groq here) visibly added/reasoned in `agentLog`.
+    5. topN=3 on the finance query → exactly 3 candidates returned, confirming topN is a
+       ceiling, never padded.
+  - Every returned candidate carries `dataCompleteness`, `sourceTrust`, `rankingScore`,
+    `agentRank1to10`, alongside the frozen `totalScore`/`rank1to10`.
+  - No `lead`-tier candidate happened to appear in any of the 5 live probes (open_web/osm
+    contributed 0 in every run), so the "lead below verified" ordering claim is architecturally
+    enforced by `CONSOLIDATION_WEIGHTS.trustFactor` and unit-tested in
+    `test/agentConsolidate.test.js`, but was **not** observed with real mixed-tier data in this
+    verification pass — flagged honestly rather than claimed as directly observed.
+  - Confirmed old `POST /api/search` (provider=`github`) still returns the same
+    `{ totalFound, candidates, matched, scoredBy }` shape, unaffected.
+- **Known, stated limitation carried into Phase 3:** `lib/providers/openWeb.js`'s
+  `search(jobSpec, _options = {})` does not read ANY options today — `orchestrate.js` passes
+  `{ maxTurns: 3 }` through as a forward-compatible no-op, but it currently has **zero effect**;
+  `MAX_TURNS` stays a hardcoded `6` inside `openWeb.js` until Phase 3 threads it through for real.
 
 ### Phase 2 — Autonomous frontend
 - **Remove** the data-source card grid entirely.

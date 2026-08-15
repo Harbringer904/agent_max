@@ -252,3 +252,33 @@ test("dedupe: two candidates with no name and no sourceUrl are never merged toge
   const { candidates } = dedupeCandidates([a, b]);
   assert.equal(candidates.length, 2);
 });
+
+// --- Regression: non-identifying (registry listing) sourceUrl ---------------
+//
+// Found live, not in review: sebi_ria and nmc have no per-person permalink, so
+// EVERY record they return carries the same registry search-page URL. Blind
+// url-merging collapsed 25 distinct SEBI advisers (and 20 NMC doctors) into a
+// single candidate — silently deleting real, distinct people, which is the
+// worst failure mode this module exists to prevent.
+
+test("shared registry url with conflicting names does NOT merge distinct people", () => {
+  const registryUrl = "https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&intmId=13";
+  const people = ["Abhishek Kumar", "Anup Kalra", "Anudeep Yadav", "Arun Ramabhadran"].map((name, i) =>
+    candidate({ id: `sebi:${i}`, name, source: "sebi_ria", sourceUrl: registryUrl })
+  );
+  const { candidates } = dedupeCandidates(people);
+  assert.equal(candidates.length, 4, "four distinct advisers must survive a shared registry URL");
+  assert.deepEqual(
+    candidates.map((c) => c.name).sort(),
+    ["Abhishek Kumar", "Anudeep Yadav", "Anup Kalra", "Arun Ramabhadran"]
+  );
+});
+
+test("shared url WITH matching names still auto-merges (genuine duplicate)", () => {
+  const url = "https://example.org/registry";
+  const a = candidate({ id: "a", name: "Jane Roe", source: "sebi_ria", sourceUrl: url, skills: ["tax"] });
+  const b = candidate({ id: "b", name: "Jane Roe", source: "open_web", sourceUrl: url, skills: ["audit"] });
+  const { candidates } = dedupeCandidates([a, b]);
+  assert.equal(candidates.length, 1, "same name + same url is a real duplicate");
+  assert.equal(candidates[0].source, "sebi_ria", "higher-trust source survives as primary");
+});

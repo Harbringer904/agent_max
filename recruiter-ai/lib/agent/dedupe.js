@@ -300,16 +300,61 @@ export function dedupeCandidates(candidates) {
   }
 
   let urlMergedCount = 0;
+  let nonIdentifyingUrls = 0;
   const afterUrlMerge = [];
   for (const members of urlGroups.values()) {
     if (members.length === 1) {
       afterUrlMerge.push(members[0]);
-    } else {
-      afterUrlMerge.push(mergeGroup(members, false));
-      urlMergedCount += members.length - 1;
+      continue;
+    }
+
+    // A shared sourceUrl only proves identity if it points at a PERSON.
+    // Several providers (sebi_ria, nmc) legitimately stamp every record with
+    // the same registry/search-page URL because the underlying site has no
+    // per-person permalink. Verified live: sebi_ria returned 25 distinct
+    // advisers and nmc 20 distinct doctors, each sharing ONE url — blind
+    // url-merging collapsed them to a single candidate, silently deleting
+    // real distinct people. That is precisely the over-merge failure this
+    // module is built to avoid.
+    //
+    // Guard: partition a url group by normalized name. Records whose names
+    // agree (or where one side has no name) still auto-merge — that is the
+    // genuine "same person found twice" case. Records with conflicting names
+    // are NOT merged here; they fall through to the name-based tiers below,
+    // which require independent corroboration.
+    const byName = new Map();
+    for (const m of members) {
+      const nameKey = normalizeName(m.name) || "";
+      if (!byName.has(nameKey)) byName.set(nameKey, []);
+      byName.get(nameKey).push(m);
+    }
+
+    if (byName.size > 1) nonIdentifyingUrls += 1;
+
+    // Fold the unnamed bucket into a single named bucket only when there is
+    // exactly one, so an anonymous record can still attach to its person.
+    const unnamed = byName.get("") || [];
+    const namedKeys = [...byName.keys()].filter((k) => k !== "");
+    if (unnamed.length && namedKeys.length === 1) {
+      byName.get(namedKeys[0]).push(...unnamed);
+      byName.delete("");
+    }
+
+    for (const group of byName.values()) {
+      if (group.length === 1) {
+        afterUrlMerge.push(group[0]);
+      } else {
+        afterUrlMerge.push(mergeGroup(group, false));
+        urlMergedCount += group.length - 1;
+      }
     }
   }
   afterUrlMerge.push(...noUrl);
+  if (nonIdentifyingUrls > 0) {
+    log.push(
+      `dedupe: ${nonIdentifyingUrls} shared url(s) held conflicting names (registry listing page, not per-person) — not url-merged`
+    );
+  }
 
   // ---- Tiers 2/3: normalized-name groups -> corroborated merge or flag ----
   const nameGroups = new Map();

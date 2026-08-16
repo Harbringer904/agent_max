@@ -32,6 +32,8 @@ function candidate(overrides = {}) {
 // ---------------------------------------------------------------------------
 
 test("dedupe: identical sourceUrl (www/trailing-slash/query variants) auto-merges into one record", () => {
+  // All three sources declare traits.sourceUrlIdentifiesPerson:true (see
+  // lib/providers/traits.js) — required for tier-1 url-merge to fire at all.
   const a = candidate({
     id: "gh:1",
     name: "Jane Doe",
@@ -47,7 +49,7 @@ test("dedupe: identical sourceUrl (www/trailing-slash/query variants) auto-merge
   const c = candidate({
     id: "web:1",
     name: "Jane Doe",
-    source: "open_web",
+    source: "devto",
     sourceUrl: "https://GitHub.com/janedoe?tab=repositories",
   });
 
@@ -59,6 +61,9 @@ test("dedupe: identical sourceUrl (www/trailing-slash/query variants) auto-merge
 });
 
 test("dedupe: union of skills/certifications on merge, and null-filling of scalars", () => {
+  // osm declares traits.sourceUrlIdentifiesPerson:true (unique per-node URL)
+  // so tier-1 url-merge still fires here; github ("profile") outranks
+  // osm ("lead") for primary-record selection.
   const a = candidate({
     id: "gh:1",
     name: "Jane Doe",
@@ -72,7 +77,7 @@ test("dedupe: union of skills/certifications on merge, and null-filling of scala
   const b = candidate({
     id: "web:1",
     name: "Jane Doe",
-    source: "open_web",
+    source: "osm",
     sourceUrl: "https://github.com/janedoe",
     skills: ["rust", "Python"],
     certifications: ["AWS Certified"],
@@ -87,44 +92,47 @@ test("dedupe: union of skills/certifications on merge, and null-filling of scala
   // case-insensitive union, first-seen casing preserved ("Rust" not "rust")
   assert.deepEqual(merged.skills.sort(), ["Go", "Python", "Rust"].sort());
   assert.deepEqual(merged.certifications, ["AWS Certified"]);
-  // github ("profile") outranks open_web ("lead"), so a is primary; b's
+  // github ("profile") outranks osm ("lead"), so a is primary; b's
   // non-empty scalars fill a's null location/yearsExperience
   assert.equal(merged.location, "Austin, TX");
   assert.equal(merged.yearsExperience, 6);
 });
 
-test("dedupe: higher-trust source wins as primary on URL merge (nmc beats open_web)", () => {
+test("dedupe: higher-trust source wins as primary on URL merge (npi beats github)", () => {
+  // Both npi and github declare traits.sourceUrlIdentifiesPerson:true (each
+  // returns a unique per-record permalink), so tier-1 url-merge applies; npi
+  // is a "verified" official registry vs github's "profile" tier.
   const verified = candidate({
-    id: "nmc:1",
+    id: "npi:1",
     name: "Dr. Asha Rao",
-    source: "nmc",
-    sourceUrl: "https://nmc.example.org/doctor/asha-rao",
+    source: "npi",
+    sourceUrl: "https://npiregistry.cms.hhs.gov/provider-view/1234567890",
     headline: "Registered Physician",
   });
-  const lead = candidate({
-    id: "web:1",
+  const profile = candidate({
+    id: "gh:1",
     name: "Asha Rao",
-    source: "open_web",
-    sourceUrl: "https://nmc.example.org/doctor/asha-rao",
-    headline: "Some web summary",
+    source: "github",
+    sourceUrl: "https://npiregistry.cms.hhs.gov/provider-view/1234567890",
+    headline: "Some profile bio",
   });
 
-  const { candidates } = dedupeCandidates([lead, verified]);
+  const { candidates } = dedupeCandidates([profile, verified]);
 
   assert.equal(candidates.length, 1);
-  assert.equal(candidates[0].source, "nmc");
+  assert.equal(candidates[0].source, "npi");
   assert.equal(candidates[0].headline, "Registered Physician");
 });
 
 test("dedupe: provenance lists both sources after a URL merge", () => {
   const a = candidate({ id: "a", source: "github", sourceUrl: "https://github.com/x" });
-  const b = candidate({ id: "b", source: "open_web", sourceUrl: "https://github.com/x/" });
+  const b = candidate({ id: "b", source: "devto", sourceUrl: "https://github.com/x/" });
 
   const { candidates } = dedupeCandidates([a, b]);
 
   assert.equal(candidates.length, 1);
   const sources = candidates[0].provenance.map((p) => p.source).sort();
-  assert.deepEqual(sources, ["github", "open_web"]);
+  assert.deepEqual(sources, ["devto", "github"]);
 });
 
 // ---------------------------------------------------------------------------
@@ -275,10 +283,60 @@ test("shared registry url with conflicting names does NOT merge distinct people"
 });
 
 test("shared url WITH matching names still auto-merges (genuine duplicate)", () => {
-  const url = "https://example.org/registry";
-  const a = candidate({ id: "a", name: "Jane Roe", source: "sebi_ria", sourceUrl: url, skills: ["tax"] });
-  const b = candidate({ id: "b", name: "Jane Roe", source: "open_web", sourceUrl: url, skills: ["audit"] });
+  // npi/stackoverflow both declare traits.sourceUrlIdentifiesPerson:true, so
+  // this exercises the tier-1 name-conflict-guard's "names agree -> merge"
+  // path (defense in depth on top of the trait gate — see dedupe.js).
+  const url = "https://example.org/profile/123";
+  const a = candidate({ id: "a", name: "Jane Roe", source: "npi", sourceUrl: url, skills: ["tax"] });
+  const b = candidate({ id: "b", name: "Jane Roe", source: "stackoverflow", sourceUrl: url, skills: ["audit"] });
   const { candidates } = dedupeCandidates([a, b]);
   assert.equal(candidates.length, 1, "same name + same url is a real duplicate");
-  assert.equal(candidates[0].source, "sebi_ria", "higher-trust source survives as primary");
+  assert.equal(candidates[0].source, "npi", "higher-trust source survives as primary");
+});
+
+test("shared url from a source that doesn't identify a person (sebi_ria) does NOT auto-merge on url alone, even with matching names", () => {
+  // sebi_ria declares traits.sourceUrlIdentifiesPerson:false (every record
+  // shares the registry's listing URL, verified live). Tier-1 url-merge must
+  // never fire for it, regardless of whether names happen to agree — that
+  // guarantee now lives structurally in dedupe.js, not in the name-conflict
+  // heuristic. Without independent corroboration (shared skill/location/
+  // token), two same-named records stay separate rather than being merged on
+  // a URL that carries zero identity information.
+  const url = "https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&intmId=13";
+  const a = candidate({ id: "a", name: "Jane Roe", source: "sebi_ria", sourceUrl: url, skills: ["tax"] });
+  const b = candidate({ id: "b", name: "Jane Roe", source: "sebi_ria", sourceUrl: url, skills: ["audit"] });
+  const { candidates } = dedupeCandidates([a, b]);
+  assert.equal(candidates.length, 2, "shared listing url + no other corroboration must not merge");
+});
+
+// --- Regression: identity-bearing query strings -----------------------------
+//
+// Found by `npm run doctor`, not by review: hn_hiring's per-person permalink is
+// news.ycombinator.com/item?id=<commentId>. An earlier normalizeUrl stripped the
+// whole query string, collapsing 20 distinct people's posts to one path. Only
+// the name-conflict guard accidentally prevented a 20-into-1 merge.
+
+test("query string is identity — different ?id= must NOT merge", () => {
+  const a = candidate({ id: "a", name: "LoganDark", source: "hn_hiring", sourceUrl: "https://news.ycombinator.com/item?id=49156686" });
+  const b = candidate({ id: "b", name: "humpf", source: "hn_hiring", sourceUrl: "https://news.ycombinator.com/item?id=49156693" });
+  const c = candidate({ id: "c", name: "Stratoscope", source: "hn_hiring", sourceUrl: "https://news.ycombinator.com/item?id=49156701" });
+  const { candidates } = dedupeCandidates([a, b, c]);
+  assert.equal(candidates.length, 3, "three distinct HN posters must survive");
+});
+
+test("same ?id= still merges (genuine duplicate across sources)", () => {
+  // github also declares traits.sourceUrlIdentifiesPerson:true, so tier-1
+  // url-merge applies (open_web would not — see the sebi_ria test above for
+  // why an untrusted-url source is excluded from this test's setup).
+  const a = candidate({ id: "a", name: "LoganDark", source: "hn_hiring", sourceUrl: "https://news.ycombinator.com/item?id=49156686" });
+  const b = candidate({ id: "b", name: "LoganDark", source: "github", sourceUrl: "http://www.news.ycombinator.com/item?id=49156686#comment" });
+  const { candidates } = dedupeCandidates([a, b]);
+  assert.equal(candidates.length, 1, "same id + same name is a real duplicate");
+});
+
+test("tracking params and param order do not create false distinctions", () => {
+  const a = candidate({ id: "a", name: "Jane Roe", source: "devto", sourceUrl: "https://dev.to/janeroe?utm_source=twitter&a=1&b=2" });
+  const b = candidate({ id: "b", name: "Jane Roe", source: "devto", sourceUrl: "https://dev.to/janeroe?b=2&a=1" });
+  const { candidates } = dedupeCandidates([a, b]);
+  assert.equal(candidates.length, 1, "tracking params stripped, param order normalized");
 });

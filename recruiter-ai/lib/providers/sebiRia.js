@@ -99,6 +99,15 @@ export const provider = {
   key: "sebi_ria",
   label: "SEBI Registered Investment Advisers (official data)",
   fields: ["finance"],
+  traits: {
+    // Every record gets the SAME sourceUrl (cachedMeta.sourceUrl — the
+    // registry's own listing page, not a per-adviser permalink). Verified
+    // live: 25 distinct advisers sharing 1 URL. Must never drive URL-merge.
+    sourceUrlIdentifiesPerson: false,
+    nameIsHandle: false,
+    dataIsLLMExtracted: false,
+    entityType: "person",
+  },
 
   async search(jobSpec, _options = {}) {
     const records = loadRecords();

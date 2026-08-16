@@ -213,3 +213,58 @@ Terms of Service and is actively defended against; Unstop has no public candidat
 scrapers exist, not candidate profiles). This tool will not build LinkedIn scraping, credentialed
 access, bot-detection evasion, or any Unstop candidate-data integration — via a provider, via
 MCP, or via a headless browser. This is a hard boundary, not a resourcing gap to be closed later.
+
+## 11. The person-likeness filter (`lib/personCheck.js`) will occasionally drop a real person
+
+`agentSearch()` runs a safety-net filter (`lib/agent/orchestrate.js`, docs/DATA_QUALITY_PLAN.md
+P3) over every candidate from a provider that declares `entityType: "person"` and
+`nameIsHandle: false` (or declares nothing, since those are the safe defaults — see
+`lib/providers/traits.js`). It drops any candidate whose name trips `looksLikeOrganization()`:
+contains an organization/institution token ("Institute", "Committee", "Laboratory", …), has more
+than 5 words, or contains `&`, `/`, parentheses, or a run of 2+ digits. This exists because a real
+provider (`openalex`) was verified live returning 20 of 20 non-people — conferences, datasets,
+and institutes presented as hireable candidates.
+
+**This is a deliberate, documented tradeoff, not an oversight:**
+- A name like "Jean-François de La Tour-Dupont" or an org with an unusually short, personal-sounding
+  name could misfire in either direction. The heuristic is tuned to over-reject: dropping a real
+  person is recoverable (they can still surface via another source, a looser query, or a manual
+  search), while presenting a conference or institute as a hireable candidate is a credibility
+  failure a recruiter could act on (e.g. attempting to contact "CYPHER Workshop on Machine
+  Learning" as if it were a person). We accept the former to make the latter rare.
+- The filter is **exempt for handle-based providers** (`github`, `stackoverflow`, `devto`,
+  `huggingface`, `hn_hiring` — anywhere `nameIsHandle: true`) and **organization providers**
+  (`google_places`, `osm` — `entityType: "organization"`), because running a person-name heuristic
+  against a username or a business name produces exactly the wrong result: a GitHub handle like
+  `jborden13` or `sirrobot01` trips the "run of 2+ digits" rule and would be wrongly flagged as
+  "not a person" if the filter didn't first check the provider's declared traits.
+- Every drop is logged into the search's `agentLog` (e.g. `"dropped 3 non-person row(s) from
+  openalex"`) so it is visible, not silent. If a candidate you expected to see is missing, check
+  `agentLog` for this line before assuming the provider found nothing.
+- This filter is a second, structural layer on top of any provider-side filtering the source
+  already does (e.g. `openalex` already filters its own results the same way before this net ever
+  runs) — the point is that *every* person-sourced provider gets this protection even if a future
+  provider forgets to filter itself.
+
+## 12. `open_web`'s `location` and `skills` are grounded against the corpus; `summary` is not
+
+Extending the `nameWasSeen` grounding gate (see §9) beyond just `name`
+(docs/DATA_QUALITY_PLAN.md P4, `lib/providers/openWeb.js`):
+
+- **`location`**: if the submitted location string does not appear (token-for-token, via the same
+  `nameWasSeen`-style check) in the corpus of pages the agent actually read this run, it is set to
+  `null` rather than dropping the whole candidate. A real person with a guessed or unverifiable
+  city is still a real lead worth a recruiter's attention; a fabricated city attached to a real
+  name is a lie that would have silently passed through location-based scoring/filtering. Logged
+  as `"ungrounded location dropped for <name>"`.
+- **`skills`**: each skill string is checked independently against the corpus; only skills that
+  actually appear are kept, the rest are dropped from the array (the candidate itself is never
+  dropped for this). Logged as `"ungrounded skill(s) dropped for <name>: <skill1>, <skill2>"`.
+- **`summary`** remains ungrounded free-text LLM output — it is NOT checked against the corpus.
+  Grounding a full free-text sentence token-by-token the way `name`/`location`/individual skills
+  are grounded is not meaningful (a true summary can legitimately paraphrase, synthesize across
+  multiple sentences, or use words that never appear verbatim on the page), and a false rejection
+  would be indistinguishable from a true one without a much heavier check (e.g. an LLM-graded
+  faithfulness score) that this project does not implement. Treat `summary` as unverified
+  narrative — the §9 guidance to click through and verify every `open_web` lead still applies in
+  full, and applies most to `summary`, which is the one field this pass does not touch.

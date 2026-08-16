@@ -181,20 +181,66 @@ function normalizeForGrounding(str) {
 }
 
 /**
- * True only if the candidate's name demonstrably appeared in something the
- * agent actually read. Requires every name token of length >= 3 to be present
- * in the corpus, which tolerates reordering/extra initials ("Priya R Sharma"
- * vs "Sharma, Priya") while rejecting wholly invented or recalled-from-memory
- * names. Single-token names are accepted only on an exact token match.
+ * Shared token-membership check: true only if every significant token
+ * (length >= 3) of `text` demonstrably appears in `corpusText`. Tolerates
+ * reordering/punctuation ("Priya R Sharma" vs "Sharma, Priya") while
+ * rejecting text that was never actually read. A single-token string is
+ * accepted only on an exact match. This is the primitive both nameWasSeen
+ * and the field-grounding helpers below (P4) are built on.
  */
-export function nameWasSeen(name, corpusText) {
-  const n = normalizeForGrounding(name);
+function tokensWereSeen(text, corpusText) {
+  const n = normalizeForGrounding(text);
   if (!n) return false;
   const haystack = normalizeForGrounding(corpusText);
   if (!haystack) return false;
   const tokens = n.split(" ").filter((t) => t.length >= 3);
   if (tokens.length === 0) return haystack.includes(n);
   return tokens.every((t) => new RegExp(`(^|\\s)${t}(\\s|$)`).test(haystack));
+}
+
+/**
+ * True only if the candidate's name demonstrably appeared in something the
+ * agent actually read. See tokensWereSeen for the matching rule.
+ */
+export function nameWasSeen(name, corpusText) {
+  return tokensWereSeen(name, corpusText);
+}
+
+// --- Field grounding beyond `name` (docs/DATA_QUALITY_PLAN.md P4) ----------
+//
+// `nameWasSeen` above drops the WHOLE candidate when its name is ungrounded,
+// because a candidate built around a name nobody actually said is not a
+// candidate at all. `location` and `skills` are different: they're
+// attributes OF an already-grounded, real person, and a wrong or unverifiable
+// attribute doesn't mean the person is fake — a real adviser with a guessed
+// city is still a real lead. So these are scrubbed per-field (set to
+// null / filtered out of the array) rather than disqualifying the candidate.
+// `summary` is deliberately NOT grounded here — see FAIRNESS.md §12 for why
+// a free-text sentence can't be checked the same way a name/location/skill
+// token can.
+
+/**
+ * Ground a submitted `location` against the corpus of pages the agent
+ * actually read this run. Returns the original location when it demonstrably
+ * appears in the corpus, or null when it doesn't — the candidate itself is
+ * never dropped for this.
+ */
+export function groundLocation(location, corpusText) {
+  const loc = String(location || "").trim();
+  if (!loc) return null;
+  return tokensWereSeen(loc, corpusText) ? loc : null;
+}
+
+/**
+ * Ground a submitted `skills` array against the corpus: keep only skills
+ * whose text demonstrably appears in something the agent actually read,
+ * dropping the rest. Never drops the candidate, only individual skills.
+ */
+export function groundSkills(skills, corpusText) {
+  const list = Array.isArray(skills) ? skills : [];
+  return list
+    .map((s) => String(s || "").trim())
+    .filter((s) => s && tokensWereSeen(s, corpusText));
 }
 
 function buildSystemPrompt(jobSpec, maxTurns) {
@@ -461,6 +507,16 @@ export const provider = {
   key: "open_web",
   label: "Open Web Search (AI agent — needs 2 free keys)",
   fields: ["*"],
+  traits: {
+    // The LLM supplies sourceUrl itself, and (Bug 3) has been caught
+    // attaching one person's name to a page that actually names someone
+    // else, or to a company page with no named individual at all. The URL
+    // alone can never be trusted to mean "same person" for this provider.
+    sourceUrlIdentifiesPerson: false,
+    nameIsHandle: false,
+    dataIsLLMExtracted: true,
+    entityType: "person",
+  },
 
   async search(jobSpec, options = {}) {
     if (!openWebAvailable()) return [];
@@ -493,7 +549,33 @@ export const provider = {
         }
       }
 
-      return grounded.slice(0, budget.maxCandidates).map((f, i) => toCandidate(f, jobSpec, i));
+      // FIELD GROUNDING (P4): location/skills are attributes of an already-
+      // grounded, real person — scrub the individual field rather than drop
+      // the candidate. See the "Field grounding" comment above nameWasSeen.
+      const fieldsGrounded = grounded.map((f) => {
+        const originalLocation = String(f.location || "").trim();
+        const location = groundLocation(f.location, corpusText);
+        if (originalLocation && !location) {
+          console.warn(
+            `[recruiter-ai] open_web ungrounded location dropped for "${f.name}" (not found in any page the agent read)`
+          );
+        }
+
+        const originalSkills = Array.isArray(f.skills)
+          ? f.skills.map((s) => String(s || "").trim()).filter(Boolean)
+          : [];
+        const skills = groundSkills(f.skills, corpusText);
+        const droppedSkills = originalSkills.filter((s) => !skills.includes(s));
+        if (droppedSkills.length > 0) {
+          console.warn(
+            `[recruiter-ai] open_web ungrounded skill(s) dropped for "${f.name}": ${droppedSkills.join(", ")}`
+          );
+        }
+
+        return { ...f, location, skills };
+      });
+
+      return fieldsGrounded.slice(0, budget.maxCandidates).map((f, i) => toCandidate(f, jobSpec, i));
     } catch (err) {
       console.warn(`[recruiter-ai] open_web provider failed: ${err.message}`);
       return [];

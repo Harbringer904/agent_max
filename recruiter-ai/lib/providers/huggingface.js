@@ -83,6 +83,15 @@ export const provider = {
   key: "huggingface",
   label: "Hugging Face (ML/AI)",
   fields: ["software"],
+  traits: {
+    // https://huggingface.co/<author> is unique per author.
+    sourceUrlIdentifiesPerson: true,
+    // `name` is always the raw author/org slug (`author.author`) — there is
+    // no separate display-name field, so this is always a handle.
+    nameIsHandle: true,
+    dataIsLLMExtracted: false,
+    entityType: "person",
+  },
 
   async search(jobSpec, _options = {}) {
     try {

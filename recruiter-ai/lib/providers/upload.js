@@ -83,6 +83,15 @@ export const provider = {
   key: "upload",
   label: "Upload CSV/JSON",
   fields: ["*"],
+  traits: {
+    // CSV rows never carry a URL column at all; JSON input could set an
+    // arbitrary sourceUrl, but nothing here verifies what it points to —
+    // false is the safe default for an unverified, caller-supplied field.
+    sourceUrlIdentifiesPerson: false,
+    nameIsHandle: false,
+    dataIsLLMExtracted: false,
+    entityType: "person",
+  },
 
   async search(jobSpec, options = {}) {
     const data = String(options?.data || "");

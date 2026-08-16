@@ -1,0 +1,662 @@
+[
+  {
+    "id": "openalex:https://openalex.org/A5014987686",
+    "name": "John P. Perdew",
+    "headline": "Academic author — h-index 114, 564 works",
+    "field": "research",
+    "location": "Tulane University",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Advanced Chemical Physics Studies",
+      "Spectroscopy and Quantum Chemical Studies",
+      "Machine Learning in Materials Science",
+      "nanoparticles nucleation surface interactions",
+      "Molecular Junctions and Nanostructures"
+    ],
+    "certifications": [],
+    "summary": "564 publications, 432031 citations, affiliated with Tulane University",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5014987686",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5014987686",
+      "worksCount": 564,
+      "citedByCount": 432031,
+      "hIndex": 114,
+      "institutions": [
+        "Tulane University"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5019751186",
+    "name": "Georg Kresse",
+    "headline": "Academic author — h-index 130, 504 works",
+    "field": "research",
+    "location": "University of Vienna",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Advanced Chemical Physics Studies",
+      "Machine Learning in Materials Science",
+      "Catalytic Processes in Materials Science",
+      "Electronic and Structural Properties of Oxides",
+      "High-pressure geophysics and materials"
+    ],
+    "certifications": [],
+    "summary": "504 publications, 426771 citations, affiliated with University of Vienna",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5019751186",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5019751186",
+      "worksCount": 504,
+      "citedByCount": 426771,
+      "hIndex": 130,
+      "institutions": [
+        "University of Vienna",
+        "VASP Software (Austria)"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5082307304",
+    "name": "Kieron Burke",
+    "headline": "Academic author — h-index 72, 409 works",
+    "field": "research",
+    "location": "University of California, Irvine",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Advanced Chemical Physics Studies",
+      "Spectroscopy and Quantum Chemical Studies",
+      "Machine Learning in Materials Science",
+      "Advanced Physical and Chemical Molecular Interactions",
+      "Quantum, superfluid, helium dynamics"
+    ],
+    "certifications": [],
+    "summary": "409 publications, 272953 citations, affiliated with University of California, Irvine",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5082307304",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5082307304",
+      "worksCount": 409,
+      "citedByCount": 272953,
+      "hIndex": 72,
+      "institutions": [
+        "University of California, Irvine",
+        "University of California System",
+        "Irvine University"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5055238911",
+    "name": "Jens K. Nørskov",
+    "headline": "Academic author — h-index 223, 884 works",
+    "field": "research",
+    "location": "Technical University of Denmark",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Electrocatalysts for Energy Conversion",
+      "Catalytic Processes in Materials Science",
+      "Advanced Chemical Physics Studies",
+      "Ammonia Synthesis and Nitrogen Reduction",
+      "Machine Learning in Materials Science"
+    ],
+    "certifications": [],
+    "summary": "884 publications, 258001 citations, affiliated with Technical University of Denmark",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5055238911",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5055238911",
+      "worksCount": 884,
+      "citedByCount": 258001,
+      "hIndex": 223,
+      "institutions": [
+        "Technical University of Denmark"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5061717048",
+    "name": "Donald G. Truhlar",
+    "headline": "Academic author — h-index 188, 1870 works",
+    "field": "research",
+    "location": "University of Minnesota",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Advanced Chemical Physics Studies",
+      "Spectroscopy and Quantum Chemical Studies",
+      "Quantum, superfluid, helium dynamics",
+      "Photochemistry and Electron Transfer Studies",
+      "Machine Learning in Materials Science"
+    ],
+    "certifications": [],
+    "summary": "1870 publications, 228153 citations, affiliated with University of Minnesota",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5061717048",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5061717048",
+      "worksCount": 1870,
+      "citedByCount": 228153,
+      "hIndex": 188,
+      "institutions": [
+        "University of Minnesota",
+        "University of Minnesota System",
+        "Pittsburgh Supercomputing Center",
+        "Minnesota Supercomputing Institute"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5019365851",
+    "name": "Weitao Yang",
+    "headline": "Academic author — h-index 96, 566 works",
+    "field": "research",
+    "location": "Duke University",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Advanced Chemical Physics Studies",
+      "Spectroscopy and Quantum Chemical Studies",
+      "Machine Learning in Materials Science",
+      "Molecular Junctions and Nanostructures",
+      "Protein Structure and Dynamics"
+    ],
+    "certifications": [],
+    "summary": "566 publications, 162161 citations, affiliated with Duke University",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5019365851",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5019365851",
+      "worksCount": 566,
+      "citedByCount": 162161,
+      "hIndex": 96,
+      "institutions": [
+        "Duke University",
+        "Center for Child and Family Health",
+        "RE Hydrogen (United Kingdom)"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5014983956",
+    "name": "Gerbrand Ceder",
+    "headline": "Academic author — h-index 170, 1124 works",
+    "field": "research",
+    "location": "Lawrence Berkeley National Laboratory",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Advancements in Battery Materials",
+      "Advanced Battery Materials and Technologies",
+      "Machine Learning in Materials Science",
+      "Advanced Battery Technologies Research",
+      "Inorganic Chemistry and Materials"
+    ],
+    "certifications": [],
+    "summary": "1124 publications, 129452 citations, affiliated with Lawrence Berkeley National Laboratory",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5014983956",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5014983956",
+      "worksCount": 1124,
+      "citedByCount": 129452,
+      "hIndex": 170,
+      "institutions": [
+        "Lawrence Berkeley National Laboratory",
+        "University of California System",
+        "University of California, Berkeley"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5015311244",
+    "name": "Martin Head‐Gordon",
+    "headline": "Academic author — h-index 133, 1037 works",
+    "field": "research",
+    "location": "Pitzer College",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Advanced Chemical Physics Studies",
+      "Spectroscopy and Quantum Chemical Studies",
+      "Photochemistry and Electron Transfer Studies",
+      "Machine Learning in Materials Science",
+      "X-ray Diffraction in Crystallography"
+    ],
+    "certifications": [],
+    "summary": "1037 publications, 105854 citations, affiliated with Pitzer College",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5015311244",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5015311244",
+      "worksCount": 1037,
+      "citedByCount": 105854,
+      "hIndex": 133,
+      "institutions": [
+        "Pitzer College",
+        "Lawrence Berkeley National Laboratory",
+        "University of California, San Francisco",
+        "Baker Hughes (United States)",
+        "University of California System",
+        "Center for Theoretical Physics",
+        "NOAA Chemical Sciences Laboratory",
+        "Center for Theoretical Biological Physics",
+        "University of California, Berkeley"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5007841515",
+    "name": "Roberto Car",
+    "headline": "Academic author — h-index 110, 600 works",
+    "field": "research",
+    "location": "Princeton University",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Advanced Chemical Physics Studies",
+      "Spectroscopy and Quantum Chemical Studies",
+      "Quantum, superfluid, helium dynamics",
+      "Machine Learning in Materials Science",
+      "Molecular Junctions and Nanostructures"
+    ],
+    "certifications": [],
+    "summary": "600 publications, 96550 citations, affiliated with Princeton University",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5007841515",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5007841515",
+      "worksCount": 600,
+      "citedByCount": 96550,
+      "hIndex": 110,
+      "institutions": [
+        "Princeton University"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5110342059",
+    "name": "Ralf W. Grosse‐Kunstleve",
+    "headline": "Academic author — h-index 44, 100 works",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Enzyme Structure and Function",
+      "Protein Structure and Dynamics",
+      "X-ray Diffraction in Crystallography",
+      "Machine Learning in Materials Science",
+      "Crystallography and molecular interactions"
+    ],
+    "certifications": [],
+    "summary": "100 publications, 91336 citations",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5110342059",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5110342059",
+      "worksCount": 100,
+      "citedByCount": 91336,
+      "hIndex": 44,
+      "institutions": []
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5005167296",
+    "name": "Nicola Marzari",
+    "headline": "Academic author — h-index 89, 709 works",
+    "field": "research",
+    "location": "University of Bremen",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Machine Learning in Materials Science",
+      "Advanced Chemical Physics Studies",
+      "Graphene research and applications",
+      "Molecular Junctions and Nanostructures",
+      "2D Materials and Applications"
+    ],
+    "certifications": [],
+    "summary": "709 publications, 85900 citations, affiliated with University of Bremen",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5005167296",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5005167296",
+      "worksCount": 709,
+      "citedByCount": 85900,
+      "hIndex": 89,
+      "institutions": [
+        "University of Bremen",
+        "University of Cambridge",
+        "Paul Scherrer Institute",
+        "Cavendish Hospital",
+        "System Simulation (United Kingdom)",
+        "École Polytechnique Fédérale de Lausanne"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5058450549",
+    "name": "C. Lawrence Zitnick",
+    "headline": "Academic author — h-index 64, 162 works",
+    "field": "research",
+    "location": "Tata Institute of Fundamental Research",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Advanced Image and Video Retrieval Techniques",
+      "Multimodal Machine Learning Applications",
+      "Advanced Vision and Imaging",
+      "Machine Learning in Materials Science",
+      "Advanced Image Processing Techniques"
+    ],
+    "certifications": [],
+    "summary": "162 publications, 84886 citations, affiliated with Tata Institute of Fundamental Research",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5058450549",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5058450549",
+      "worksCount": 162,
+      "citedByCount": 84886,
+      "hIndex": 64,
+      "institutions": [
+        "Tata Institute of Fundamental Research"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5051422609",
+    "name": "Hannes Jónsson",
+    "headline": "Academic author — h-index 66, 401 works",
+    "field": "research",
+    "location": "University of Iceland",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Advanced Chemical Physics Studies",
+      "Spectroscopy and Quantum Chemical Studies",
+      "Machine Learning in Materials Science",
+      "nanoparticles nucleation surface interactions",
+      "Electrocatalysts for Energy Conversion"
+    ],
+    "certifications": [],
+    "summary": "401 publications, 82891 citations, affiliated with University of Iceland",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5051422609",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5051422609",
+      "worksCount": 401,
+      "citedByCount": 82891,
+      "hIndex": 66,
+      "institutions": [
+        "University of Iceland"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5035797693",
+    "name": "Aron Walsh",
+    "headline": "Academic author — h-index 128, 997 works",
+    "field": "research",
+    "location": "Ewha Womans University",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Perovskite Materials and Applications",
+      "Chalcogenide Semiconductor Thin Films",
+      "X-ray Diffraction in Crystallography",
+      "Machine Learning in Materials Science",
+      "Quantum Dots Synthesis And Properties"
+    ],
+    "certifications": [],
+    "summary": "997 publications, 78345 citations, affiliated with Ewha Womans University",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5035797693",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5035797693",
+      "worksCount": 997,
+      "citedByCount": 78345,
+      "hIndex": 128,
+      "institutions": [
+        "Ewha Womans University",
+        "Thomas Young Centre",
+        "Imperial College London"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5071495561",
+    "name": "Alán Aspuru‐Guzik",
+    "headline": "Academic author — h-index 119, 978 works",
+    "field": "research",
+    "location": "Canadian Institute for Advanced Research",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Machine Learning in Materials Science",
+      "Quantum Computing Algorithms and Architecture",
+      "Quantum Information and Cryptography",
+      "Spectroscopy and Quantum Chemical Studies",
+      "Computational Drug Discovery Methods"
+    ],
+    "certifications": [],
+    "summary": "978 publications, 78150 citations, affiliated with Canadian Institute for Advanced Research",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5071495561",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5071495561",
+      "worksCount": 978,
+      "citedByCount": 78150,
+      "hIndex": 119,
+      "institutions": [
+        "Canadian Institute for Advanced Research",
+        "Nvidia (United Kingdom)",
+        "University of Toronto",
+        "Canada Research Chairs",
+        "Vector Institute",
+        "Nvidia (United States)"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5107838719",
+    "name": "Klaus‐Robert Müller",
+    "headline": "Academic author — h-index 111, 703 works",
+    "field": "research",
+    "location": "Korea University",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "EEG and Brain-Computer Interfaces",
+      "Neural dynamics and brain function",
+      "Blind Source Separation Techniques",
+      "Machine Learning in Materials Science",
+      "Neural Networks and Applications"
+    ],
+    "certifications": [],
+    "summary": "703 publications, 75056 citations, affiliated with Korea University",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5107838719",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5107838719",
+      "worksCount": 703,
+      "citedByCount": 75056,
+      "hIndex": 111,
+      "institutions": [
+        "Korea University",
+        "Robert Koch Institute",
+        "Berliner Institut für Sozialforschung",
+        "Max Planck Institute for Informatics",
+        "Robotics Research (United States)",
+        "Berlin Institute for the Foundations of Learning and Data",
+        "Technische Universität Berlin"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5067145443",
+    "name": "Matthias Scheffler",
+    "headline": "Academic author — h-index 135, 1006 works",
+    "field": "research",
+    "location": "University of Cologne",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Advanced Chemical Physics Studies",
+      "Machine Learning in Materials Science",
+      "Surface and Thin Film Phenomena",
+      "nanoparticles nucleation surface interactions",
+      "Catalytic Processes in Materials Science"
+    ],
+    "certifications": [],
+    "summary": "1006 publications, 71934 citations, affiliated with University of Cologne",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5067145443",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5067145443",
+      "worksCount": 1006,
+      "citedByCount": 71934,
+      "hIndex": 135,
+      "institutions": [
+        "University of Cologne",
+        "Fritz Haber Institute of the Max Planck Society",
+        "University Hospital Cologne"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5037535334",
+    "name": "Kristin A. Persson",
+    "headline": "Academic author — h-index 117, 731 works",
+    "field": "research",
+    "location": "Lawrence Berkeley National Laboratory",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Machine Learning in Materials Science",
+      "Advancements in Battery Materials",
+      "Advanced Battery Materials and Technologies",
+      "X-ray Diffraction in Crystallography",
+      "Advanced Battery Technologies Research"
+    ],
+    "certifications": [],
+    "summary": "731 publications, 68866 citations, affiliated with Lawrence Berkeley National Laboratory",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5037535334",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5037535334",
+      "worksCount": 731,
+      "citedByCount": 68866,
+      "hIndex": 117,
+      "institutions": [
+        "Lawrence Berkeley National Laboratory",
+        "University of California System",
+        "Blue Planet (Norway)",
+        "MSSCORPS (Taiwan)",
+        "University of California, Berkeley"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5063529978",
+    "name": "Sebastian W. Bodenstein",
+    "headline": "Academic author — h-index 4, 11 works",
+    "field": "research",
+    "location": "Google DeepMind (United Kingdom)",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Protein Structure and Dynamics",
+      "Enzyme Structure and Function",
+      "Machine Learning in Bioinformatics",
+      "Computational Drug Discovery Methods",
+      "Machine Learning in Materials Science"
+    ],
+    "certifications": [],
+    "summary": "11 publications, 66055 citations, affiliated with Google DeepMind (United Kingdom)",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5063529978",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5063529978",
+      "worksCount": 11,
+      "citedByCount": 66055,
+      "hIndex": 4,
+      "institutions": [
+        "Google DeepMind (United Kingdom)"
+      ]
+    }
+  },
+  {
+    "id": "openalex:https://openalex.org/A5071010920",
+    "name": "Klavs F. Jensen",
+    "headline": "Academic author — h-index 126, 815 works",
+    "field": "research",
+    "location": "Massachusetts Institute of Technology",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Innovative Microfluidic and Catalytic Techniques Innovation",
+      "Microfluidic and Capillary Electrophoresis Applications",
+      "Machine Learning in Materials Science",
+      "Catalytic Processes in Materials Science",
+      "Computational Drug Discovery Methods"
+    ],
+    "certifications": [],
+    "summary": "815 publications, 64464 citations, affiliated with Massachusetts Institute of Technology",
+    "source": "openalex",
+    "sourceUrl": "https://openalex.org/A5071010920",
+    "avatarUrl": null,
+    "raw": {
+      "openAlexId": "https://openalex.org/A5071010920",
+      "worksCount": 815,
+      "citedByCount": 64464,
+      "hIndex": 126,
+      "institutions": [
+        "Massachusetts Institute of Technology"
+      ]
+    }
+  }
+]

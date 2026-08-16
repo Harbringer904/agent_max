@@ -85,7 +85,7 @@ test("resolveBudget: non-object options (e.g. a number or string) falls back to 
 // from training data, bound to a page they are not on. A prompt rule was tried
 // and did not hold, so the gate is structural.
 
-import { nameWasSeen } from "../lib/providers/openWeb.js";
+import { nameWasSeen, groundLocation, groundSkills } from "../lib/providers/openWeb.js";
 
 const PAGE = "Our team includes Vibhuti Jyotish and Dilshad Patell, Principal Officer at NS Wealth Solution Private Limited.";
 
@@ -118,4 +118,66 @@ test("nameWasSeen rejects on empty/missing input rather than passing by default"
 test("nameWasSeen requires ALL significant tokens, not just one", () => {
   // "Dilshad" appears but "Kapoor" does not — a partial match must not pass.
   assert.equal(nameWasSeen("Dilshad Kapoor", PAGE), false);
+});
+
+// --- P4 field grounding: location and skills (docs/DATA_QUALITY_PLAN.md P4) -
+//
+// Unlike nameWasSeen (drops the whole candidate), groundLocation/groundSkills
+// scrub the individual field. A candidate must never be dropped merely for
+// carrying an ungrounded location or skill.
+
+const PROFILE_PAGE =
+  "Dilshad Patell is a Principal Officer at NS Wealth Solution Private Limited, based in " +
+  "Mumbai. He specializes in portfolio management and tax planning for retail investors.";
+
+test("groundLocation: keeps a location that demonstrably appears in the corpus", () => {
+  assert.equal(groundLocation("Mumbai", PROFILE_PAGE), "Mumbai");
+});
+
+test("groundLocation: nulls a location that does not appear anywhere in the corpus", () => {
+  assert.equal(groundLocation("Bangalore", PROFILE_PAGE), null);
+});
+
+test("groundLocation: nulls empty/missing location rather than throwing", () => {
+  assert.equal(groundLocation("", PROFILE_PAGE), null);
+  assert.equal(groundLocation(null, PROFILE_PAGE), null);
+  assert.equal(groundLocation(undefined, PROFILE_PAGE), null);
+});
+
+test("groundSkills: keeps only skills whose text appears in the corpus", () => {
+  const skills = groundSkills(["portfolio management", "tax planning", "cryptocurrency trading"], PROFILE_PAGE);
+  assert.deepEqual(skills, ["portfolio management", "tax planning"]);
+});
+
+test("groundSkills: drops every skill when none appear in the corpus", () => {
+  assert.deepEqual(groundSkills(["cryptocurrency trading", "day trading"], PROFILE_PAGE), []);
+});
+
+test("groundSkills: non-array input returns an empty array rather than throwing", () => {
+  assert.deepEqual(groundSkills(undefined, PROFILE_PAGE), []);
+  assert.deepEqual(groundSkills(null, PROFILE_PAGE), []);
+});
+
+test("field grounding never drops the candidate merely for a bad location", () => {
+  // Reproduces the shape of openWeb.js's own pipeline: a name-grounded
+  // candidate (passes nameWasSeen) whose submitted location is NOT in the
+  // corpus. The candidate must survive with location nulled, not disappear.
+  const found = {
+    name: "Dilshad Patell",
+    sourceUrl: "https://nswealth.in/financial-advisor-mumbai",
+    location: "Bangalore", // wrong / ungrounded on purpose
+    skills: ["portfolio management", "cryptocurrency trading"],
+  };
+  assert.equal(nameWasSeen(found.name, PROFILE_PAGE), true, "sanity: the name itself is grounded");
+
+  const location = groundLocation(found.location, PROFILE_PAGE);
+  const skills = groundSkills(found.skills, PROFILE_PAGE);
+  const grounded = { ...found, location, skills };
+
+  // The candidate object itself is still present and still named/sourced —
+  // only the ungrounded fields changed.
+  assert.equal(grounded.name, "Dilshad Patell");
+  assert.equal(grounded.sourceUrl, "https://nswealth.in/financial-advisor-mumbai");
+  assert.equal(grounded.location, null);
+  assert.deepEqual(grounded.skills, ["portfolio management"]);
 });

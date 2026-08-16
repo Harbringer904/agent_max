@@ -129,6 +129,15 @@ export const provider = {
   key: "osm",
   label: "OpenStreetMap (free, no key — coverage varies)",
   fields: ["*"],
+  traits: {
+    // openstreetmap.org/<type>/<id> is unique per node — not a shared
+    // listing page — so a URL match still reliably means "the same record",
+    // even though the record is a business rather than a person.
+    sourceUrlIdentifiesPerson: true,
+    nameIsHandle: false,
+    dataIsLLMExtracted: false,
+    entityType: "organization",
+  },
 
   async search(jobSpec, _options = {}) {
     try {

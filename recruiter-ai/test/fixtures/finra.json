@@ -1,0 +1,220 @@
+[
+  {
+    "id": "finra:5798549",
+    "name": "Derek Neal York",
+    "headline": "FINRA-registered representative",
+    "field": "finance",
+    "location": null,
+    "yearsExperience": 2,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "securities",
+      "investment advisory",
+      "broker-dealer",
+      "investment adviser"
+    ],
+    "certifications": [
+      "FINRA Registered"
+    ],
+    "summary": "FINRA-registered since ~2 years — CRD 5798549",
+    "source": "finra",
+    "sourceUrl": "https://brokercheck.finra.org/individual/summary/5798549",
+    "avatarUrl": null,
+    "raw": {
+      "crd": "5798549",
+      "industryDays": "781",
+      "currentEmployments": [],
+      "bcScope": "Expanded",
+      "iaScope": "Expanded"
+    }
+  },
+  {
+    "id": "finra:6511832",
+    "name": "Juan Manuel Yori Neuhaus",
+    "headline": "FINRA-registered representative",
+    "field": "finance",
+    "location": "NEW YORK, NY",
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "securities",
+      "investment advisory",
+      "broker-dealer"
+    ],
+    "certifications": [
+      "FINRA Registered"
+    ],
+    "summary": "FINRA-registered — CRD 6511832",
+    "source": "finra",
+    "sourceUrl": "https://brokercheck.finra.org/individual/summary/6511832",
+    "avatarUrl": null,
+    "raw": {
+      "crd": "6511832",
+      "industryDays": null,
+      "currentEmployments": [
+        {
+          "firm_id": "153502",
+          "firm_name": "APOLLO GLOBAL SECURITIES, LLC",
+          "branch_city": "NEW YORK",
+          "branch_state": "NY",
+          "branch_zip": "10019-2701",
+          "ia_only": "N",
+          "firm_bd_sec_number": "68542",
+          "firm_bd_full_sec_number": "8-68542"
+        }
+      ],
+      "bcScope": "Active",
+      "iaScope": "NotInScope"
+    }
+  },
+  {
+    "id": "finra:6563598",
+    "name": "Maura Oneill Spangler",
+    "headline": "FINRA-registered representative",
+    "field": "finance",
+    "location": null,
+    "yearsExperience": 3,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "securities",
+      "investment advisory",
+      "broker-dealer"
+    ],
+    "certifications": [
+      "FINRA Registered"
+    ],
+    "summary": "FINRA-registered since ~3 years — CRD 6563598",
+    "source": "finra",
+    "sourceUrl": "https://brokercheck.finra.org/individual/summary/6563598",
+    "avatarUrl": null,
+    "raw": {
+      "crd": "6563598",
+      "industryDays": "1391",
+      "currentEmployments": [],
+      "bcScope": "InActive",
+      "iaScope": "NotInScope"
+    }
+  },
+  {
+    "id": "finra:472798",
+    "name": "Neil Keith Workman",
+    "headline": "FINRA-registered representative",
+    "field": "finance",
+    "location": null,
+    "yearsExperience": 45,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "securities",
+      "investment advisory",
+      "broker-dealer",
+      "investment adviser"
+    ],
+    "certifications": [
+      "FINRA Registered"
+    ],
+    "summary": "FINRA-registered since ~45 years — CRD 472798",
+    "source": "finra",
+    "sourceUrl": "https://brokercheck.finra.org/individual/summary/472798",
+    "avatarUrl": null,
+    "raw": {
+      "crd": "472798",
+      "industryDays": "16474",
+      "currentEmployments": [],
+      "bcScope": "InActive",
+      "iaScope": "InActive"
+    }
+  },
+  {
+    "id": "finra:501709",
+    "name": "Howard Neal Norkin",
+    "headline": "FINRA-registered representative",
+    "field": "finance",
+    "location": null,
+    "yearsExperience": 41,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "securities",
+      "investment advisory",
+      "broker-dealer",
+      "investment adviser"
+    ],
+    "certifications": [
+      "FINRA Registered"
+    ],
+    "summary": "FINRA-registered since ~41 years — CRD 501709",
+    "source": "finra",
+    "sourceUrl": "https://brokercheck.finra.org/individual/summary/501709",
+    "avatarUrl": null,
+    "raw": {
+      "crd": "501709",
+      "industryDays": "14977",
+      "currentEmployments": [],
+      "bcScope": "InActive",
+      "iaScope": "InActive"
+    }
+  },
+  {
+    "id": "finra:7176577",
+    "name": "Georgi Nenov Yordanov",
+    "headline": "FINRA-registered representative",
+    "field": "finance",
+    "location": null,
+    "yearsExperience": 2,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "securities",
+      "investment advisory",
+      "broker-dealer"
+    ],
+    "certifications": [
+      "FINRA Registered"
+    ],
+    "summary": "FINRA-registered since ~2 years — CRD 7176577",
+    "source": "finra",
+    "sourceUrl": "https://brokercheck.finra.org/individual/summary/7176577",
+    "avatarUrl": null,
+    "raw": {
+      "crd": "7176577",
+      "industryDays": "1037",
+      "currentEmployments": [],
+      "bcScope": "InActive",
+      "iaScope": "NotInScope"
+    }
+  },
+  {
+    "id": "finra:6874800",
+    "name": "Luba Jewell",
+    "headline": "FINRA-registered representative",
+    "field": "finance",
+    "location": null,
+    "yearsExperience": 1,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "securities",
+      "investment advisory",
+      "broker-dealer",
+      "investment adviser"
+    ],
+    "certifications": [
+      "FINRA Registered"
+    ],
+    "summary": "FINRA-registered since ~1 years — CRD 6874800",
+    "source": "finra",
+    "sourceUrl": "https://brokercheck.finra.org/individual/summary/6874800",
+    "avatarUrl": null,
+    "raw": {
+      "crd": "6874800",
+      "industryDays": "729",
+      "currentEmployments": [],
+      "bcScope": "InActive",
+      "iaScope": "InActive"
+    }
+  }
+]

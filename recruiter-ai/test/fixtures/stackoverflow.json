@@ -1,0 +1,407 @@
+[
+  {
+    "id": "stackoverflow:157247",
+    "name": "T.J. Crowder",
+    "headline": "Stack Overflow — 1083838 rep",
+    "field": "software",
+    "location": "United Kingdom",
+    "yearsExperience": 17,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/157247/t-j-crowder",
+    "avatarUrl": "https://i.sstatic.net/lUM5Z.jpg?s=256",
+    "raw": {
+      "reputation": 1083838,
+      "badge_counts": {
+        "bronze": 1974,
+        "silver": 2033,
+        "gold": 201
+      },
+      "user_id": 157247
+    }
+  },
+  {
+    "id": "stackoverflow:19068",
+    "name": "Quentin",
+    "headline": "Stack Overflow — 949813 rep",
+    "field": "software",
+    "location": "United Kingdom",
+    "yearsExperience": 17,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/19068/quentin",
+    "avatarUrl": "https://www.gravatar.com/avatar/1d2d3229ed1961d2bd81853242493247?s=256&d=identicon&r=PG",
+    "raw": {
+      "reputation": 949813,
+      "badge_counts": {
+        "bronze": 1414,
+        "silver": 1285,
+        "gold": 139
+      },
+      "user_id": 19068
+    }
+  },
+  {
+    "id": "stackoverflow:34397",
+    "name": "SLaks",
+    "headline": "Stack Overflow — 892516 rep",
+    "field": "software",
+    "location": "New Jersey",
+    "yearsExperience": 17,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/34397/slaks",
+    "avatarUrl": "https://www.gravatar.com/avatar/7deca8ec973c3c0875e9a36e1e3e2c44?s=256&d=identicon&r=PG",
+    "raw": {
+      "reputation": 892516,
+      "badge_counts": {
+        "bronze": 2003,
+        "silver": 1951,
+        "gold": 182
+      },
+      "user_id": 34397
+    }
+  },
+  {
+    "id": "stackoverflow:5445",
+    "name": "Christian C. Salvad&#243;",
+    "headline": "Stack Overflow — 832368 rep",
+    "field": "software",
+    "location": "Guatemala",
+    "yearsExperience": 17,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/5445/christian-c-salvad%c3%b3",
+    "avatarUrl": "https://www.gravatar.com/avatar/932fb89b9d4049cec5cba357bf0ae388?s=256&d=identicon&r=PG",
+    "raw": {
+      "reputation": 832368,
+      "badge_counts": {
+        "bronze": 846,
+        "silver": 929,
+        "gold": 185
+      },
+      "user_id": 5445
+    }
+  },
+  {
+    "id": "stackoverflow:218196",
+    "name": "Felix Kling",
+    "headline": "Stack Overflow — 821305 rep",
+    "field": "software",
+    "location": "Germany",
+    "yearsExperience": 16,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/218196/felix-kling",
+    "avatarUrl": "https://i.sstatic.net/4P5DY.jpg?s=256",
+    "raw": {
+      "reputation": 821305,
+      "badge_counts": {
+        "bronze": 1175,
+        "silver": 1115,
+        "gold": 181
+      },
+      "user_id": 218196
+    }
+  },
+  {
+    "id": "stackoverflow:816620",
+    "name": "jfriend00",
+    "headline": "Stack Overflow — 711888 rep",
+    "field": "software",
+    "location": null,
+    "yearsExperience": 15,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/816620/jfriend00",
+    "avatarUrl": "https://i.sstatic.net/Xu7hp.jpg?s=256",
+    "raw": {
+      "reputation": 711888,
+      "badge_counts": {
+        "bronze": 1030,
+        "silver": 1053,
+        "gold": 106
+      },
+      "user_id": 816620
+    }
+  },
+  {
+    "id": "stackoverflow:1048572",
+    "name": "Bergi",
+    "headline": "Stack Overflow — 671965 rep",
+    "field": "software",
+    "location": null,
+    "yearsExperience": 14,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/1048572/bergi",
+    "avatarUrl": "https://www.gravatar.com/avatar/7f2c4de95e8f4f8f5a71c3aaf0ed312a?s=256&d=identicon&r=PG",
+    "raw": {
+      "reputation": 671965,
+      "badge_counts": {
+        "bronze": 1500,
+        "silver": 1039,
+        "gold": 162
+      },
+      "user_id": 1048572
+    }
+  },
+  {
+    "id": "stackoverflow:13249",
+    "name": "Nick Craver",
+    "headline": "Stack Overflow — 631546 rep",
+    "field": "software",
+    "location": "Winston-Salem, NC",
+    "yearsExperience": 17,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/13249/nick-craver",
+    "avatarUrl": "https://i.sstatic.net/nGCYr.jpg?s=256",
+    "raw": {
+      "reputation": 631546,
+      "badge_counts": {
+        "bronze": 1161,
+        "silver": 1308,
+        "gold": 138
+      },
+      "user_id": 13249
+    }
+  },
+  {
+    "id": "stackoverflow:9021",
+    "name": "nickf",
+    "headline": "Stack Overflow — 548330 rep",
+    "field": "software",
+    "location": "Z&#252;rich, Switzerland",
+    "yearsExperience": 17,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/9021/nickf",
+    "avatarUrl": "https://www.gravatar.com/avatar/f092dfd45793e9483281d4205b674823?s=256&d=identicon&r=PG",
+    "raw": {
+      "reputation": 548330,
+      "badge_counts": {
+        "bronze": 727,
+        "silver": 662,
+        "gold": 199
+      },
+      "user_id": 9021
+    }
+  },
+  {
+    "id": "stackoverflow:18936",
+    "name": "bobince",
+    "headline": "Stack Overflow — 538604 rep",
+    "field": "software",
+    "location": "Cambridge, UK",
+    "yearsExperience": 17,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/18936/bobince",
+    "avatarUrl": "https://www.gravatar.com/avatar/3f6f1bea81a68b2f1cfe3efbb9be94bc?s=256&d=identicon&r=PG",
+    "raw": {
+      "reputation": 538604,
+      "badge_counts": {
+        "bronze": 846,
+        "silver": 676,
+        "gold": 111
+      },
+      "user_id": 18936
+    }
+  },
+  {
+    "id": "stackoverflow:182668",
+    "name": "Pointy",
+    "headline": "Stack Overflow — 415536 rep",
+    "field": "software",
+    "location": "Austin, TX",
+    "yearsExperience": 16,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/182668/pointy",
+    "avatarUrl": "https://www.gravatar.com/avatar/b19917aa04a6839aef577f1117c71d48?s=256&d=identicon&r=PG",
+    "raw": {
+      "reputation": 415536,
+      "badge_counts": {
+        "bronze": 637,
+        "silver": 601,
+        "gold": 62
+      },
+      "user_id": 182668
+    }
+  },
+  {
+    "id": "stackoverflow:1447675",
+    "name": "Nina Scholz",
+    "headline": "Stack Overflow — 388159 rep",
+    "field": "software",
+    "location": null,
+    "yearsExperience": 14,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/1447675/nina-scholz",
+    "avatarUrl": "https://i.sstatic.net/ziYmO.gif?s=256",
+    "raw": {
+      "reputation": 388159,
+      "badge_counts": {
+        "bronze": 418,
+        "silver": 368,
+        "gold": 26
+      },
+      "user_id": 1447675
+    }
+  },
+  {
+    "id": "stackoverflow:9515207",
+    "name": "CertainPerformance",
+    "headline": "Stack Overflow — 373968 rep",
+    "field": "software",
+    "location": "Austin, TX, USA",
+    "yearsExperience": 8,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/9515207/certainperformance",
+    "avatarUrl": "https://www.gravatar.com/avatar/3d5ccb4452ea5093f95c1da37acc764b?s=256&d=identicon&r=PG&f=y&so-version=2",
+    "raw": {
+      "reputation": 373968,
+      "badge_counts": {
+        "bronze": 360,
+        "silver": 356,
+        "gold": 55
+      },
+      "user_id": 9515207
+    }
+  },
+  {
+    "id": "stackoverflow:94197",
+    "name": "Andy E",
+    "headline": "Stack Overflow — 345989 rep",
+    "field": "software",
+    "location": "Leeds, United Kingdom",
+    "yearsExperience": 17,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/94197/andy-e",
+    "avatarUrl": "https://www.gravatar.com/avatar/c3203aa647aeb214c463c59f1af2c38f?s=256&d=identicon&r=PG",
+    "raw": {
+      "reputation": 345989,
+      "badge_counts": {
+        "bronze": 454,
+        "silver": 483,
+        "gold": 86
+      },
+      "user_id": 94197
+    }
+  },
+  {
+    "id": "stackoverflow:96100",
+    "name": "Tim Down",
+    "headline": "Stack Overflow — 325829 rep",
+    "field": "software",
+    "location": "United Kingdom",
+    "yearsExperience": 17,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "javascript"
+    ],
+    "certifications": [],
+    "summary": null,
+    "source": "stackoverflow",
+    "sourceUrl": "https://stackoverflow.com/users/96100/tim-down",
+    "avatarUrl": "https://www.gravatar.com/avatar/f7b22b86b0da570ddb5d1d4923b0f4f4?s=256&d=identicon&r=PG",
+    "raw": {
+      "reputation": 325829,
+      "badge_counts": {
+        "bronze": 547,
+        "silver": 462,
+        "gold": 76
+      },
+      "user_id": 96100
+    }
+  }
+]

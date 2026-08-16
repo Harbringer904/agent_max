@@ -155,6 +155,13 @@ export const provider = {
   key: "npi",
   label: "NPI Registry (US healthcare, official)",
   fields: ["healthcare"],
+  traits: {
+    // npiregistry.cms.hhs.gov/provider-view/<NPI> is unique per provider.
+    sourceUrlIdentifiesPerson: true,
+    nameIsHandle: false,
+    dataIsLLMExtracted: false,
+    entityType: "person",
+  },
 
   async search(jobSpec, _options = {}) {
     try {

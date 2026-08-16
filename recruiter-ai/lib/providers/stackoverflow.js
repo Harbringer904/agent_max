@@ -151,6 +151,14 @@ export const provider = {
   key: "stackoverflow",
   label: "Stack Overflow",
   fields: ["software"],
+  traits: {
+    // user.link is unique per user_id.
+    sourceUrlIdentifiesPerson: true,
+    // display_name is a self-chosen handle, not a verified legal name.
+    nameIsHandle: true,
+    dataIsLLMExtracted: false,
+    entityType: "person",
+  },
 
   async search(jobSpec, _options = {}) {
     try {

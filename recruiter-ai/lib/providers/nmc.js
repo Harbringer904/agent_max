@@ -243,6 +243,15 @@ export const provider = {
   key: "nmc",
   label: "NMC Registered Doctors (official data)",
   fields: ["healthcare"],
+  traits: {
+    // Every record gets the SAME hardcoded sourceUrl (the register's landing
+    // page, not a per-doctor permalink) — see toCandidate() above. Verified
+    // live: 20 distinct doctors sharing 1 URL. Must never drive URL-merge.
+    sourceUrlIdentifiesPerson: false,
+    nameIsHandle: false,
+    dataIsLLMExtracted: false,
+    entityType: "person",
+  },
 
   async search(jobSpec, _options = {}) {
     try {

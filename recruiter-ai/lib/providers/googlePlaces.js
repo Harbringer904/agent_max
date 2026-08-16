@@ -125,6 +125,15 @@ export const provider = {
   key: "google_places",
   label: "Google Places (real local businesses)",
   fields: ["*"],
+  traits: {
+    // place.googleMapsUri is unique per place — not a shared listing page —
+    // so a URL match still reliably means "the same record", even though
+    // the record is a business rather than a person.
+    sourceUrlIdentifiesPerson: true,
+    nameIsHandle: false,
+    dataIsLLMExtracted: false,
+    entityType: "organization",
+  },
 
   async search(jobSpec, _options = {}) {
     if (!API_KEY) return [];

@@ -168,6 +168,16 @@ export const provider = {
   key: "hn_hiring",
   label: "HN: Who Wants To Be Hired",
   fields: ["software"],
+  traits: {
+    // news.ycombinator.com/item?id=<commentId> is unique per post/poster —
+    // see the normalizeUrl() header note in lib/agent/dedupe.js for the real
+    // bug this identity depends on (the query string must be kept).
+    sourceUrlIdentifiesPerson: true,
+    // `name` is always the raw HN username (child.author), never a real name.
+    nameIsHandle: true,
+    dataIsLLMExtracted: false,
+    entityType: "person",
+  },
 
   async search(jobSpec, _options = {}) {
     try {

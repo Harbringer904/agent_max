@@ -108,6 +108,13 @@ export const provider = {
   key: "orcid",
   label: "ORCID (researchers)",
   fields: ["research"],
+  traits: {
+    // orcid.org/<orcid-id> is unique per researcher.
+    sourceUrlIdentifiesPerson: true,
+    nameIsHandle: false,
+    dataIsLLMExtracted: false,
+    entityType: "person",
+  },
 
   async search(jobSpec, _options = {}) {
     try {

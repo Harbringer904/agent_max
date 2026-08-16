@@ -203,6 +203,17 @@ export const provider = {
   key: "github",
   label: "GitHub",
   fields: ["software"],
+  traits: {
+    // Unique per login (raw.html_url / https://github.com/<login>) — a shared
+    // URL across two candidates can only mean the same account.
+    sourceUrlIdentifiesPerson: true,
+    // `name` prefers raw.name (real name) but falls back to raw.login (the
+    // handle) whenever the account has no display name set — common enough
+    // on GitHub that downstream code must not assume it's always a real name.
+    nameIsHandle: true,
+    dataIsLLMExtracted: false,
+    entityType: "person",
+  },
 
   async search(jobSpec, options = {}) {
     const query = buildQuery(jobSpec, options);

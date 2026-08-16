@@ -27,6 +27,7 @@
 //   provider   { key:"openalex", label:"OpenAlex (academic authors)", fields:["research"], search(jobSpec, options) }
 
 import { normalizeCandidate } from "../normalize.js";
+import { looksLikeOrganization } from "../personCheck.js";
 
 const API_BASE = "https://api.openalex.org/authors";
 const TOPICS_API = "https://api.openalex.org/topics";
@@ -119,42 +120,12 @@ async function resolveTopicId(term) {
   return String(topic.id).split("/").pop();
 }
 
-// Tokens that indicate an "author" record is really a lab, consortium,
-// conference, dataset, or institution rather than a person. OpenAlex mixes
-// these into its author index; a recruiting tool must never present one as a
-// hireable candidate.
-const ORG_TOKENS = [
-  "university", "institute", "institut", "college", "school", "academy",
-  "laboratory", "laboratoire", "lab", "labs", "center", "centre", "department",
-  "faculty", "hospital", "clinic", "foundation", "society", "association",
-  "committee", "subcommittee", "council", "consortium", "network", "group",
-  "team", "workshop", "conference", "symposium", "seminar", "congress",
-  "proceedings", "journal", "repository", "dataset", "database", "project",
-  "program", "programme", "initiative", "collaboration", "working party",
-  "ltd", "llc", "inc", "gmbh", "s.l.", "corporation", "company", "agency",
-  "ministry", "government", "authority", "bureau", "office", "division",
-  "unit", "research group", "study group", "trial", "cohort", "biobank",
-];
-
-/**
- * Heuristic: does this author name look like an organization rather than a
- * person? Deliberately conservative in one direction — a false positive drops
- * a real researcher (recoverable, they appear via other sources), while a
- * false negative puts a conference in a candidate list (embarrassing and
- * misleading). We accept dropping some real people to guarantee the latter
- * is rare.
- */
-function looksLikeOrganization(name) {
-  const n = String(name || "").trim();
-  if (!n) return true;
-  const lower = n.toLowerCase();
-  if (ORG_TOKENS.some((t) => new RegExp(`(^|[^a-z])${t}([^a-z]|$)`, "i").test(lower))) return true;
-  // Person names are short; long multi-word strings are almost always entities.
-  if (n.split(/\s+/).length > 5) return true;
-  // "&", "/", digits, or parentheses rarely appear in a real person's name.
-  if (/[&/()]|\d{2,}/.test(n)) return true;
-  return false;
-}
+// Non-person filtering (organizations, labs, conferences, datasets that
+// OpenAlex mixes into its author index) is delegated to the shared
+// lib/personCheck.js heuristic — see docs/DATA_QUALITY_PLAN.md P3. It used
+// to live here as a private copy; now this is the single source of truth so
+// other person-sourced providers (and the orchestrate.js safety net) apply
+// the exact same rule.
 
 function toCandidate(author, index, countryCode = null) {
   const allInstitutions = Array.isArray(author.last_known_institutions)
@@ -211,6 +182,13 @@ export const provider = {
   key: "openalex",
   label: "OpenAlex (academic authors)",
   fields: ["research"],
+  traits: {
+    // author.id (the OpenAlex author URL) is unique per author.
+    sourceUrlIdentifiesPerson: true,
+    nameIsHandle: false,
+    dataIsLLMExtracted: false,
+    entityType: "person",
+  },
 
   async search(jobSpec, _options = {}) {
     try {

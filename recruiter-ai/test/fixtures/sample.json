@@ -1,0 +1,240 @@
+[
+  {
+    "id": "sample:Rachel Thompson",
+    "name": "Rachel Thompson",
+    "headline": "Registered Nurse — Med-Surg",
+    "field": "healthcare",
+    "location": "Denver, CO",
+    "yearsExperience": 6,
+    "education": "Bachelor of Science in Nursing (BSN)",
+    "educationLevel": 3,
+    "skills": [
+      "patient care",
+      "EHR",
+      "IV therapy",
+      "patient education"
+    ],
+    "certifications": [
+      "RN",
+      "BLS",
+      "ACLS"
+    ],
+    "summary": "Registered nurse with six years of med-surg experience and strong EHR documentation skills.",
+    "source": "sample",
+    "sourceUrl": null,
+    "avatarUrl": null,
+    "raw": {}
+  },
+  {
+    "id": "sample:Michael Osei",
+    "name": "Michael Osei",
+    "headline": "Registered Nurse — Emergency Department",
+    "field": "healthcare",
+    "location": "Houston, TX",
+    "yearsExperience": 2,
+    "education": "Bachelor of Science in Nursing (BSN)",
+    "educationLevel": 3,
+    "skills": [
+      "patient care",
+      "EHR",
+      "triage"
+    ],
+    "certifications": [
+      "RN",
+      "BLS"
+    ],
+    "summary": "ED nurse focused on rapid triage and patient care under high-volume conditions.",
+    "source": "sample",
+    "sourceUrl": null,
+    "avatarUrl": null,
+    "raw": {}
+  },
+  {
+    "id": "sample:Linda Park",
+    "name": "Linda Park",
+    "headline": "Medical Lab Technician",
+    "field": "healthcare",
+    "location": "Phoenix, AZ",
+    "yearsExperience": 4,
+    "education": "Associate degree in Medical Laboratory Technology",
+    "educationLevel": 2,
+    "skills": [
+      "lab testing",
+      "specimen handling",
+      "quality control"
+    ],
+    "certifications": [
+      "MLT",
+      "ASCP"
+    ],
+    "summary": "Lab technician performing routine and specialized diagnostic testing with strong QC discipline.",
+    "source": "sample",
+    "sourceUrl": null,
+    "avatarUrl": null,
+    "raw": {}
+  },
+  {
+    "id": "sample:Fatima Al-Sayed",
+    "name": "Fatima Al-Sayed",
+    "headline": "Registered Nurse — Pediatrics",
+    "field": "healthcare",
+    "location": "Chicago, IL",
+    "yearsExperience": 9,
+    "education": "Master of Science in Nursing (MSN)",
+    "educationLevel": 4,
+    "skills": [
+      "patient care",
+      "EHR",
+      "pediatric care"
+    ],
+    "certifications": [
+      "RN",
+      "BLS",
+      "PALS"
+    ],
+    "summary": "Pediatric RN with advanced degree and nine years of hands-on patient care experience.",
+    "source": "sample",
+    "sourceUrl": null,
+    "avatarUrl": null,
+    "raw": {}
+  },
+  {
+    "id": "sample:James Whitfield",
+    "name": "James Whitfield",
+    "headline": "Certified Nursing Assistant",
+    "field": "healthcare",
+    "location": "Remote",
+    "yearsExperience": 1,
+    "education": "High school diploma",
+    "educationLevel": 1,
+    "skills": [
+      "patient care"
+    ],
+    "certifications": [
+      "BLS",
+      "CNA"
+    ],
+    "summary": "CNA transitioning into nursing school, focused on direct patient care.",
+    "source": "sample",
+    "sourceUrl": null,
+    "avatarUrl": null,
+    "raw": {}
+  },
+  {
+    "id": "sample:Nora Fitzgerald",
+    "name": "Nora Fitzgerald",
+    "headline": "Medical Lab Technician",
+    "field": "healthcare",
+    "location": "Atlanta, GA",
+    "yearsExperience": 1,
+    "education": "Associate degree in Medical Laboratory Technology",
+    "educationLevel": 2,
+    "skills": [
+      "lab testing",
+      "quality control"
+    ],
+    "certifications": [
+      "MLT"
+    ],
+    "summary": "Early-career lab technician performing specimen testing and quality control checks.",
+    "source": "sample",
+    "sourceUrl": null,
+    "avatarUrl": null,
+    "raw": {}
+  },
+  {
+    "id": "sample:Samuel Yates",
+    "name": "Samuel Yates",
+    "headline": "Registered Nurse — Critical Care",
+    "field": "healthcare",
+    "location": "Boston, MA",
+    "yearsExperience": 12,
+    "education": "Bachelor of Science in Nursing (BSN)",
+    "educationLevel": 4,
+    "skills": [
+      "patient care",
+      "EHR",
+      "critical care"
+    ],
+    "certifications": [
+      "RN",
+      "BLS",
+      "ACLS",
+      "CCRN"
+    ],
+    "summary": "Critical care RN with over a decade of ICU experience and advanced life support certifications.",
+    "source": "sample",
+    "sourceUrl": null,
+    "avatarUrl": null,
+    "raw": {}
+  },
+  {
+    "id": "sample:Priya Nair",
+    "name": "Priya Nair",
+    "headline": "Medical Laboratory Scientist",
+    "field": "healthcare",
+    "location": "Seattle, WA",
+    "yearsExperience": 6,
+    "education": "Bachelor of Science in Medical Laboratory Science",
+    "educationLevel": 3,
+    "skills": [
+      "lab testing",
+      "specimen handling"
+    ],
+    "certifications": [
+      "MLT",
+      "ASCP"
+    ],
+    "summary": "Lab scientist with a bachelor's degree and six years of specimen testing experience.",
+    "source": "sample",
+    "sourceUrl": null,
+    "avatarUrl": null,
+    "raw": {}
+  },
+  {
+    "id": "sample:Derek Simmons",
+    "name": "Derek Simmons",
+    "headline": "Registered Nurse — General Medicine",
+    "field": "healthcare",
+    "location": "Remote",
+    "yearsExperience": 3,
+    "education": "Bachelor of Science in Nursing (BSN)",
+    "educationLevel": 3,
+    "skills": [
+      "patient care"
+    ],
+    "certifications": [
+      "RN"
+    ],
+    "summary": "General medicine RN with three years of bedside patient care experience.",
+    "source": "sample",
+    "sourceUrl": null,
+    "avatarUrl": null,
+    "raw": {}
+  },
+  {
+    "id": "sample:Wanda Alvarez",
+    "name": "Wanda Alvarez",
+    "headline": "Registered Nurse — Chronic Care Management",
+    "field": "healthcare",
+    "location": "Miami, FL",
+    "yearsExperience": 15,
+    "education": "Doctor of Nursing Practice (DNP)",
+    "educationLevel": 5,
+    "skills": [
+      "patient care",
+      "EHR",
+      "chronic disease management"
+    ],
+    "certifications": [
+      "RN",
+      "BLS",
+      "FNP"
+    ],
+    "summary": "Veteran RN with a doctorate, specializing in chronic disease management and care coordination.",
+    "source": "sample",
+    "sourceUrl": null,
+    "avatarUrl": null,
+    "raw": {}
+  }
+]

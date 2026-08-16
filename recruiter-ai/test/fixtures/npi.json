@@ -1,0 +1,804 @@
+[
+  {
+    "id": "npi:1275166597",
+    "name": "Saja Ababneh",
+    "headline": "Registered Nurse, General Practice",
+    "field": "healthcare",
+    "location": "BROOKLYN, NY",
+    "yearsExperience": 6,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Behavior Analyst",
+      "Specialist/Technologist, Other",
+      "Registered Nurse, General Practice"
+    ],
+    "certifications": [
+      "NPI Registered"
+    ],
+    "summary": "Registered Nurse, General Practice in BROOKLYN, NY — NPI 1275166597",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1275166597",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1275166597",
+      "taxonomies": [
+        {
+          "code": "103K00000X",
+          "desc": "Behavior Analyst",
+          "license": null,
+          "primary": false,
+          "state": null,
+          "taxonomy_group": ""
+        },
+        {
+          "code": "246Z00000X",
+          "desc": "Specialist/Technologist, Other",
+          "license": null,
+          "primary": false,
+          "state": null,
+          "taxonomy_group": ""
+        },
+        {
+          "code": "163WG0000X",
+          "desc": "Registered Nurse, General Practice",
+          "license": "843230",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "917-624-4560",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1831903236",
+    "name": "Ciana Abbazia",
+    "headline": "Registered Nurse, General Practice — RN",
+    "field": "healthcare",
+    "location": "WEBSTER, NY",
+    "yearsExperience": 1,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, General Practice"
+    ],
+    "certifications": [
+      "NPI Registered",
+      "RN"
+    ],
+    "summary": "Registered Nurse, General Practice in WEBSTER, NY — NPI 1831903236",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1831903236",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1831903236",
+      "taxonomies": [
+        {
+          "code": "163WG0000X",
+          "desc": "Registered Nurse, General Practice",
+          "license": "870742",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "585-771-7547",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1386499150",
+    "name": "Ciara Abdallah",
+    "headline": "Registered Nurse, Registered Nurse First Assistant — Registered Nurse",
+    "field": "healthcare",
+    "location": "BUFFALO, NY",
+    "yearsExperience": 2,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, Registered Nurse First Assistant"
+    ],
+    "certifications": [
+      "NPI Registered",
+      "Registered Nurse"
+    ],
+    "summary": "Registered Nurse, Registered Nurse First Assistant in BUFFALO, NY — NPI 1386499150",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1386499150",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1386499150",
+      "taxonomies": [
+        {
+          "code": "163WR0006X",
+          "desc": "Registered Nurse, Registered Nurse First Assistant",
+          "license": "923229",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "716-544-1822",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1801223417",
+    "name": "Maryann Abdullah",
+    "headline": "Registered Nurse — RN",
+    "field": "healthcare",
+    "location": "BINGHAMTON, NY",
+    "yearsExperience": 12,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse",
+      "Registered Nurse, Case Management",
+      "Registered Nurse, Community Health",
+      "Registered Nurse, Continuing Education/Staff Development",
+      "Registered Nurse, Diabetes Educator"
+    ],
+    "certifications": [
+      "NPI Registered",
+      "RN"
+    ],
+    "summary": "Registered Nurse in BINGHAMTON, NY — NPI 1801223417",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1801223417",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1801223417",
+      "taxonomies": [
+        {
+          "code": "163W00000X",
+          "desc": "Registered Nurse",
+          "license": "453402",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        },
+        {
+          "code": "163WC0400X",
+          "desc": "Registered Nurse, Case Management",
+          "license": "453402",
+          "primary": false,
+          "state": "NY",
+          "taxonomy_group": ""
+        },
+        {
+          "code": "163WC1500X",
+          "desc": "Registered Nurse, Community Health",
+          "license": "453402",
+          "primary": false,
+          "state": "NY",
+          "taxonomy_group": ""
+        },
+        {
+          "code": "163WC1600X",
+          "desc": "Registered Nurse, Continuing Education/Staff Development",
+          "license": "453402",
+          "primary": false,
+          "state": "NY",
+          "taxonomy_group": ""
+        },
+        {
+          "code": "163WD0400X",
+          "desc": "Registered Nurse, Diabetes Educator",
+          "license": "453402",
+          "primary": false,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "607-771-1004",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1972036333",
+    "name": "Jaclyn Abrahall",
+    "headline": "Nurse Practitioner, Family — FNP-C, CDCES",
+    "field": "healthcare",
+    "location": "HAUPPAUGE, NY",
+    "yearsExperience": 9,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, Diabetes Educator",
+      "Nurse Practitioner, Family"
+    ],
+    "certifications": [
+      "NPI Registered",
+      "FNP-C, CDCES"
+    ],
+    "summary": "Nurse Practitioner, Family in HAUPPAUGE, NY — NPI 1972036333",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1972036333",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1972036333",
+      "taxonomies": [
+        {
+          "code": "163WD0400X",
+          "desc": "Registered Nurse, Diabetes Educator",
+          "license": "695786",
+          "primary": false,
+          "state": "NY",
+          "taxonomy_group": ""
+        },
+        {
+          "code": "363LF0000X",
+          "desc": "Nurse Practitioner, Family",
+          "license": "343035",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "631-638-4933",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1467075812",
+    "name": "Alex Abraham",
+    "headline": "Nurse Practitioner, Family — FNP",
+    "field": "healthcare",
+    "location": "POMONA, NY",
+    "yearsExperience": 6,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, General Practice",
+      "Nurse Practitioner, Family"
+    ],
+    "certifications": [
+      "NPI Registered",
+      "FNP"
+    ],
+    "summary": "Nurse Practitioner, Family in POMONA, NY — NPI 1467075812",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1467075812",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1467075812",
+      "taxonomies": [
+        {
+          "code": "163WG0000X",
+          "desc": "Registered Nurse, General Practice",
+          "license": "530437",
+          "primary": false,
+          "state": "NY",
+          "taxonomy_group": ""
+        },
+        {
+          "code": "363LF0000X",
+          "desc": "Nurse Practitioner, Family",
+          "license": "346701",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "845-729-4423",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1437908654",
+    "name": "Nisha Abraham",
+    "headline": "Registered Nurse, Psych/Mental Health, Adult — RN",
+    "field": "healthcare",
+    "location": "ORANGEBURG, NY",
+    "yearsExperience": 2,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, Psych/Mental Health, Adult"
+    ],
+    "certifications": [
+      "NPI Registered",
+      "RN"
+    ],
+    "summary": "Registered Nurse, Psych/Mental Health, Adult in ORANGEBURG, NY — NPI 1437908654",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1437908654",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1437908654",
+      "taxonomies": [
+        {
+          "code": "163WP0809X",
+          "desc": "Registered Nurse, Psych/Mental Health, Adult",
+          "license": "580559",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "845-270-4900",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1801394457",
+    "name": "Reshma Abraham",
+    "headline": "Registered Nurse, Psych/Mental Health, Adult",
+    "field": "healthcare",
+    "location": "QUEENS VILLAGE, NY",
+    "yearsExperience": 8,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, Psych/Mental Health, Adult"
+    ],
+    "certifications": [
+      "NPI Registered"
+    ],
+    "summary": "Registered Nurse, Psych/Mental Health, Adult in QUEENS VILLAGE, NY — NPI 1801394457",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1801394457",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1801394457",
+      "taxonomies": [
+        {
+          "code": "163WP0809X",
+          "desc": "Registered Nurse, Psych/Mental Health, Adult",
+          "license": "628547",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "718-264-5700",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1265281794",
+    "name": "Sally Abraham",
+    "headline": "Registered Nurse, Psych/Mental Health, Adult",
+    "field": "healthcare",
+    "location": "ORANGEBURG, NY",
+    "yearsExperience": 2,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, Psych/Mental Health, Adult"
+    ],
+    "certifications": [
+      "NPI Registered"
+    ],
+    "summary": "Registered Nurse, Psych/Mental Health, Adult in ORANGEBURG, NY — NPI 1265281794",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1265281794",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1265281794",
+      "taxonomies": [
+        {
+          "code": "163WP0809X",
+          "desc": "Registered Nurse, Psych/Mental Health, Adult",
+          "license": "489429",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "845-680-8205",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1962900423",
+    "name": "Sosamma Abraham",
+    "headline": "Registered Nurse, Psych/Mental Health, Adult",
+    "field": "healthcare",
+    "location": "QUEENS VILLAGE, NY",
+    "yearsExperience": 8,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, Psych/Mental Health, Adult"
+    ],
+    "certifications": [
+      "NPI Registered"
+    ],
+    "summary": "Registered Nurse, Psych/Mental Health, Adult in QUEENS VILLAGE, NY — NPI 1962900423",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1962900423",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1962900423",
+      "taxonomies": [
+        {
+          "code": "163WP0809X",
+          "desc": "Registered Nurse, Psych/Mental Health, Adult",
+          "license": "599337",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "718-264-5700",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1043719651",
+    "name": "Tessy Abraham",
+    "headline": "Registered Nurse, Psych/Mental Health, Adult",
+    "field": "healthcare",
+    "location": "QUEENS VILLAGE, NY",
+    "yearsExperience": 8,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, Psych/Mental Health, Adult"
+    ],
+    "certifications": [
+      "NPI Registered"
+    ],
+    "summary": "Registered Nurse, Psych/Mental Health, Adult in QUEENS VILLAGE, NY — NPI 1043719651",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1043719651",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1043719651",
+      "taxonomies": [
+        {
+          "code": "163WP0809X",
+          "desc": "Registered Nurse, Psych/Mental Health, Adult",
+          "license": "619993",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "718-264-4050",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1467170233",
+    "name": "Stefanie Abrahams",
+    "headline": "Registered Nurse, General Practice — RN",
+    "field": "healthcare",
+    "location": "BROOKLYN, NY",
+    "yearsExperience": 3,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, General Practice"
+    ],
+    "certifications": [
+      "NPI Registered",
+      "RN"
+    ],
+    "summary": "Registered Nurse, General Practice in BROOKLYN, NY — NPI 1467170233",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1467170233",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1467170233",
+      "taxonomies": [
+        {
+          "code": "163WG0000X",
+          "desc": "Registered Nurse, General Practice",
+          "license": "753862",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "917-224-8623",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1194224451",
+    "name": "Mary Abrahram",
+    "headline": "Registered Nurse, Psych/Mental Health, Adult",
+    "field": "healthcare",
+    "location": "QUEENS VILLAGE, NY",
+    "yearsExperience": 8,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, Psych/Mental Health, Adult"
+    ],
+    "certifications": [
+      "NPI Registered"
+    ],
+    "summary": "Registered Nurse, Psych/Mental Health, Adult in QUEENS VILLAGE, NY — NPI 1194224451",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1194224451",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1194224451",
+      "taxonomies": [
+        {
+          "code": "163WP0809X",
+          "desc": "Registered Nurse, Psych/Mental Health, Adult",
+          "license": "428659",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "718-464-7500",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1023657889",
+    "name": "Andres Abreu",
+    "headline": "Registered Nurse, Psych/Mental Health, Adult",
+    "field": "healthcare",
+    "location": "NEW YORK, NY",
+    "yearsExperience": 6,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, Psych/Mental Health, Adult"
+    ],
+    "certifications": [
+      "NPI Registered"
+    ],
+    "summary": "Registered Nurse, Psych/Mental Health, Adult in NEW YORK, NY — NPI 1023657889",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1023657889",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1023657889",
+      "taxonomies": [
+        {
+          "code": "163WP0809X",
+          "desc": "Registered Nurse, Psych/Mental Health, Adult",
+          "license": "706831-1",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "845-300-4711",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1083026157",
+    "name": "Priscilla Abubakari",
+    "headline": "Registered Nurse, General Practice",
+    "field": "healthcare",
+    "location": "MASSAPEQUA, NY",
+    "yearsExperience": 12,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse",
+      "Registered Nurse, General Practice"
+    ],
+    "certifications": [
+      "NPI Registered"
+    ],
+    "summary": "Registered Nurse, General Practice in MASSAPEQUA, NY — NPI 1083026157",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1083026157",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1083026157",
+      "taxonomies": [
+        {
+          "code": "163W00000X",
+          "desc": "Registered Nurse",
+          "license": "824593",
+          "primary": false,
+          "state": "CA",
+          "taxonomy_group": ""
+        },
+        {
+          "code": "163WG0000X",
+          "desc": "Registered Nurse, General Practice",
+          "license": "667671",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "201-443-5924",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1811327505",
+    "name": "Karen Accurso",
+    "headline": "Registered Nurse, Psych/Mental Health, Adult — RN",
+    "field": "healthcare",
+    "location": "ORANGEBURG, NY",
+    "yearsExperience": 12,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, Psych/Mental Health, Adult"
+    ],
+    "certifications": [
+      "NPI Registered",
+      "RN"
+    ],
+    "summary": "Registered Nurse, Psych/Mental Health, Adult in ORANGEBURG, NY — NPI 1811327505",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1811327505",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1811327505",
+      "taxonomies": [
+        {
+          "code": "163WP0809X",
+          "desc": "Registered Nurse, Psych/Mental Health, Adult",
+          "license": "573626",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "845-359-1000",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1427970821",
+    "name": "Kenia Acevedo",
+    "headline": "Registered Nurse, Nurse Massage Therapist (NMT) — RN",
+    "field": "healthcare",
+    "location": "GLEN OAKS, NY",
+    "yearsExperience": 0,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, Nurse Massage Therapist (NMT)"
+    ],
+    "certifications": [
+      "NPI Registered",
+      "RN"
+    ],
+    "summary": "Registered Nurse, Nurse Massage Therapist (NMT) in GLEN OAKS, NY — NPI 1427970821",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1427970821",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1427970821",
+      "taxonomies": [
+        {
+          "code": "163WM1400X",
+          "desc": "Registered Nurse, Nurse Massage Therapist (NMT)",
+          "license": "677306",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": "193200000X - Multi-Specialty Group"
+        }
+      ],
+      "phone": "347-419-9017",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1033155155",
+    "name": "Shirley Ackerman",
+    "headline": "Registered Nurse, Rehabilitation — Ph.D., CRRN-A, CDE",
+    "field": "healthcare",
+    "location": "NEW YORK, NY",
+    "yearsExperience": 20,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, Diabetes Educator",
+      "Registered Nurse, Rehabilitation"
+    ],
+    "certifications": [
+      "NPI Registered",
+      "Ph.D., CRRN-A, CDE"
+    ],
+    "summary": "Registered Nurse, Rehabilitation in NEW YORK, NY — NPI 1033155155",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1033155155",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1033155155",
+      "taxonomies": [
+        {
+          "code": "163WD0400X",
+          "desc": "Registered Nurse, Diabetes Educator",
+          "license": "354773-1",
+          "primary": false,
+          "state": "NY",
+          "taxonomy_group": ""
+        },
+        {
+          "code": "163WR0400X",
+          "desc": "Registered Nurse, Rehabilitation",
+          "license": "354773-1",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "212-263-0572",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1497557144",
+    "name": "Juliana Acquah",
+    "headline": "Registered Nurse, General Practice — RN",
+    "field": "healthcare",
+    "location": "NEW YORK, NY",
+    "yearsExperience": 1,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, General Practice"
+    ],
+    "certifications": [
+      "NPI Registered",
+      "RN"
+    ],
+    "summary": "Registered Nurse, General Practice in NEW YORK, NY — NPI 1497557144",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1497557144",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1497557144",
+      "taxonomies": [
+        {
+          "code": "163WG0000X",
+          "desc": "Registered Nurse, General Practice",
+          "license": "808242",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "718-724-2827",
+      "licenseState": "NY"
+    }
+  },
+  {
+    "id": "npi:1306502984",
+    "name": "Denise Acritani",
+    "headline": "Registered Nurse, General Practice — RN",
+    "field": "healthcare",
+    "location": "HUNTINGTON, NY",
+    "yearsExperience": 4,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "Registered Nurse, General Practice"
+    ],
+    "certifications": [
+      "NPI Registered",
+      "RN"
+    ],
+    "summary": "Registered Nurse, General Practice in HUNTINGTON, NY — NPI 1306502984",
+    "source": "npi",
+    "sourceUrl": "https://npiregistry.cms.hhs.gov/provider-view/1306502984",
+    "avatarUrl": null,
+    "raw": {
+      "npi": "1306502984",
+      "taxonomies": [
+        {
+          "code": "163WG0000X",
+          "desc": "Registered Nurse, General Practice",
+          "license": "485389",
+          "primary": true,
+          "state": "NY",
+          "taxonomy_group": ""
+        }
+      ],
+      "phone": "631-271-5800",
+      "licenseState": "NY"
+    }
+  }
+]

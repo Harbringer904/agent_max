@@ -118,6 +118,13 @@ export const provider = {
   key: "finra",
   label: "FINRA BrokerCheck (US finance, official)",
   fields: ["finance"],
+  traits: {
+    // brokercheck.finra.org/individual/summary/<CRD> is unique per CRD.
+    sourceUrlIdentifiesPerson: true,
+    nameIsHandle: false,
+    dataIsLLMExtracted: false,
+    entityType: "person",
+  },
 
   async search(jobSpec, _options = {}) {
     try {

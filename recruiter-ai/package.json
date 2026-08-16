@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "doctor": "node scripts/doctor.mjs",
+    "capture-fixtures": "node scripts/capture-fixtures.mjs"
   },
   "license": "MIT",
   "engines": {

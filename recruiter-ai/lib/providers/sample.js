@@ -21,6 +21,14 @@ export const provider = {
   key: "sample",
   label: "Sample dataset",
   fields: ["*"],
+  traits: {
+    // Bundled fixtures never set a sourceUrl (see data/samples/*.json), so
+    // there's nothing to identify — false is also just the safe default.
+    sourceUrlIdentifiesPerson: false,
+    nameIsHandle: false,
+    dataIsLLMExtracted: false,
+    entityType: "person",
+  },
 
   async search(jobSpec, _options = {}) {
     const field = String(jobSpec?.field || "").toLowerCase().trim();

@@ -12,7 +12,12 @@
 //   1. AUTO-MERGE (silent, safe) — identical normalized sourceUrl
 //      (lowercased, protocol/`www.`/query/hash/trailing-slash stripped,
 //      compared as host+path). A match this specific cannot be coincidental,
-//      so this tier merges regardless of name.
+//      so this tier merges regardless of name — BUT only when every
+//      candidate sharing the URL came from a provider whose declared
+//      lib/providers/traits.js trait `sourceUrlIdentifiesPerson` is true (see
+//      docs/DATA_QUALITY_PLAN.md P2). Some providers (sebi_ria, nmc) stamp
+//      every record with the same registry listing URL; open_web's URL is
+//      LLM-supplied and unverified. For those, this tier never fires.
 //
 //   2. CORROBORATED MERGE (merged, but marked) — normalized-name match PLUS
 //      at least 2 independent corroborating signals:
@@ -52,6 +57,7 @@
 //   dedupeCandidates(candidates) -> { candidates: Candidate[], log: string[] }
 
 import { compareTrust } from "./trust.js";
+import { traitsFor } from "../providers/traits.js";
 
 const HONORIFICS = new Set(["dr", "mr", "mrs", "ms", "prof", "professor", "sir", "md", "phd"]);
 
@@ -124,14 +130,55 @@ function isNonEmptyString(v) {
 
 /** Lowercase; strip protocol, `www.`, query, hash, trailing slash. Returns
  * null for anything that isn't a usable string. */
+// Query params that never change WHICH page/person a URL refers to: analytics
+// tracking plus view-selectors (which tab, which sort, which page of results).
+// Everything else is treated as identity-bearing and kept.
+//
+// This denylist exists because neither extreme is correct:
+//   - github.com/janedoe?tab=repositories IS the same person as github.com/janedoe
+//     -> the query must be ignored here
+//   - news.ycombinator.com/item?id=49156686 is a DIFFERENT post from ?id=49156693
+//     -> the query must be honored here
+// Stripping all queries silently merged 20 distinct HN posters; keeping all
+// queries split one GitHub profile into two people. So: strip the known-noise
+// params, keep the rest.
+const NOISE_PARAMS =
+  /^(utm_|fbclid$|gclid$|msclkid$|mc_cid$|mc_eid$|ref$|referrer$|source$|tab$|sort$|order$|page$|view$|filter$|lang$|locale$|hl$)/i;
+
+/**
+ * Normalize a URL for identity comparison.
+ *
+ * CRITICAL: the query string is PRESERVED (minus tracking params). An earlier
+ * version stripped it wholesale, which silently destroyed identity for any
+ * provider whose per-person permalink lives in the query — verified live with
+ * hn_hiring, where every candidate's URL is
+ * `news.ycombinator.com/item?id=<commentId>`. Stripping the query collapsed 20
+ * distinct people's posts to the single path `news.ycombinator.com/item`, which
+ * would have auto-merged 20 real candidates into 1. Only the later name-conflict
+ * guard happened to prevent the damage — accidentally, not by design. The
+ * fragment (#) is still dropped: it addresses a position within one document,
+ * not a different document.
+ */
 function normalizeUrl(url) {
   if (!isNonEmptyString(url)) return null;
   let s = url.trim().toLowerCase();
   s = s.replace(/^[a-z][a-z0-9+.-]*:\/\//, "");
   s = s.replace(/^www\./, "");
-  s = s.split("#")[0].split("?")[0];
-  s = s.replace(/\/+$/, "");
-  return s || null;
+  s = s.split("#")[0];
+
+  const q = s.indexOf("?");
+  let path = q >= 0 ? s.slice(0, q) : s;
+  const query = q >= 0 ? s.slice(q + 1) : "";
+  path = path.replace(/\/+$/, "");
+
+  if (!query) return path || null;
+  // Keep identity-bearing params, drop tracking, and sort so param order
+  // never makes the same page look like two different pages.
+  const kept = query
+    .split("&")
+    .filter((kv) => kv && !NOISE_PARAMS.test(kv.split("=")[0]))
+    .sort();
+  return (kept.length ? `${path}?${kept.join("&")}` : path) || null;
 }
 
 /** Lowercase; strip honorifics as whole words; collapse punctuation/whitespace. */
@@ -301,6 +348,7 @@ export function dedupeCandidates(candidates) {
 
   let urlMergedCount = 0;
   let nonIdentifyingUrls = 0;
+  let untrustedUrlGroups = 0;
   const afterUrlMerge = [];
   for (const members of urlGroups.values()) {
     if (members.length === 1) {
@@ -308,20 +356,33 @@ export function dedupeCandidates(candidates) {
       continue;
     }
 
-    // A shared sourceUrl only proves identity if it points at a PERSON.
-    // Several providers (sebi_ria, nmc) legitimately stamp every record with
-    // the same registry/search-page URL because the underlying site has no
-    // per-person permalink. Verified live: sebi_ria returned 25 distinct
-    // advisers and nmc 20 distinct doctors, each sharing ONE url — blind
-    // url-merging collapsed them to a single candidate, silently deleting
-    // real distinct people. That is precisely the over-merge failure this
-    // module is built to avoid.
-    //
-    // Guard: partition a url group by normalized name. Records whose names
-    // agree (or where one side has no name) still auto-merge — that is the
-    // genuine "same person found twice" case. Records with conflicting names
-    // are NOT merged here; they fall through to the name-based tiers below,
-    // which require independent corroboration.
+    // STRUCTURAL GATE (docs/DATA_QUALITY_PLAN.md P2): a shared sourceUrl only
+    // proves identity if every candidate in the group came from a provider
+    // that DECLARES its sourceUrl identifies one person. Several providers
+    // (sebi_ria, nmc) legitimately stamp every record with the same
+    // registry/search-page URL because the underlying site has no per-person
+    // permalink; open_web's URL is LLM-supplied and has been caught pointing
+    // at pages that don't name the person it was attached to. Verified live:
+    // sebi_ria returned 25 distinct advisers and nmc 20 distinct doctors,
+    // each sharing ONE url — blind url-merging collapsed them to a single
+    // candidate, silently deleting real distinct people. That is precisely
+    // the over-merge failure this module is built to avoid — now made
+    // structurally impossible rather than merely patched by the
+    // name-conflict guard below.
+    if (!members.every((m) => traitsFor(m && m.source).sourceUrlIdentifiesPerson === true)) {
+      afterUrlMerge.push(...members);
+      untrustedUrlGroups += 1;
+      continue;
+    }
+
+    // DEFENSE IN DEPTH: even for a group that passed the trait gate above (so
+    // every member's provider vouches for its sourceUrl), a provider could
+    // still mis-declare, or two genuinely different people could coincidentally
+    // share a URL. Partition the url group by normalized name. Records whose
+    // names agree (or where one side has no name) still auto-merge — that is
+    // the genuine "same person found twice" case. Records with conflicting
+    // names are NOT merged here; they fall through to the name-based tiers
+    // below, which require independent corroboration.
     const byName = new Map();
     for (const m of members) {
       const nameKey = normalizeName(m.name) || "";
@@ -350,6 +411,11 @@ export function dedupeCandidates(candidates) {
     }
   }
   afterUrlMerge.push(...noUrl);
+  if (untrustedUrlGroups > 0) {
+    log.push(
+      `dedupe: ${untrustedUrlGroups} shared url group(s) skipped for url-merge — source doesn't declare sourceUrlIdentifiesPerson`
+    );
+  }
   if (nonIdentifyingUrls > 0) {
     log.push(
       `dedupe: ${nonIdentifyingUrls} shared url(s) held conflicting names (registry listing page, not per-person) — not url-merged`

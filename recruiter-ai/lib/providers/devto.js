@@ -76,6 +76,15 @@ export const provider = {
   key: "devto",
   label: "Dev.to",
   fields: ["software"],
+  traits: {
+    // https://dev.to/<username> is unique per author.
+    sourceUrlIdentifiesPerson: true,
+    // name falls back to author.username (the handle) whenever the author
+    // has no display name set — same pattern as github.js.
+    nameIsHandle: true,
+    dataIsLLMExtracted: false,
+    entityType: "person",
+  },
 
   async search(jobSpec, _options = {}) {
     try {

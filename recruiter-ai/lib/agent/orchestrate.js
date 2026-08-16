@@ -58,6 +58,8 @@ import { rankCandidatesLLM } from "../scoring/llm.js";
 import { selectSources } from "./plan.js";
 import { dedupeCandidates } from "./dedupe.js";
 import { consolidate } from "./consolidate.js";
+import { traitsFor } from "../providers/traits.js";
+import { looksLikeOrganization } from "../personCheck.js";
 
 const SOURCE_TIMEOUT_MS = 20_000;
 const GLOBAL_DEADLINE_MS = 60_000;
@@ -176,6 +178,43 @@ function applyRequiredFilter(scored, jobSpec) {
   );
 }
 
+/**
+ * Safety net (docs/DATA_QUALITY_PLAN.md P3): drop candidates from any
+ * person-sourced, non-handle provider whose name looks like an organization
+ * rather than an individual (lib/personCheck.js's looksLikeOrganization).
+ * Only providers that DECLARE entityType:"person" && nameIsHandle:false are
+ * checked — handle-based providers (github, stackoverflow, devto,
+ * huggingface, hn_hiring) and organization providers (google_places, osm)
+ * are exempt, because running a person-name heuristic against a username or
+ * a business name is exactly the hn_hiring false-positive trap this plan
+ * documents (a username like "jborden13" trips the digit-run rule). A
+ * provider with no declared traits defaults to entityType:"person" +
+ * nameIsHandle:false (see traits.js SAFE_DEFAULT_TRAITS) and so is checked
+ * too — the safe default is "verify", not "skip".
+ *
+ * Deliberate tradeoff, documented in FAIRNESS.md: this will occasionally
+ * drop a real person with an unusual name. A dropped real person is
+ * recoverable (another source, a looser query); an organization presented
+ * as a hireable candidate is a credibility failure a recruiter may act on.
+ *
+ * Logs one line per affected source into agentLog, e.g.
+ * "dropped 3 non-person row(s) from openalex".
+ */
+function dropNonPersonRows(candidates, agentLog) {
+  const droppedBySource = new Map();
+  const kept = candidates.filter((c) => {
+    const traits = traitsFor(c.source);
+    if (traits.entityType !== "person" || traits.nameIsHandle === true) return true;
+    if (!looksLikeOrganization(c.name)) return true;
+    droppedBySource.set(c.source, (droppedBySource.get(c.source) || 0) + 1);
+    return false;
+  });
+  for (const [source, count] of droppedBySource) {
+    agentLog.push(`dropped ${count} non-person row(s) from ${source}`);
+  }
+  return kept;
+}
+
 function buildSourcesQueried(sourcePlan, results) {
   return sourcePlan.map((entry) => {
     const r = results.get(entry.providerKey);
@@ -242,7 +281,9 @@ export async function agentSearch(jobSpec, options = {}) {
     const merged = sourcePlan.flatMap((entry) => results.get(entry.providerKey)?.candidates || []);
     const totalFound = merged.length;
 
-    const { candidates: deduped, log: dedupeLog } = dedupeCandidates(merged);
+    const personFiltered = dropNonPersonRows(merged, agentLog);
+
+    const { candidates: deduped, log: dedupeLog } = dedupeCandidates(personFiltered);
     agentLog.push(...dedupeLog);
 
     emitProgress(onProgress, {

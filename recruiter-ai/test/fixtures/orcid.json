@@ -1,0 +1,497 @@
+[
+  {
+    "id": "orcid:0009-0005-1481-0236",
+    "name": "Karolina Spiewak",
+    "headline": "Researcher — Harvard University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Harvard University",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0009-0005-1481-0236",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0009-0005-1481-0236",
+      "institutions": [
+        "Harvard University"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0000-0002-3195-323X",
+    "name": "Joe C. Gonzales",
+    "headline": "Researcher — American Chemical Society",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with American Chemical Society, Harvard University, University of California, Irvine",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0002-3195-323X",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0002-3195-323X",
+      "institutions": [
+        "American Chemical Society",
+        "Harvard University",
+        "University of California, Irvine"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0000-0002-2571-0098",
+    "name": "Leslie Nash",
+    "headline": "Researcher — Brock University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Brock University, Harvard College, University of Ottawa, University of Oxford",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0002-2571-0098",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0002-2571-0098",
+      "institutions": [
+        "Brock University",
+        "Harvard College",
+        "University of Ottawa",
+        "University of Oxford"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0009-0009-7157-3766",
+    "name": "Stergios Rizos",
+    "headline": "Researcher — Harvard University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Harvard University",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0009-0009-7157-3766",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0009-0009-7157-3766",
+      "institutions": [
+        "Harvard University"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0000-0002-8823-2230",
+    "name": "Carlos Rivera-López",
+    "headline": "Researcher — Harvard University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Harvard University, University of Puerto Rico, Mayagüez Campus",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0002-8823-2230",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0002-8823-2230",
+      "institutions": [
+        "Harvard University",
+        "University of Puerto Rico, Mayagüez Campus"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0000-0002-5224-5291",
+    "name": "Jared Richards",
+    "headline": "Researcher — Harvard University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Harvard University, University of North Carolina at Chapel Hill",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0002-5224-5291",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0002-5224-5291",
+      "institutions": [
+        "Harvard University",
+        "University of North Carolina at Chapel Hill"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0000-0001-8796-9292",
+    "name": "Amy Zamora",
+    "headline": "Researcher — Harvard University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "biology"
+    ],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Harvard University, Institute for Systems Biology",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0001-8796-9292",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0001-8796-9292",
+      "institutions": [
+        "Harvard University",
+        "Institute for Systems Biology"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0000-0002-5091-2097",
+    "name": "Dominick J. Jenkins",
+    "headline": "Researcher — Duke University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Duke University, Harvard University, University of Minnesota, University of Northwestern",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0002-5091-2097",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0002-5091-2097",
+      "institutions": [
+        "Duke University",
+        "Harvard University",
+        "University of Minnesota",
+        "University of Northwestern"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0000-0002-9298-4806",
+    "name": "Adrian Bebenek",
+    "headline": "Researcher — Harvard University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Harvard University, Yale University",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0002-9298-4806",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0002-9298-4806",
+      "institutions": [
+        "Harvard University",
+        "Yale University"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0009-0002-5816-0827",
+    "name": "Owen Eby",
+    "headline": "Researcher — Harvard University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Harvard University, Massachusetts Institute of Technology, Mount St. Mary's University, University of Maryland School of Medicine",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0009-0002-5816-0827",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0009-0002-5816-0827",
+      "institutions": [
+        "Harvard University",
+        "Massachusetts Institute of Technology",
+        "Mount St. Mary's University",
+        "University of Maryland School of Medicine"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0000-0003-2922-5855",
+    "name": "Cassandra Extavour",
+    "headline": "Researcher — Autonomous University of Madrid",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Autonomous University of Madrid, Harvard University, University of Toronto",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0003-2922-5855",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0003-2922-5855",
+      "institutions": [
+        "Autonomous University of Madrid",
+        "Harvard University",
+        "University of Toronto"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0000-0003-2334-3981",
+    "name": "Gerardo Estrada Zavala",
+    "headline": "Researcher — Harvard University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Harvard University, The University of Texas at El Paso",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0003-2334-3981",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0003-2334-3981",
+      "institutions": [
+        "Harvard University",
+        "The University of Texas at El Paso"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0000-0003-3137-0453",
+    "name": "Henry Bushnell",
+    "headline": "Researcher — Harvard University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Harvard University, Wesleyan University",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0003-3137-0453",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0003-3137-0453",
+      "institutions": [
+        "Harvard University",
+        "Wesleyan University"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0000-0002-7689-6494",
+    "name": "Julia Lin",
+    "headline": "Researcher — Boston College",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Boston College, Harvard University",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0002-7689-6494",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0002-7689-6494",
+      "institutions": [
+        "Boston College",
+        "Harvard University"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0009-0009-1411-3915",
+    "name": "Hannah McCalmon",
+    "headline": "Researcher — Harvard University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Harvard University, Wake Forest University",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0009-0009-1411-3915",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0009-0009-1411-3915",
+      "institutions": [
+        "Harvard University",
+        "Wake Forest University"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0009-0005-9029-3840",
+    "name": "Dennis Letian Wu",
+    "headline": "Researcher — Cornell University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Cornell University, Harvard University",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0009-0005-9029-3840",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0009-0005-9029-3840",
+      "institutions": [
+        "Cornell University",
+        "Harvard University"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0009-0006-0748-2067",
+    "name": "Dillon Wheeler",
+    "headline": "Researcher — Harvard University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Harvard University, Lee University, Tulane University",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0009-0006-0748-2067",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0009-0006-0748-2067",
+      "institutions": [
+        "Harvard University",
+        "Lee University",
+        "Tulane University"
+      ],
+      "emails": [
+        "dwheeler@fas.harvard.edu"
+      ]
+    }
+  },
+  {
+    "id": "orcid:0000-0002-9501-3845",
+    "name": "Katherine Angier",
+    "headline": "Researcher — Harvard University",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Harvard University, Princeton University",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0002-9501-3845",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0002-9501-3845",
+      "institutions": [
+        "Harvard University",
+        "Princeton University"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0000-0001-9415-1384",
+    "name": "Vanessa L. Knutson",
+    "headline": "Researcher — American Malacological Society",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with American Malacological Society, Harvard University, San Francisco State University, University of Southern California",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0001-9415-1384",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0001-9415-1384",
+      "institutions": [
+        "American Malacological Society",
+        "Harvard University",
+        "San Francisco State University",
+        "University of Southern California"
+      ],
+      "emails": []
+    }
+  },
+  {
+    "id": "orcid:0000-0002-2953-8133",
+    "name": "Allyson Freedy",
+    "headline": "Researcher — Harvard College",
+    "field": "research",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [],
+    "certifications": [],
+    "summary": "ORCID researcher affiliated with Harvard College, Harvard Medical School, Harvard University, University of Cambridge",
+    "source": "orcid",
+    "sourceUrl": "https://orcid.org/0000-0002-2953-8133",
+    "avatarUrl": null,
+    "raw": {
+      "orcidId": "0000-0002-2953-8133",
+      "institutions": [
+        "Harvard College",
+        "Harvard Medical School",
+        "Harvard University",
+        "University of Cambridge"
+      ],
+      "emails": []
+    }
+  }
+]

@@ -1,0 +1,511 @@
+[
+  {
+    "id": "huggingface:NousResearch",
+    "name": "NousResearch",
+    "headline": "Hugging Face — 2 models, 556630 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "transformers",
+      "safetensors",
+      "llama",
+      "text-generation",
+      "Llama-3",
+      "instruct",
+      "finetune",
+      "chatml",
+      "gpt4",
+      "synthetic data"
+    ],
+    "certifications": [],
+    "summary": "NousResearch/Hermes-3-Llama-3.1-8B | NousResearch/Llama-2-7b-chat-hf",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/NousResearch",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 2,
+      "totalDownloads": 556630,
+      "topModels": [
+        "NousResearch/Hermes-3-Llama-3.1-8B",
+        "NousResearch/Llama-2-7b-chat-hf"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:fancyfeast",
+    "name": "fancyfeast",
+    "headline": "Hugging Face — 1 model, 86651 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "transformers",
+      "safetensors",
+      "llava",
+      "image-text-to-text",
+      "captioning",
+      "conversational",
+      "base_model:google/siglip2-so400m-patch14-384",
+      "base_model:finetune:google/siglip2-so400m-patch14-384",
+      "endpoints_compatible",
+      "region:us"
+    ],
+    "certifications": [],
+    "summary": "fancyfeast/llama-joycaption-beta-one-hf-llava",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/fancyfeast",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 1,
+      "totalDownloads": 86651,
+      "topModels": [
+        "fancyfeast/llama-joycaption-beta-one-hf-llava"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:Alittlehammmer",
+    "name": "Alittlehammmer",
+    "headline": "Hugging Face — 1 model, 39846 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "gguf",
+      "quantized",
+      "llama.cpp",
+      "text-generation",
+      "agentic-coding",
+      "dflash",
+      "base_model:z-lab/Qwen3.6-27B-DFlash",
+      "base_model:quantized:z-lab/Qwen3.6-27B-DFlash",
+      "license:apache-2.0",
+      "endpoints_compatible"
+    ],
+    "certifications": [],
+    "summary": "Alittlehammmer/Qwen3.6-27B-DFlash-GGUF-llama.cpp",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/Alittlehammmer",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 1,
+      "totalDownloads": 39846,
+      "topModels": [
+        "Alittlehammmer/Qwen3.6-27B-DFlash-GGUF-llama.cpp"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:Moore2877",
+    "name": "Moore2877",
+    "headline": "Hugging Face — 1 model, 0 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "chat-template",
+      "jinja",
+      "llama.cpp",
+      "qwen3.6",
+      "qwen3.8",
+      "agents",
+      "tool-calling",
+      "license:apache-2.0",
+      "region:us"
+    ],
+    "certifications": [],
+    "summary": "Moore2877/Qwen-Fixed-Chat-Templates-llamacpp",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/Moore2877",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 1,
+      "totalDownloads": 0,
+      "topModels": [
+        "Moore2877/Qwen-Fixed-Chat-Templates-llamacpp"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:mondk",
+    "name": "mondk",
+    "headline": "Hugging Face — 2 models, 55 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "gguf",
+      "claude",
+      "deepseekr1",
+      "llama",
+      "unsloth",
+      "text-generation",
+      "en",
+      "dataset:mondk/claude-v2-super.jsonl",
+      "base_model:unsloth/DeepSeek-R1-Distill-Llama-8B-unsloth-bnb-4bit",
+      "base_model:quantized:unsloth/DeepSeek-R1-Distill-Llama-8B-unsloth-bnb-4bit"
+    ],
+    "certifications": [],
+    "summary": "mondk/GGUF.claude_Deepseek-R1-Llama | mondk/Safetensors.claude_Deepseek-R1-Llama",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/mondk",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 2,
+      "totalDownloads": 55,
+      "topModels": [
+        "mondk/GGUF.claude_Deepseek-R1-Llama",
+        "mondk/Safetensors.claude_Deepseek-R1-Llama"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:QuantFactory",
+    "name": "QuantFactory",
+    "headline": "Hugging Face — 1 model, 13836 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "gguf",
+      "facebook",
+      "meta",
+      "pytorch",
+      "llama",
+      "llama-3",
+      "text-generation",
+      "en",
+      "base_model:meta-llama/Meta-Llama-3-8B-Instruct",
+      "base_model:quantized:meta-llama/Meta-Llama-3-8B-Instruct"
+    ],
+    "certifications": [],
+    "summary": "QuantFactory/Meta-Llama-3-8B-Instruct-GGUF",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/QuantFactory",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 1,
+      "totalDownloads": 13836,
+      "topModels": [
+        "QuantFactory/Meta-Llama-3-8B-Instruct-GGUF"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:lmstudio-community",
+    "name": "lmstudio-community",
+    "headline": "Hugging Face — 1 model, 71941 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "gguf",
+      "facebook",
+      "meta",
+      "pytorch",
+      "llama",
+      "llama-3",
+      "text-generation",
+      "en",
+      "de",
+      "fr"
+    ],
+    "certifications": [],
+    "summary": "lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/lmstudio-community",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 1,
+      "totalDownloads": 71941,
+      "topModels": [
+        "lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:aifeifei798",
+    "name": "aifeifei798",
+    "headline": "Hugging Face — 1 model, 656 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "transformers",
+      "safetensors",
+      "llama",
+      "text-generation",
+      "roleplay",
+      "llama3",
+      "sillytavern",
+      "idol",
+      "facebook",
+      "meta"
+    ],
+    "certifications": [],
+    "summary": "aifeifei798/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/aifeifei798",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 1,
+      "totalDownloads": 656,
+      "topModels": [
+        "aifeifei798/DarkIdol-Llama-3.1-8B-Instruct-1.2-Uncensored"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:bartowski",
+    "name": "bartowski",
+    "headline": "Hugging Face — 3 models, 181640 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "gguf",
+      "facebook",
+      "meta",
+      "llama",
+      "llama-3",
+      "text-generation",
+      "en",
+      "de",
+      "fr",
+      "it"
+    ],
+    "certifications": [],
+    "summary": "bartowski/Llama-3.2-1B-Instruct-GGUF | bartowski/Llama-3.2-3B-Instruct-uncensored-GGUF | bartowski/Lexi-Llama-3-8B-Uncensored-exl2",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/bartowski",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 3,
+      "totalDownloads": 181640,
+      "topModels": [
+        "bartowski/Llama-3.2-1B-Instruct-GGUF",
+        "bartowski/Llama-3.2-3B-Instruct-uncensored-GGUF",
+        "bartowski/Lexi-Llama-3-8B-Uncensored-exl2"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:dphn",
+    "name": "dphn",
+    "headline": "Hugging Face — 2 models, 19206 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "safetensors",
+      "llama",
+      "en",
+      "dataset:OpenCoder-LLM/opc-sft-stage1",
+      "dataset:OpenCoder-LLM/opc-sft-stage2",
+      "dataset:microsoft/orca-agentinstruct-1M-v1",
+      "dataset:microsoft/orca-math-word-problems-200k",
+      "dataset:NousResearch/hermes-function-calling-v1",
+      "dataset:AI-MO/NuminaMath-CoT",
+      "dataset:AI-MO/NuminaMath-TIR"
+    ],
+    "certifications": [],
+    "summary": "dphn/Dolphin3.0-Llama3.1-8B | dphn/dolphin-2.9.1-llama-3-70b",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/dphn",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 2,
+      "totalDownloads": 19206,
+      "topModels": [
+        "dphn/Dolphin3.0-Llama3.1-8B",
+        "dphn/dolphin-2.9.1-llama-3-70b"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:deepseek-ai",
+    "name": "deepseek-ai",
+    "headline": "Hugging Face — 1 model, 143856 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "transformers",
+      "safetensors",
+      "llama",
+      "text-generation",
+      "conversational",
+      "arxiv:2501.12948",
+      "license:mit",
+      "text-generation-inference",
+      "endpoints_compatible",
+      "region:us"
+    ],
+    "certifications": [],
+    "summary": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/deepseek-ai",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 1,
+      "totalDownloads": 143856,
+      "topModels": [
+        "deepseek-ai/DeepSeek-R1-Distill-Llama-70B"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:DavidAU",
+    "name": "DavidAU",
+    "headline": "Hugging Face — 1 model, 11461 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "gguf",
+      "mixture of experts",
+      "moe",
+      "8x4B",
+      "8 experts",
+      "128k context",
+      "Llama 3.2 MOE",
+      "creative",
+      "creative writing",
+      "fiction writing"
+    ],
+    "certifications": [],
+    "summary": "DavidAU/Llama-3.2-8X4B-MOE-V2-Dark-Champion-Instruct-uncensored-abliterated-21B-GGUF",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/DavidAU",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 1,
+      "totalDownloads": 11461,
+      "topModels": [
+        "DavidAU/Llama-3.2-8X4B-MOE-V2-Dark-Champion-Instruct-uncensored-abliterated-21B-GGUF"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:nvidia",
+    "name": "nvidia",
+    "headline": "Hugging Face — 2 models, 79306 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "transformers",
+      "safetensors",
+      "nemotron-nas",
+      "text-generation",
+      "nvidia",
+      "llama-3",
+      "pytorch",
+      "conversational",
+      "custom_code",
+      "en"
+    ],
+    "certifications": [],
+    "summary": "nvidia/llama-nemotron-embed-vl-1b-v2 | nvidia/Llama-3_1-Nemotron-Ultra-253B-v1",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/nvidia",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 2,
+      "totalDownloads": 79306,
+      "topModels": [
+        "nvidia/llama-nemotron-embed-vl-1b-v2",
+        "nvidia/Llama-3_1-Nemotron-Ultra-253B-v1"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:concedo",
+    "name": "concedo",
+    "headline": "Hugging Face — 1 model, 10517 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "gguf",
+      "endpoints_compatible",
+      "region:us",
+      "conversational"
+    ],
+    "certifications": [],
+    "summary": "concedo/llama-joycaption-beta-one-hf-llava-mmproj-gguf",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/concedo",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 1,
+      "totalDownloads": 10517,
+      "topModels": [
+        "concedo/llama-joycaption-beta-one-hf-llava-mmproj-gguf"
+      ]
+    }
+  },
+  {
+    "id": "huggingface:riccardozaccone96",
+    "name": "riccardozaccone96",
+    "headline": "Hugging Face — 1 model, 243 downloads",
+    "field": "software",
+    "location": null,
+    "yearsExperience": null,
+    "education": null,
+    "educationLevel": null,
+    "skills": [
+      "transformers",
+      "safetensors",
+      "flexrank",
+      "text-generation",
+      "causal-lm",
+      "elastic-model",
+      "low-rank",
+      "model-compression",
+      "knowledge-distillation",
+      "custom_code"
+    ],
+    "certifications": [],
+    "summary": "riccardozaccone96/flexrank-llama3.2-1B",
+    "source": "huggingface",
+    "sourceUrl": "https://huggingface.co/riccardozaccone96",
+    "avatarUrl": null,
+    "raw": {
+      "modelCount": 1,
+      "totalDownloads": 243,
+      "topModels": [
+        "riccardozaccone96/flexrank-llama3.2-1B"
+      ]
+    }
+  }
+]

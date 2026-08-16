@@ -146,6 +146,15 @@ mcp-server.js` and sent `initialize` → `notifications/initialized` →
 - **Nothing but valid JSON appeared on stdout** across all 3 responses; the
   live `429` and a "server ready" line both went to stderr only.
 - `node --check mcp-server.js` passed, and the full suite
-  (`npm test`) stayed green at 128/128 with `mcp-server.js` added — this
-  file is exercised only by the manual protocol probe above, not by the
-  `node:test` suite.
+  (`npm test`) stayed green (135/135 as of the Phase 4 docs pass, up from
+  128/128 at Phase 6 ship — the delta is `test/agentJobs.test.js`, unrelated
+  to this file) with `mcp-server.js` added — this file is exercised only by
+  the manual protocol probe above, not by the `node:test` suite.
+- **Re-verified in the Phase 4 docs pass** with a Node harness that keeps the
+  child process's stdin open across the whole message sequence (a plain
+  piped-file test that closes stdin right after the last line can trigger
+  the server's `process.exit(0)` on `stdin.on("end")` before the async
+  `tools/call` finishes — worth knowing if you script your own probe, though
+  it does not affect real MCP clients, which hold the pipe open for the
+  session's lifetime). `search_candidates` again returned real, verifiable
+  candidates end to end.

@@ -342,25 +342,63 @@ Each phase is independently shippable and separately verifiable.
     real `TAVILY_API_KEY` is configured, `open_web` (a catchall, `fields: ["*"]`) is legitimately
     included in every plan, which is correct new behavior, not a regression.
 
-### Phase 4 — Trust, docs, honesty — DONE (2026-08-16)
-- `FAIRNESS.md`: new section on consolidation — that `CONSOLIDATION_WEIGHTS` are invented
-  heuristics, that `lead`-tier rows are unverified leads needing click-through, that
-  under-merging means duplicate rows, and that LinkedIn/Unstop are excluded by policy.
-- `README.md`: document `/api/agent-search`, the new response fields, and the removed picker.
-- Regenerate the walkthrough PDF.
-- **Verify:** docs match actual behavior; full test suite green.
+### Phase 4 — Trust, docs, honesty — ✅ DONE (2026-08-16)
+- **Added** FAIRNESS.md §10 ("The consolidated ranking is a judgment call, dedupe is
+  deliberately lossy, and some platforms are off-limits entirely"): states plainly that
+  `CONSOLIDATION_WEIGHTS` are invented heuristics needing real-world tuning, that `lead`-tier
+  rows always require click-through, that dedupe deliberately under-merges (same person can
+  appear twice, unflagged, by design), and that LinkedIn/Unstop are excluded by policy,
+  permanently, with no future phase adding them.
+- **Extended** FAIRNESS.md §9 with the second, more serious open-web fabrication incident found
+  during this pass's code read (not previously documented in FAIRNESS.md, only in code
+  comments in `lib/providers/openWeb.js`): the agent attached "Avinash Luthria" — a **real
+  SEBI-registered adviser recalled from training data** — to a page that names two different
+  people. This is why the anti-fabrication grounding gate (`nameWasSeen()`) is structural
+  (checks every submitted name against the literal text the agent actually read) rather than a
+  prompt rule, which was tried first and did not hold.
+- **Rewrote** README.md end-to-end to match current reality: the autonomous agent-search flow
+  and its two HTTP front doors (blocking + job/polling) plus the MCP front door, all 16
+  providers with trust tiers, every new response field (`dataCompleteness`, `adjustedScore`,
+  `sourceTrust`, `rankingScore`, `agentRank1to10`, `provenance`, `mergedFrom`,
+  `possibleDuplicateOf`), the removed source picker, the `N` control, the required/optional env
+  keys (including `TAVILY_API_KEY`, missing from the old env-var table), and an updated
+  architecture tree and API reference.
+- **Verified:** `docs/ERROR_CODES.md` already matched reality exactly (every `Rxxx` code
+  grepped from `routes/*.js` has a documented entry, no gaps); `.env.example` already had
+  `TAVILY_API_KEY` as a commented, keyless placeholder with the free-signup URL. Full
+  `npm test` suite green at 135/135 after the docs pass (docs-only changes, no `lib`/`routes`
+  edits). Did not regenerate the walkthrough PDF — out of scope for a docs-only verification
+  pass; flagged rather than silently skipped.
 
-### Phase 5 — Progress & resilience — DONE (2026-08-16)
-- Convert to `POST /api/agent-search` → `{ jobId }` + `GET /api/agent-search/:jobId` polling
-  (in-memory job map, no new deps), so the UI shows live per-source progress and long searches
-  survive proxy idle timeouts.
-- **Verify:** a search with `open_web` enabled streams source-by-source progress and completes
-  past the old 60s blocking ceiling.
+### Phase 5 — Progress & resilience — ✅ DONE (2026-08-16)
+- **Added** `POST /api/agent-search/jobs` → `202 { jobId }` + `GET /api/agent-search/jobs/:jobId`
+  polling (`lib/agent/jobs.js`, in-memory job map, no new deps), so the UI shows live per-source
+  progress and long searches survive proxy idle timeouts. The original blocking
+  `POST /api/agent-search` is untouched and still works.
+- **Verified live** (this pass, PORT=3111): posted a healthcare/"New York" job, polled every
+  0.5s — `progress.sourcesDone` was observed climbing `2 → 3` across repeated polls while
+  `status` stayed `"running"`, then `3 → 4` with `status` flipping to `"done"` — genuine
+  incremental progress, not a single jump at completion. The completed job's `result` carried
+  the identical shape/quality (`dataCompleteness`, `sourceTrust`, `rankingScore`,
+  `agentRank1to10` on every candidate) as the blocking endpoint's response to an equivalent
+  query.
 
-### Phase 6 *(optional)* — MCP front door — DONE (2026-08-16)
-- Expose `search_candidates` / `rank_candidates` as MCP tools over the same `lib/agent/` core,
-  so the whole pipeline is drivable from Claude Desktop by conversation.
-- **Verify:** connect via MCP client, request a ranking in chat.
+### Phase 6 *(optional)* — MCP front door — ✅ DONE (2026-08-16)
+- **Added** `mcp-server.js`, a hand-rolled JSON-RPC 2.0 stdio server (no `@modelcontextprotocol/sdk`,
+  per the zero-new-deps rule) exposing `search_candidates` / `list_fields` / `list_job_templates`
+  over the same `lib/agent/orchestrate.js` core `POST /api/agent-search` uses. See
+  [docs/MCP.md](./docs/MCP.md) for the full protocol reference.
+- **Verified live** (this pass): drove the real process over stdin/stdout with a Node harness
+  that kept the child's stdin open across the message sequence (a plain piped-file test closes
+  stdin immediately after the last line, which triggers the server's `process.exit(0)` on
+  `stdin.on("end")` before the async `tools/call` can finish — a real interaction to be aware
+  of if a client both sends its last message and closes stdin in the same tick, though normal
+  MCP clients keep the pipe open for the session's lifetime). `initialize` → `notifications/
+  initialized` → `tools/list` → `tools/call search_candidates` (finance/Delhi/topN=3) all
+  returned correct, matching-`id` JSON-RPC responses; the call returned 3 real SEBI-registered
+  advisers with names, trust badges, completeness, and real `sebi.gov.in` URLs; stdout carried
+  only the 3 valid JSON-RPC response lines, with the "server ready" banner and live Groq/Overpass
+  `429` diagnostics going to stderr only, as designed.
 
 ---
 

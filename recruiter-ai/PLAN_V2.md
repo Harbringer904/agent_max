@@ -1,6 +1,7 @@
 # agent_max — Plan V2: The Autonomous Consolidation Agent
 
-> **Status:** Plan only. Nothing in here is implemented yet.
+> **Status: ✅ COMPLETE — Phases 1–6 are all built, live-verified, and shipped.**
+> 135 tests passing. Still exactly two npm dependencies (`express`, `dotenv`).
 > **Supersedes:** the roadmap in [PLAN.md](./PLAN.md) (Phases 1–5, all shipped).
 > **Designed by:** Opus 5 synthesis over 3 independent Sonnet-5 architecture proposals
 > (pragmatic / max-autonomy / data-quality angles).
@@ -341,7 +342,7 @@ Each phase is independently shippable and separately verifiable.
     real `TAVILY_API_KEY` is configured, `open_web` (a catchall, `fields: ["*"]`) is legitimately
     included in every plan, which is correct new behavior, not a regression.
 
-### Phase 4 — Trust, docs, honesty
+### Phase 4 — Trust, docs, honesty — DONE (2026-08-16)
 - `FAIRNESS.md`: new section on consolidation — that `CONSOLIDATION_WEIGHTS` are invented
   heuristics, that `lead`-tier rows are unverified leads needing click-through, that
   under-merging means duplicate rows, and that LinkedIn/Unstop are excluded by policy.
@@ -349,14 +350,14 @@ Each phase is independently shippable and separately verifiable.
 - Regenerate the walkthrough PDF.
 - **Verify:** docs match actual behavior; full test suite green.
 
-### Phase 5 — Progress & resilience
+### Phase 5 — Progress & resilience — DONE (2026-08-16)
 - Convert to `POST /api/agent-search` → `{ jobId }` + `GET /api/agent-search/:jobId` polling
   (in-memory job map, no new deps), so the UI shows live per-source progress and long searches
   survive proxy idle timeouts.
 - **Verify:** a search with `open_web` enabled streams source-by-source progress and completes
   past the old 60s blocking ceiling.
 
-### Phase 6 *(optional)* — MCP front door
+### Phase 6 *(optional)* — MCP front door — DONE (2026-08-16)
 - Expose `search_candidates` / `rank_candidates` as MCP tools over the same `lib/agent/` core,
   so the whole pipeline is drivable from Claude Desktop by conversation.
 - **Verify:** connect via MCP client, request a ranking in chat.

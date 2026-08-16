@@ -246,6 +246,15 @@
     .status { color: var(--text-muted); font-size: 0.9rem; }
     .status.error { color: var(--red); }
 
+    /* Live job progress (Phase 5 polling UI) */
+    .job-progress-line { display: block; }
+    .job-progress-elapsed { color: #9C8A6C; margin-left: 4px; }
+    .job-progress-sources { display: block; margin-top: 4px; font-size: 0.8rem; }
+    .job-progress-source { display: inline-block; margin: 2px 10px 2px 0; white-space: nowrap; }
+    .job-progress-source.ok { color: var(--green); }
+    .job-progress-source.err { color: var(--red); }
+    .job-progress-source.pending { color: var(--text-muted); }
+
     .ai-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text); cursor: pointer; }
     .ai-toggle input { accent-color: var(--accent); cursor: pointer; }
 
@@ -938,49 +947,166 @@
       await performSearch(jobSpec, topN, options);
     });
 
-    // Posts to POST /api/agent-search — the recruiter no longer chooses a
-    // provider; the agent decides which of the registered sources to query.
+    // Phase 5: posts to POST /api/agent-search/jobs (returns immediately with
+    // a jobId) then polls GET /api/agent-search/jobs/:jobId until the job
+    // reaches "done" or "error", rendering live progress in between. The
+    // recruiter still doesn't choose a provider — the agent decides which
+    // registered sources to query; this just makes that process visible.
+    let searchGeneration = 0; // bumped on every new search so a stale poll loop can recognize it's been superseded and stop touching the DOM/button
+    const POLL_INTERVAL_MS = 1000;
+    const POLL_TIMEOUT_MS = 120000;
+    const POLL_MAX_CONSECUTIVE_FAILURES = 3; // transient network blips tolerated before giving up
+
+    function formatElapsedSeconds(startMs) {
+      return Math.max(0, Math.round((Date.now() - startMs) / 1000));
+    }
+
+    // Renders "Querying N sources… M done · Ns" plus a per-source status line
+    // built from sourcesQueried as it grows (e.g. "sebi_ria ok 25").
+    function jobProgressHtml(job, startMs) {
+      const progress = job.progress || {};
+      const sourcesTotal = progress.sourcesTotal || 0;
+      const sourcesDone = progress.sourcesDone || 0;
+      const elapsed = formatElapsedSeconds(startMs);
+
+      let headline;
+      if (progress.phase === 'scoring') {
+        headline = 'Scoring and ranking candidates…';
+      } else if (sourcesTotal > 0) {
+        headline = `Querying ${sourcesTotal} source${sourcesTotal === 1 ? '' : 's'}… ${sourcesDone} done`;
+      } else {
+        headline = 'Planning which sources to search…';
+      }
+
+      const queried = job.sourcesQueried || [];
+      const sourcesHtml = queried.length
+        ? `<span class="job-progress-sources">${queried.map(sq => {
+            const cls = sq.status === 'ok' ? 'ok' : (sq.status === 'error' || sq.status === 'timeout') ? 'err' : 'pending';
+            const mark = sq.status === 'ok' ? '✓' : (sq.status === 'error' || sq.status === 'timeout') ? '✕' : '…';
+            return `<span class="job-progress-source ${cls}">${escapeHtml(sq.key)} ${mark} ${sq.count ?? ''}</span>`;
+          }).join('')}</span>`
+        : '';
+
+      return `<span class="job-progress-line"><span class="loading-dots"><span>.</span><span>.</span><span>.</span></span> ${escapeHtml(headline)}<span class="job-progress-elapsed">${elapsed}s</span></span>${sourcesHtml}`;
+    }
+
     async function performSearch(jobSpec, topN, options) {
       const aiRequested = !!options.useLLM;
       lastSubmittedJobSpec = jobSpec;
+      const myGen = ++searchGeneration;
       btnSearch.disabled = true;
       statusEl.className = 'status';
-      statusEl.innerHTML = 'Searching every available source <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span> this can take 20–60 seconds';
+      statusEl.innerHTML = 'Starting search <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>';
       resultsEl.innerHTML = '';
 
+      let jobId;
       try {
-        const res = await fetch('/api/agent-search', {
+        const res = await fetch('/api/agent-search/jobs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ jobSpec, topN, options }),
         });
         const data = await res.json();
 
+        if (myGen !== searchGeneration) return; // a newer search started while this POST was in flight
+
         if (!res.ok) {
           statusEl.textContent = data.error || 'Search failed';
           statusEl.className = 'status error';
+          btnSearch.disabled = false;
           return;
         }
-
-        statusEl.textContent = '';
-        lastSearchMeta = { topN, options };
-        renderResults(data, jobSpec, aiRequested);
-        pushHistory({
-          ts: Date.now(),
-          field: jobSpec.field,
-          title: jobSpec.title,
-          topN,
-          count: data.candidates ? data.candidates.length : 0,
-          topScore: data.candidates && data.candidates.length ? data.candidates[0].totalScore : null,
-          jobSpec,
-          options,
-        });
+        jobId = data.jobId;
       } catch (err) {
+        if (myGen !== searchGeneration) return;
         statusEl.textContent = `Network error: ${err.message}`;
         statusEl.className = 'status error';
-      } finally {
         btnSearch.disabled = false;
+        return;
       }
+
+      await pollJob(jobId, myGen, jobSpec, topN, options, aiRequested);
+    }
+
+    // Polls one job to completion (or timeout/error), rendering progress
+    // along the way. Resolves once the job is done, errored, timed out, or
+    // this poll has been superseded by a newer search — always leaving the
+    // search button re-enabled on any exit path that still "owns" the UI.
+    function pollJob(jobId, myGen, jobSpec, topN, options, aiRequested) {
+      return new Promise((resolve) => {
+        const startMs = Date.now();
+        let consecutiveFailures = 0;
+
+        const finish = () => {
+          if (myGen === searchGeneration) btnSearch.disabled = false;
+          resolve();
+        };
+
+        const tick = async () => {
+          if (myGen !== searchGeneration) { resolve(); return; } // superseded — a newer search owns the UI now
+
+          if (Date.now() - startMs > POLL_TIMEOUT_MS) {
+            statusEl.textContent = 'Search is taking longer than expected (timed out after 2 minutes). Please try again.';
+            statusEl.className = 'status error';
+            finish();
+            return;
+          }
+
+          let job;
+          try {
+            const res = await fetch(`/api/agent-search/jobs/${encodeURIComponent(jobId)}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            job = await res.json();
+            consecutiveFailures = 0;
+          } catch (err) {
+            consecutiveFailures++;
+            if (consecutiveFailures > POLL_MAX_CONSECUTIVE_FAILURES) {
+              if (myGen === searchGeneration) {
+                statusEl.textContent = `Lost connection while checking search progress: ${err.message}`;
+                statusEl.className = 'status error';
+              }
+              finish();
+              return;
+            }
+            setTimeout(tick, POLL_INTERVAL_MS);
+            return;
+          }
+
+          if (myGen !== searchGeneration) { resolve(); return; }
+
+          if (job.status === 'done') {
+            statusEl.textContent = '';
+            const data = job.result || {};
+            lastSearchMeta = { topN, options };
+            renderResults(data, jobSpec, aiRequested);
+            pushHistory({
+              ts: Date.now(),
+              field: jobSpec.field,
+              title: jobSpec.title,
+              topN,
+              count: data.candidates ? data.candidates.length : 0,
+              topScore: data.candidates && data.candidates.length ? data.candidates[0].totalScore : null,
+              jobSpec,
+              options,
+            });
+            finish();
+            return;
+          }
+
+          if (job.status === 'error') {
+            statusEl.textContent = job.error || 'Search failed';
+            statusEl.className = 'status error';
+            finish();
+            return;
+          }
+
+          statusEl.className = 'status';
+          statusEl.innerHTML = jobProgressHtml(job, startMs);
+          setTimeout(tick, POLL_INTERVAL_MS);
+        };
+
+        tick();
+      });
     }
 
     function scoreColor(score) {

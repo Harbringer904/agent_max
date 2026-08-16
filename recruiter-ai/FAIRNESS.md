@@ -129,9 +129,29 @@ it's whatever an LLM found via web search and decided looked relevant. Concretel
   confirming no such name appears on it. The system prompt was strengthened to explicitly call
   out this "required schema field vs. nameless page" trap and instruct the agent to skip such a
   page rather than invent a name — re-tested afterward and the same page no longer produced a
-  fabricated candidate — but this is a probabilistic mitigation, not a guarantee. **Manual
-  click-through on every `open_web` lead remains mandatory**, especially anything sourced from a
-  company/agency page rather than a personal profile.
+  fabricated candidate.
+- **The prompt fix alone did not hold.** A second, worse case surfaced later: the agent attached
+  the name "Avinash Luthria" to `nswealth.in/financial-advisor-mumbai`, a page that names only
+  "Vibhuti Jyotish" and "Dilshad Patell." Avinash Luthria is a **real, SEBI-registered investment
+  adviser** — the model recalled a real person from its training data and bound them to a page
+  they do not appear on, which is more dangerous than an invented name because it reads as
+  correct and is independently verifiable as "a real person," inviting false confidence. An
+  instruction cannot guarantee a schema-required field stays empty when the model is determined
+  to fill it. **This is why grounding is enforced structurally, not just requested in the
+  prompt:** `lib/providers/openWeb.js`'s `nameWasSeen()` checks every submitted candidate's name
+  against the literal text of every page the agent actually read during that run (via
+  `web_search`/`web_extract`), token-by-token, tolerant of reordering but not of absence. A name
+  that does not demonstrably appear in the corpus is dropped before scoring — logged as
+  `open_web dropped ungrounded candidate "<name>" (name not found in any page the agent read)` —
+  regardless of how plausible or well-formed the candidate otherwise looks. This mirrors the
+  existing posture in `lib/scoring/llm.js`, where the LLM's own totals are never trusted and are
+  recomputed locally instead.
+- Both mitigations (the prompt rule and the grounding gate) are **probabilistic and structural
+  respectively, not a guarantee of correctness.** The grounding gate proves a name string appears
+  in text the agent read — it cannot prove the surrounding details (skills, location, role fit)
+  attributed to that name are accurate, or that the page itself is current or legitimate.
+  **Manual click-through on every `open_web` lead remains mandatory**, especially anything sourced
+  from a company/agency page rather than a personal profile.
 - The shrunk per-run budget (`maxTurns: 3` inside the orchestrated agent-search, vs. up to 10
   standalone) is a genuine tradeoff, not just a latency guard: a search that needs
   search → extract → submit (3 turns) can succeed, but one that needs an extra search or a second
@@ -145,3 +165,51 @@ it's whatever an LLM found via web search and decided looked relevant. Concretel
   This is handled per the existing fault-tolerance contract (caught, logged, `[]` returned,
   never thrown to the caller) and does not crash a search — but it does mean an occasional
   `open_web` run silently contributes nothing even when the LLM key and Tavily key are both fine.
+
+## 10. The consolidated ranking is a judgment call, dedupe is deliberately lossy, and some
+    platforms are off-limits entirely
+
+`agentSearch()` (`lib/agent/orchestrate.js`, PLAN_V2.md §3–4) fans out across every source it
+autonomously selects, merges what comes back, and produces **one** ranked list spanning
+government registries, developer platforms, and open-web leads together. Three things about
+that pipeline a recruiter should know before trusting the order candidates appear in:
+
+**`CONSOLIDATION_WEIGHTS` (`lib/agent/consolidate.js`) are invented heuristics, not empirically
+derived.** `completenessDamp: c => 0.5 + 0.5*c` and `trustFactor: { verified: 1.0, profile: 0.9,
+lead: 0.75 }` were chosen so that thin data can surface without dominating, and so a `lead`-tier
+find can lose to a `verified` one at comparable adjusted scores — but the specific numbers (why
+0.5 and not 0.4, why 0.75 and not 0.6) are judgment calls made once during Phase 1, not the
+output of any calibration against real hiring outcomes. They are collected in one exported,
+documented object specifically so they are easy to find and tune, not because they have been
+validated. Treat the resulting `rankingScore` / `agentRank1to10` as a reasonable starting sort,
+not a scientifically weighted verdict — and expect to retune these constants once real usage
+data exists.
+
+**`sourceTrust: "lead"` rows (`osm`, `open_web`, and `sample` if it ever appears) are unverified
+leads, not confirmed candidates.** `lib/agent/trust.js` puts them at the bottom tier explicitly
+because nothing about them has been vouched for by an authority, an API-holding platform, or the
+recruiter themselves — see §9 above for what can go wrong specifically with `open_web`. A `lead`
+row ranking below `verified`/`profile` rows in the consolidated list is the ranking system working
+as designed, not a bug; it does not mean the lead is worthless, only that it requires the
+click-through verification described in §9 before being treated as real.
+
+**Deduplication (`lib/agent/dedupe.js`) is deliberately biased toward under-merging, which means
+the same real person can appear twice in a report, unflagged.** Only an identical normalized
+`sourceUrl` auto-merges silently; a name match needs ≥2 independent corroborating signals
+(location overlap, a shared skill, a shared headline/employer token) to merge-and-flag, and
+anything weaker is left as two separate rows with `possibleDuplicateOf` pointing at the stronger
+one — never silently combined. Phonetic and transliteration matching (`Mohammed` vs `Muhammad`,
+`Bob` vs `Robert`) is explicitly out of scope. This is a deliberate tradeoff stated in
+PLAN_V2.md §4 P3: an under-merged duplicate costs a recruiter a few seconds to dismiss by eye;
+an over-merged pair silently deletes a real, distinct candidate with no way to notice the loss.
+If the same person appears to show up twice in a result, that is very likely a known, accepted
+limitation — not a scoring error.
+
+**LinkedIn and Unstop are excluded by policy, permanently — no future phase will add them.**
+Per PLAN_V2.md §2: LinkedIn's official profile-search API requires a 3–6 month, incorporated-
+company review that individual developers cannot obtain, and scraping it both violates LinkedIn's
+Terms of Service and is actively defended against; Unstop has no public candidate API at all
+(candidate data sits behind recruiter accounts, and only third-party *hackathon-listing*
+scrapers exist, not candidate profiles). This tool will not build LinkedIn scraping, credentialed
+access, bot-detection evasion, or any Unstop candidate-data integration — via a provider, via
+MCP, or via a headless browser. This is a hard boundary, not a resourcing gap to be closed later.

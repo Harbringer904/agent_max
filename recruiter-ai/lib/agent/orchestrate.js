@@ -38,6 +38,14 @@
 // source, or in dedupe/consolidate, degrades the report rather than crashing
 // the route.
 //
+// PLAN_V2 §5 Phase 5 — optional incremental progress: pass
+// options.onProgress(update) and it is invoked as planning completes and as
+// EACH source settles (never batched at the end), with
+// { phase, sourcesTotal, sourcesDone, sourcePlan?, sourceResult?, logLine? }.
+// Fully optional and defensive (a throwing callback is swallowed) — the
+// return shape below is unchanged, and every existing caller that omits
+// onProgress behaves identically to before.
+//
 // Exports:
 //   agentSearch(jobSpec, options = {}) -> {
 //     candidates, totalFound, matched, scoredBy, sourcePlan, agentLog,
@@ -86,44 +94,67 @@ function searchOptionsFor(providerKey, options) {
   return options;
 }
 
+/** Invoke an optional progress callback defensively — a throwing or absent
+ * callback must never affect the search itself (PLAN_V2 Phase 5). */
+function emitProgress(onProgress, update) {
+  if (typeof onProgress !== "function") return;
+  try {
+    onProgress(update);
+  } catch {
+    // progress callbacks must never break the search
+  }
+}
+
 /**
  * Fan out search() across every planned source. Returns a Map keyed by
  * providerKey -> { candidates, ms, status, error? }. Never throws: every
  * per-source failure (unknown key, provider exception, timeout) is caught
  * and recorded as a zero-candidate outcome.
+ *
+ * When `onProgress` is provided, it is invoked once per source AS SOON AS
+ * that source settles (not batched at the end) with
+ * { phase: "sourcing", sourcesTotal, sourcesDone, sourceResult, logLine }.
  */
-async function fanOut(sourcePlan, jobSpec, options) {
+async function fanOut(sourcePlan, jobSpec, options, onProgress) {
   const results = new Map();
+  const sourcesTotal = sourcePlan.length;
+  let sourcesDone = 0;
 
   const perSourcePromises = sourcePlan.map(async (entry) => {
     const providerKey = entry.providerKey;
     const start = Date.now();
+    let outcome;
     try {
       const provider = getProvider(providerKey);
       const searchOptions = searchOptionsFor(providerKey, options);
       const raw = await withTimeout(provider.search(jobSpec, searchOptions), SOURCE_TIMEOUT_MS);
       const candidates = Array.isArray(raw) ? raw : [];
-      results.set(providerKey, {
-        candidates,
-        ms: Date.now() - start,
-        status: "ok",
-      });
+      outcome = { candidates, ms: Date.now() - start, status: "ok" };
     } catch (err) {
       const isTimeout = err && err.message === TIMEOUT_MESSAGE;
-      results.set(providerKey, {
+      outcome = {
         candidates: [],
         ms: Date.now() - start,
         status: isTimeout ? "timeout" : "error",
         error: err && err.message ? err.message : String(err),
-      });
+      };
     }
+    results.set(providerKey, outcome);
+    sourcesDone += 1;
+    emitProgress(onProgress, {
+      phase: "sourcing",
+      sourcesTotal,
+      sourcesDone,
+      sourceResult: { key: providerKey, count: outcome.candidates.length, ms: outcome.ms, status: outcome.status },
+      logLine: `source ${providerKey}: ${outcome.status}, ${outcome.candidates.length} candidate(s), ${outcome.ms}ms`,
+    });
   });
 
   // Race the WHOLE fan-out against the global deadline. Each per-source
-  // promise above already wrote its own outcome into `results` by the time
-  // it settles (success or caught failure) — so if the deadline timer wins
-  // this race, `results` simply holds whatever finished so far, and any
-  // still-pending source is left out of scoring (per PLAN_V2 §4 P4).
+  // promise above already wrote its own outcome into `results` (and fired
+  // its own progress event) by the time it settles — so if the deadline
+  // timer wins this race, `results` simply holds whatever finished so far,
+  // and any still-pending source is left out of scoring (per PLAN_V2 §4 P4).
   await Promise.race([
     Promise.allSettled(perSourcePromises),
     new Promise((resolve) => setTimeout(resolve, GLOBAL_DEADLINE_MS)),
@@ -174,6 +205,7 @@ function buildSourcesQueried(sourcePlan, results) {
 export async function agentSearch(jobSpec, options = {}) {
   const agentLog = [];
   const topN = clampTopN(options?.topN);
+  const onProgress = options?.onProgress;
 
   try {
     const { sourcePlan, log: planLog } = await selectSources(jobSpec, options);
@@ -181,6 +213,13 @@ export async function agentSearch(jobSpec, options = {}) {
 
     if (sourcePlan.length === 0) {
       agentLog.push("agentSearch: no sources selected, returning empty report");
+      emitProgress(onProgress, {
+        phase: "sourcing",
+        sourcesTotal: 0,
+        sourcesDone: 0,
+        sourcePlan,
+        logLine: "agentSearch: no sources selected, returning empty report",
+      });
       return {
         candidates: [],
         totalFound: 0,
@@ -192,7 +231,9 @@ export async function agentSearch(jobSpec, options = {}) {
       };
     }
 
-    const results = await fanOut(sourcePlan, jobSpec, options);
+    emitProgress(onProgress, { phase: "planning", sourcesTotal: sourcePlan.length, sourcesDone: 0, sourcePlan });
+
+    const results = await fanOut(sourcePlan, jobSpec, options, onProgress);
     const sourcesQueried = buildSourcesQueried(sourcePlan, results);
     for (const sq of sourcesQueried) {
       agentLog.push(`source ${sq.key}: ${sq.status}, ${sq.count} candidate(s), ${sq.ms}ms`);
@@ -203,6 +244,13 @@ export async function agentSearch(jobSpec, options = {}) {
 
     const { candidates: deduped, log: dedupeLog } = dedupeCandidates(merged);
     agentLog.push(...dedupeLog);
+
+    emitProgress(onProgress, {
+      phase: "scoring",
+      sourcesTotal: sourcePlan.length,
+      sourcesDone: results.size,
+      logLine: `agentSearch: scoring ${deduped.length} candidate(s) after dedupe`,
+    });
 
     const scored = options?.useLLM === true
       ? await rankCandidatesLLM(deduped, jobSpec, SCORE_BATCH_SIZE)

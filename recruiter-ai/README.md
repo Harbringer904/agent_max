@@ -110,7 +110,8 @@ for what each code actually means.
 ### `GET /api/health`
 
 ```json
-{ "ok": true, "githubAuth": false, "googlePlacesAvailable": false, "llmAvailable": false, "llmProvider": null }
+{ "ok": true, "githubAuth": true, "googlePlacesAvailable": false, "openWebAvailable": true,
+  "llmAvailable": true, "llmProvider": "groq" }
 ```
 
 `llmProvider` is `"anthropic" | "groq" | "gemini" | null` — whichever backend is active per
@@ -131,7 +132,59 @@ Fields derived from registered providers + job templates, and which providers se
 
 Returns all pre-built `JobSpec` templates (see shape below).
 
-### `POST /api/search`
+### `POST /api/agent-search` — the autonomous endpoint (what the UI uses)
+
+**This is the main entry point.** The caller does NOT choose a data source. The agent picks
+which of the 16 providers to query, runs them in parallel, dedupes people found in more than
+one place, and returns ONE consolidated ranked list.
+
+```jsonc
+// request
+{ "jobSpec": { "field": "finance", "title": "Adviser", "location": "Delhi", "criteria": [ … ] },
+  "topN": 10,                                   // ceiling, not a promise (1–50, default 10)
+  "options": { "useLLM": false, "data": "…" } } // data = optional CSV/JSON upload, merged in
+```
+
+```jsonc
+// response
+{ "candidates": [ { /* Scored, plus: */
+      "dataCompleteness": 1,        // 0–1 — how much of the jobSpec this source could answer
+      "adjustedScore": 96,          // score over ONLY the answerable criteria
+      "sourceTrust": "verified",    // "verified" | "profile" | "lead"
+      "rankingScore": 96.5,         // the actual sort key
+      "agentRank1to10": 10,
+      "provenance": [ … ],          // present when merged across sources
+      "possibleDuplicateOf": null,  // set when a likely dupe was NOT merged
+      "totalScore": 96.47, "rank1to10": 10, "criteriaScores": { … } } ],
+  "totalFound": 33, "matched": 33, "scoredBy": "rules",
+  "sourcePlan": [ { "providerKey": "sebi_ria", "reason": "finance field: official SEBI registry" } ],
+  "agentLog": "…",                  // NOTE: a newline-separated STRING, not an array
+  "sourcesQueried": [ { "key": "sebi_ria", "count": 25, "ms": 28, "status": "ok" } ] }
+```
+
+Ranking uses **two orthogonal axes** — see [How scoring works](#-how-scoring-works).
+
+### `POST /api/agent-search/jobs` + `GET /api/agent-search/jobs/:jobId` — with live progress
+
+A multi-source search takes 20–60s. The blocking endpoint above gives no feedback and risks
+proxy idle-timeouts, so the UI uses this job/polling pair instead:
+
+```jsonc
+POST /api/agent-search/jobs   { jobSpec, topN, options }   ->  202 { "jobId": "…" }
+
+GET  /api/agent-search/jobs/:jobId ->
+{ "status": "running" | "done" | "error",
+  "progress": { "phase": "sourcing", "sourcesTotal": 4, "sourcesDone": 2 },
+  "sourcePlan": [ … ],
+  "sourcesQueried": [ … ],   // grows incrementally as each source settles
+  "agentLog": "…",
+  "result": { /* the full agent-search response, once status === "done" */ },
+  "error": null }
+```
+
+Jobs are in-memory with a 10-minute TTL. The blocking endpoint remains available and unchanged.
+
+### `POST /api/search` — legacy, explicit single provider
 
 Request:
 
@@ -194,6 +247,40 @@ Response: `{ "id": "aB3xQz", "url": "/?r=aB3xQz" }`
 
 Response: the saved `{ id, createdAt, jobSpec, candidates, scoredBy }` payload, or a 404
 coded error (`R004`) if the id is unknown.
+
+## 🧠 How scoring works
+
+Each criterion yields a raw match `0..1`, multiplied by its weight. `totalScore` normalizes
+that to 0–100 and `rank1to10 = round(total/10)`. **These two fields are frozen and unchanged.**
+
+But raw `totalScore` is *not* the sort key for agent-search, because it is misleading across
+sources of different richness: a SEBI adviser with certs + tenure + location scores ~96, while
+an equally good person found on the open web scores ~18 **purely because the data is thinner**.
+
+Naive renormalization is also wrong — it *launders* thin data (a lead matching 1-of-1 answerable
+criteria would renormalize to a perfect 100). So agent-search uses **two orthogonal axes**:
+
+| Field | Meaning |
+| --- | --- |
+| `dataCompleteness` | 0–1, weight-weighted share of criteria the source could actually answer |
+| `adjustedScore` | the same weighted math, restricted to those answerable criteria |
+| `sourceTrust` | `verified` (official registries, your upload) · `profile` (real public profiles) · `lead` (thin/inferred) |
+| **`rankingScore`** | `adjustedScore × (0.5 + 0.5·dataCompleteness) × trustFactor` — **the sort key** |
+
+Trust and completeness are genuinely independent: an `open_web` hit can be *fully complete*
+(the LLM filled every field off a portfolio page) and still entirely **unverified**.
+
+Worked example — the thin candidate is rescued from an unfair 17.65 up to a fair 60, but
+damping and trust still stop it from beating a documented, verified match:
+
+| Candidate | `totalScore` | `adjustedScore` | completeness | `rankingScore` |
+| --- | --- | --- | --- | --- |
+| Thin lead (`open_web`) | 17.65 | **60** | 0.29 | **29.1** |
+| Real adviser (`sebi_ria`) | 96.47 | 96 | 1.00 | **96.5** |
+
+⚠️ The constants live in one exported object, `CONSOLIDATION_WEIGHTS` in
+`lib/agent/consolidate.js`. They are **invented heuristics, not empirically derived** — tune
+them against real result sets. See [FAIRNESS.md](./FAIRNESS.md).
 
 ## Data contracts
 
@@ -261,10 +348,37 @@ list of field keys the provider serves, or `["*"]` for "any field".
   market signal.
 - **`upload`** — whatever the recruiter pastes in (CSV or JSON). As real as the data supplied.
 
+## 🔌 MCP front door — drive the agent from a chat window
+
+The same agent core is exposed as MCP tools, so you can ask for a ranking in Claude Desktop /
+Claude Code instead of opening the browser. It's a **hand-rolled, zero-dependency JSON-RPC
+server** over stdio (no `@modelcontextprotocol/sdk` — that would break the two-dependency rule).
+
+```json
+{
+  "mcpServers": {
+    "agent_max": {
+      "command": "node",
+      "args": ["C:/Projects/agent_max/recruiter-ai/mcp-server.js"]
+    }
+  }
+}
+```
+
+Tools: `search_candidates` (field, title, location, skills, minYears, topN), `list_fields`,
+`list_job_templates`. It reads the same `.env`. Supports the `tools` capability only — no
+resources/prompts/sampling. Details in [docs/MCP.md](./docs/MCP.md).
+
+> **Tip:** pass a `title` (and ideally `skills`). With only a bare `field`, the agent scores
+> against deliberately generic criteria, so everyone lands mid-range — that's honest, not broken.
+
 ## Further reading
 
-- [PLAN.md](./PLAN.md) — roadmap, frozen data contracts, phase history.
-- [FAIRNESS.md](./FAIRNESS.md) — bias/fairness notes; read before acting on scores.
+- [PLAN.md](./PLAN.md) — the original 5-phase roadmap and frozen data contracts.
+- [PLAN_V2.md](./PLAN_V2.md) — the autonomous-agent rebuild (Phases 1–6), including the
+  architecture decisions and the tradeoffs that were explicitly rejected.
+- [FAIRNESS.md](./FAIRNESS.md) — bias/fairness notes; **read before acting on scores**.
+- [docs/MCP.md](./docs/MCP.md) — MCP server details.
 - [docs/ERROR_CODES.md](./docs/ERROR_CODES.md) — what each API error code means.
 
 ## Phase 5 changelog

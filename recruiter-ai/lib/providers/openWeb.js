@@ -136,20 +136,65 @@ async function tavilyExtract(url, timeoutMs) {
  * Never throws — a failed tool call becomes a result the model can react to
  * (real agentic behavior: it can try something else instead of the whole
  * search failing). */
-async function runTool(name, args, timeoutMs) {
+async function runTool(name, args, timeoutMs, corpus) {
   try {
+    let out;
     if (name === "web_search") {
       const results = await tavilySearch(String(args.query || ""), timeoutMs);
-      return JSON.stringify(results);
+      out = JSON.stringify(results);
+    } else if (name === "web_extract") {
+      out = await tavilyExtract(String(args.url || ""), timeoutMs);
+    } else {
+      return `Unknown tool: ${name}`;
     }
-    if (name === "web_extract") {
-      const text = await tavilyExtract(String(args.url || ""), timeoutMs);
-      return text;
-    }
-    return `Unknown tool: ${name}`;
+    // Record everything the model actually SAW, so submitted candidates can be
+    // checked against it (see assertNameWasSeen). Grounding beats trusting.
+    if (Array.isArray(corpus)) corpus.push(out);
+    return out;
   } catch (err) {
     return `Tool "${name}" failed: ${err.message}`;
   }
+}
+
+// --- Anti-fabrication grounding check ---------------------------------------
+//
+// WHY THIS IS STRUCTURAL, NOT A PROMPT RULE:
+// The submit_candidates schema REQUIRES a `name`. When the model reaches its
+// last turn holding only a company/agency page that names no individual, that
+// required field pressures it into producing one anyway. Verified live twice:
+//   - "Tej Shah" attached to planahead.in  (no personal names on that page)
+//   - "Avinash Luthria" attached to nswealth.in/financial-advisor-mumbai
+//     (page names only Vibhuti Jyotish and Dilshad Patell)
+// The second case is the nastier one: Avinash Luthria is a REAL SEBI-registered
+// adviser, so the model recalled a real person from training data and bound
+// them to a page they do not appear on. Strengthening the prompt was tried and
+// did NOT hold — an instruction cannot guarantee a schema-required field stays
+// empty. So we verify instead of asking, mirroring how llm.js recomputes weight
+// math locally rather than trusting model-reported totals.
+
+function normalizeForGrounding(str) {
+  return String(str || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * True only if the candidate's name demonstrably appeared in something the
+ * agent actually read. Requires every name token of length >= 3 to be present
+ * in the corpus, which tolerates reordering/extra initials ("Priya R Sharma"
+ * vs "Sharma, Priya") while rejecting wholly invented or recalled-from-memory
+ * names. Single-token names are accepted only on an exact token match.
+ */
+export function nameWasSeen(name, corpusText) {
+  const n = normalizeForGrounding(name);
+  if (!n) return false;
+  const haystack = normalizeForGrounding(corpusText);
+  if (!haystack) return false;
+  const tokens = n.split(" ").filter((t) => t.length >= 3);
+  if (tokens.length === 0) return haystack.includes(n);
+  return tokens.every((t) => new RegExp(`(^|\\s)${t}(\\s|$)`).test(haystack));
 }
 
 function buildSystemPrompt(jobSpec, maxTurns) {
@@ -229,7 +274,7 @@ const SUBMIT_CANDIDATES_SCHEMA = {
 
 // --- Per-backend agent loop --------------------------------------------------
 
-async function runAnthropicLoop(systemPrompt, budget) {
+async function runAnthropicLoop(systemPrompt, budget, corpus) {
   const tools = [
     { name: "web_search", description: "Search the web.", input_schema: { type: "object", properties: { query: { type: "string" } }, required: ["query"] } },
     { name: "web_extract", description: "Read a page's full text.", input_schema: { type: "object", properties: { url: { type: "string" } }, required: ["url"] } },
@@ -265,7 +310,7 @@ async function runAnthropicLoop(systemPrompt, budget) {
       toolUses.map(async (t) => ({
         type: "tool_result",
         tool_use_id: t.id,
-        content: await runTool(t.name, t.input || {}, budget.timeoutMs),
+        content: await runTool(t.name, t.input || {}, budget.timeoutMs, corpus),
       }))
     );
     messages.push({ role: "user", content: toolResults });
@@ -273,7 +318,7 @@ async function runAnthropicLoop(systemPrompt, budget) {
   return [];
 }
 
-async function runGroqLoop(systemPrompt, budget) {
+async function runGroqLoop(systemPrompt, budget, corpus) {
   const tools = [
     { type: "function", function: { name: "web_search", description: "Search the web.", parameters: { type: "object", properties: { query: { type: "string" } }, required: ["query"] } } },
     { type: "function", function: { name: "web_extract", description: "Read a page's full text.", parameters: { type: "object", properties: { url: { type: "string" } }, required: ["url"] } } },
@@ -317,14 +362,14 @@ async function runGroqLoop(systemPrompt, budget) {
       } catch {
         /* malformed args — runTool gets {} and reports appropriately via missing fields */
       }
-      const result = await runTool(t.function.name, args, budget.timeoutMs);
+      const result = await runTool(t.function.name, args, budget.timeoutMs, corpus);
       messages.push({ role: "tool", tool_call_id: t.id, content: result });
     }
   }
   return [];
 }
 
-async function runGeminiLoop(systemPrompt, budget) {
+async function runGeminiLoop(systemPrompt, budget, corpus) {
   const functionDeclarations = [
     { name: "web_search", description: "Search the web.", parameters: { type: "OBJECT", properties: { query: { type: "STRING" } }, required: ["query"] } },
     { name: "web_extract", description: "Read a page's full text.", parameters: { type: "OBJECT", properties: { url: { type: "STRING" } }, required: ["url"] } },
@@ -381,7 +426,7 @@ async function runGeminiLoop(systemPrompt, budget) {
     contents.push({ role: "model", parts });
     const responseParts = [];
     for (const call of calls) {
-      const result = await runTool(call.functionCall.name, call.functionCall.args || {}, budget.timeoutMs);
+      const result = await runTool(call.functionCall.name, call.functionCall.args || {}, budget.timeoutMs, corpus);
       responseParts.push({ functionResponse: { name: call.functionCall.name, response: { content: result } } });
     }
     contents.push({ role: "user", parts: responseParts });
@@ -423,13 +468,32 @@ export const provider = {
       const budget = resolveBudget(options);
       const systemPrompt = buildSystemPrompt(jobSpec, budget.maxTurns);
       const backend = activeLLMProvider();
+      // Everything the agent actually read this run, for the grounding check.
+      const corpus = [];
       let found;
-      if (backend === "anthropic") found = await runAnthropicLoop(systemPrompt, budget);
-      else if (backend === "groq") found = await runGroqLoop(systemPrompt, budget);
-      else found = await runGeminiLoop(systemPrompt, budget);
+      if (backend === "anthropic") found = await runAnthropicLoop(systemPrompt, budget, corpus);
+      else if (backend === "groq") found = await runGroqLoop(systemPrompt, budget, corpus);
+      else found = await runGeminiLoop(systemPrompt, budget, corpus);
 
-      const valid = (Array.isArray(found) ? found : []).filter((f) => f && f.name && f.sourceUrl);
-      return valid.slice(0, budget.maxCandidates).map((f, i) => toCandidate(f, jobSpec, i));
+      const shaped = (Array.isArray(found) ? found : []).filter((f) => f && f.name && f.sourceUrl);
+
+      // GROUNDING GATE: drop any candidate whose name never appeared in what the
+      // agent read. Prefers a false negative (losing a real person) over a false
+      // positive (presenting an invented or misattributed one) — a recruiter
+      // emailing someone who isn't on that page is the worse outcome.
+      const corpusText = corpus.join("\n");
+      const grounded = [];
+      for (const f of shaped) {
+        if (nameWasSeen(f.name, corpusText)) {
+          grounded.push(f);
+        } else {
+          console.warn(
+            `[recruiter-ai] open_web dropped ungrounded candidate "${f.name}" (name not found in any page the agent read)`
+          );
+        }
+      }
+
+      return grounded.slice(0, budget.maxCandidates).map((f, i) => toCandidate(f, jobSpec, i));
     } catch (err) {
       console.warn(`[recruiter-ai] open_web provider failed: ${err.message}`);
       return [];

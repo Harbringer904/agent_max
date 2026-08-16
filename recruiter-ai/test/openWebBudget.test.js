@@ -76,3 +76,46 @@ test("resolveBudget: non-object options (e.g. a number or string) falls back to 
   assert.deepEqual(resolveBudget(42), DEFAULTS);
   assert.deepEqual(resolveBudget("nope"), DEFAULTS);
 });
+
+// --- Anti-fabrication grounding gate ---------------------------------------
+//
+// Regression cover for a live-verified failure: the model attached names to
+// pages those names never appeared on ("Tej Shah" -> planahead.in,
+// "Avinash Luthria" -> nswealth.in). The second was a REAL person recalled
+// from training data, bound to a page they are not on. A prompt rule was tried
+// and did not hold, so the gate is structural.
+
+import { nameWasSeen } from "../lib/providers/openWeb.js";
+
+const PAGE = "Our team includes Vibhuti Jyotish and Dilshad Patell, Principal Officer at NS Wealth Solution Private Limited.";
+
+test("nameWasSeen accepts a name actually present on the page", () => {
+  assert.equal(nameWasSeen("Dilshad Patell", PAGE), true);
+  assert.equal(nameWasSeen("Vibhuti Jyotish", PAGE), true);
+});
+
+test("nameWasSeen tolerates reordering and punctuation", () => {
+  assert.equal(nameWasSeen("Patell, Dilshad", PAGE), true);
+  assert.equal(nameWasSeen("dilshad  patell", PAGE), true);
+});
+
+test("nameWasSeen REJECTS a fabricated name", () => {
+  assert.equal(nameWasSeen("Tej Shah", PAGE), false);
+});
+
+test("nameWasSeen REJECTS a real person recalled from memory but absent from the page", () => {
+  // The exact live failure: a genuine SEBI-registered adviser, wrong page.
+  assert.equal(nameWasSeen("Avinash Luthria", PAGE), false);
+});
+
+test("nameWasSeen rejects on empty/missing input rather than passing by default", () => {
+  assert.equal(nameWasSeen("Anyone", ""), false);
+  assert.equal(nameWasSeen("", PAGE), false);
+  assert.equal(nameWasSeen(null, PAGE), false);
+  assert.equal(nameWasSeen("Someone", null), false);
+});
+
+test("nameWasSeen requires ALL significant tokens, not just one", () => {
+  // "Dilshad" appears but "Kapoor" does not — a partial match must not pass.
+  assert.equal(nameWasSeen("Dilshad Kapoor", PAGE), false);
+});

@@ -294,13 +294,52 @@ Each phase is independently shippable and separately verifiable.
   - `npm test` → **106/106 pass**, unchanged, confirming the CSS/JS-only rewrite didn't touch
     `lib/`/`routes/`/`test/`.
 
-### Phase 3 — Open-web reach & quality
-- Thread the shrunk `maxTurns`/`timeoutMs` budget into `openWeb.search()`.
-- Improve the agent prompt to search **multiple public surfaces** per run (portfolio sites,
-  personal domains, public directories, GitHub/SO cross-refs) rather than one generic query.
-- **Verify:** requires a `TAVILY_API_KEY` — **this is the one phase that cannot be fully
-  verified without a key you must create.** Until then: verify the shrunk-budget plumbing and
-  graceful-empty path only, and say so plainly.
+### Phase 3 — Open-web reach & quality — ✅ DONE (2026-08-16), live-verified with a real Tavily key
+- **Threaded** the shrunk `maxTurns`/`timeoutMs`/`maxCandidates` budget into `openWeb.search()`
+  for real: `resolveBudget(options)` (`lib/providers/openWeb.js`) clamps caller-supplied values
+  into sane ranges and every one of the three per-backend loops (`runAnthropicLoop`,
+  `runGroqLoop`, `runGeminiLoop`) now bounds its `for` loop on `budget.maxTurns` and passes
+  `budget.timeoutMs` into every fetch — `orchestrate.js`'s `{ maxTurns: 3 }` is no longer a
+  no-op. Pure clamping logic covered by `test/openWebBudget.test.js`.
+- **Improved** the agent prompt to sweep multiple public surfaces per run (portfolio sites,
+  professional directories, conference/speaker pages, company team pages, GitHub/SO
+  cross-refs, freelancer listings) rather than one generic query, and added an explicit rule
+  against the specific fabrication trap found during verification (see below).
+- **Fixed a real bug found during live verification, not just plumbing:** the Groq loop sent
+  the entire system prompt as a `role: "user"` message instead of `role: "system"`, which made
+  `llama-3.3-70b-versatile` reliably emit a malformed pseudo-function-call that Groq's API
+  rejected with 400 on turn 1 — i.e. **the Groq backend of `open_web` could not produce a single
+  result before this fix**, budget-threading or not. Fixed by sending the system prompt as
+  `role: "system"` plus a short `role: "user"` kickoff message, and adding
+  `tool_choice: "auto"`, `temperature: 0`, `parallel_tool_calls: false` to the Groq request body.
+  Confirmed live: repeated successful search → extract → submit_candidates loops afterward.
+- **Verified live** (see PLAN_V2 session notes / FAIRNESS.md §9 for full detail):
+  - Budget is real: an instrumented A/B (`maxTurns: 1` vs `maxTurns: 3`, same job spec) showed
+    the loop actually stopping after 1 turn (0 candidates, budget exhausted before submit) vs.
+    completing search → extract → submit in 3 turns (1 real candidate) — a genuine behavioral
+    difference, not just a passed-through number.
+  - Direct provider runs (design/Bangalore, marketing/Mumbai) found real named individuals with
+    verifiable `sourceUrl`s (e.g. Twine.net freelancer profiles), spot-checked by fetching the
+    cited URLs and confirming the person and role match.
+  - Orchestrated `/api/agent-search` for `finance` + a location: `open_web` appeared in
+    `sourcePlan`, returned a candidate tagged `sourceTrust: "lead"`, ranked below all 11
+    `verified` FINRA rows in the final list — confirms the trust-tiered ranking works
+    end-to-end with a real open_web result in the mix.
+  - Graceful degradation confirmed live, not just by contract: Groq 400s and 429s hit during
+    testing were caught, logged, and surfaced as `sourcesQueried: [{ status: "ok", count: 0 }]`
+    — never a thrown error, never a failed HTTP response.
+  - Latency: orchestrated runs including `open_web` completed in ~3–5s total (well under the
+    60s global deadline) once the Groq role bug was fixed.
+  - **Quality finding (real, not hypothetical):** one live run fabricated a candidate name
+    ("Tej Shah") from a company homepage that named no individual — caught by manually fetching
+    the cited URL. The prompt was strengthened with an explicit rule against inventing a name to
+    satisfy the required schema field, and re-tested; the same page no longer produced a
+    fabricated candidate. Documented as a standing risk (not a solved problem) in FAIRNESS.md §9
+    — manual click-through on every `open_web` lead is still required.
+  - **106 pre-existing tests + budget tests (122 total) all green.** Five `agentPlan.test.js`
+    cases needed updating because they hard-coded an empty/field-only source list — now that a
+    real `TAVILY_API_KEY` is configured, `open_web` (a catchall, `fields: ["*"]`) is legitimately
+    included in every plan, which is correct new behavior, not a regression.
 
 ### Phase 4 — Trust, docs, honesty
 - `FAIRNESS.md`: new section on consolidation — that `CONSOLIDATION_WEIGHTS` are invented

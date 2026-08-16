@@ -119,3 +119,29 @@ it's whatever an LLM found via web search and decided looked relevant. Concretel
   `open_web` result as real — more so than for any other source in this app.
 - It only sees what a legitimate search index (Tavily) surfaces from the public, crawlable web
   — it does not and cannot access LinkedIn or other login-gated/ToS-restricted platforms.
+
+**Live-verified findings (PLAN_V2 Phase 3, real Tavily + Groq keys):**
+- In one live run, the agent extracted a company/agency homepage (`planahead.in`) that named no
+  individual anywhere on the page, and — under pressure to fill the required `candidates[].name`
+  field on its last available turn — invented a plausible-sounding name ("Tej Shah") and attached
+  it to the firm's own self-description. The `sourceUrl` was real; the *person* was not. This is
+  exactly the fabrication risk described above, caught by manually fetching the cited URL and
+  confirming no such name appears on it. The system prompt was strengthened to explicitly call
+  out this "required schema field vs. nameless page" trap and instruct the agent to skip such a
+  page rather than invent a name — re-tested afterward and the same page no longer produced a
+  fabricated candidate — but this is a probabilistic mitigation, not a guarantee. **Manual
+  click-through on every `open_web` lead remains mandatory**, especially anything sourced from a
+  company/agency page rather than a personal profile.
+- The shrunk per-run budget (`maxTurns: 3` inside the orchestrated agent-search, vs. up to 10
+  standalone) is a genuine tradeoff, not just a latency guard: a search that needs
+  search → extract → submit (3 turns) can succeed, but one that needs an extra search or a second
+  extract before it has enough to submit will hit the turn ceiling and return zero candidates for
+  a query that a longer run would have answered. Several otherwise-identical live runs returned 0
+  candidates under the orchestrated budget where a standalone run with one more turn found real
+  people. Treat an empty `open_web` result inside agent-search as "budget-limited," not "nothing
+  exists on the open web for this query."
+- On the Groq backend (`llama-3.3-70b-versatile`), the model occasionally emits a malformed
+  pseudo-function-call instead of a structured tool call, which Groq's API rejects with a 400.
+  This is handled per the existing fault-tolerance contract (caught, logged, `[]` returned,
+  never thrown to the caller) and does not crash a search — but it does mean an occasional
+  `open_web` run silently contributes nothing even when the LLM key and Tavily key are both fine.

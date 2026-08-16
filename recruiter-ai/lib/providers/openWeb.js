@@ -60,9 +60,32 @@ export function openWebAvailable() {
   return activeLLMProvider() !== null && hasTavilyKey();
 }
 
-async function fetchWithTimeout(url, options) {
+// --- Budget resolution -------------------------------------------------------
+// Pure, network-free clamping logic so it's directly unit-testable
+// (test/openWebBudget.test.js). Anything that isn't a finite positive number
+// (NaN, null, a string, negative, zero) falls back to the module default;
+// valid numbers are clamped into [min, max].
+
+function clampBudgetValue(value, min, max, fallback) {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return fallback;
+  return Math.min(max, Math.max(min, value));
+}
+
+/** Resolve a caller-supplied options object into a validated, clamped budget.
+ * A solo call with no options resolves to exactly the module defaults, so
+ * unbudgeted behavior is unchanged. */
+export function resolveBudget(options) {
+  const opts = options && typeof options === "object" ? options : {};
+  return {
+    maxTurns: clampBudgetValue(opts.maxTurns, 1, 10, MAX_TURNS),
+    timeoutMs: clampBudgetValue(opts.timeoutMs, 5_000, 60_000, REQUEST_TIMEOUT_MS),
+    maxCandidates: clampBudgetValue(opts.maxCandidates, 1, 25, MAX_CANDIDATES),
+  };
+}
+
+async function fetchWithTimeout(url, options, timeoutMs = REQUEST_TIMEOUT_MS) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(url, { ...options, signal: controller.signal });
   } finally {
@@ -72,29 +95,37 @@ async function fetchWithTimeout(url, options) {
 
 // --- Tavily tools (shared across all three LLM backends) -------------------
 
-async function tavilySearch(query) {
-  const res = await fetchWithTimeout(TAVILY_SEARCH_URL, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      api_key: process.env.TAVILY_API_KEY,
-      query,
-      max_results: 5,
-      search_depth: "basic",
-    }),
-  });
+async function tavilySearch(query, timeoutMs) {
+  const res = await fetchWithTimeout(
+    TAVILY_SEARCH_URL,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        api_key: process.env.TAVILY_API_KEY,
+        query,
+        max_results: 5,
+        search_depth: "basic",
+      }),
+    },
+    timeoutMs
+  );
   if (!res.ok) throw new Error(`Tavily search ${res.status}`);
   const data = await res.json();
   const results = Array.isArray(data.results) ? data.results : [];
   return results.map((r) => ({ title: r.title, url: r.url, snippet: (r.content || "").slice(0, 500) }));
 }
 
-async function tavilyExtract(url) {
-  const res = await fetchWithTimeout(TAVILY_EXTRACT_URL, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ api_key: process.env.TAVILY_API_KEY, urls: [url] }),
-  });
+async function tavilyExtract(url, timeoutMs) {
+  const res = await fetchWithTimeout(
+    TAVILY_EXTRACT_URL,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ api_key: process.env.TAVILY_API_KEY, urls: [url] }),
+    },
+    timeoutMs
+  );
   if (!res.ok) throw new Error(`Tavily extract ${res.status}`);
   const data = await res.json();
   const result = Array.isArray(data.results) ? data.results[0] : null;
@@ -105,14 +136,14 @@ async function tavilyExtract(url) {
  * Never throws — a failed tool call becomes a result the model can react to
  * (real agentic behavior: it can try something else instead of the whole
  * search failing). */
-async function runTool(name, args) {
+async function runTool(name, args, timeoutMs) {
   try {
     if (name === "web_search") {
-      const results = await tavilySearch(String(args.query || ""));
+      const results = await tavilySearch(String(args.query || ""), timeoutMs);
       return JSON.stringify(results);
     }
     if (name === "web_extract") {
-      const text = await tavilyExtract(String(args.url || ""));
+      const text = await tavilyExtract(String(args.url || ""), timeoutMs);
       return text;
     }
     return `Unknown tool: ${name}`;
@@ -121,10 +152,11 @@ async function runTool(name, args) {
   }
 }
 
-function buildSystemPrompt(jobSpec) {
+function buildSystemPrompt(jobSpec, maxTurns) {
   const criteriaDesc = (jobSpec.criteria || [])
     .map((c) => `- ${c.label || c.key}`)
     .join("\n");
+  const location = jobSpec.location || null;
   return `You are a recruiting research agent. Find REAL candidates on the open web who plausibly fit this role:
 
 Field: ${jobSpec.field || "unspecified"}
@@ -133,13 +165,43 @@ Location: ${jobSpec.location || "any"}
 What matters for this role:
 ${criteriaDesc || "(no specific criteria given)"}
 
-You have two tools: web_search(query) to search the web, and web_extract(url) to read a
-page's full text. Use them as many times as you need (you have up to ${MAX_TURNS} turns) to
-find real people — e.g. public portfolios, personal sites, professional profile pages,
-directories — do NOT invent anyone. When you have found some real candidates (even just 2-3
-is fine — quality over quantity), call submit_candidates with what you found. If you find
-nothing credible after searching, call submit_candidates with an empty array. Never fabricate
-a person, url, or detail that you did not actually see in a tool result.`;
+You have two tools: web_search(query) to search the web, and web_extract(url) to read a page's
+full text. You have up to ${maxTurns} turns total this run, so use them deliberately.
+
+SWEEP MULTIPLE SURFACES. Do not fire one generic query and stop — vary your queries across
+DIFFERENT KINDS of surfaces across turns, picking whichever actually fit this field (a nurse
+and a UX designer live on very different parts of the web). Draw from:
+  - personal portfolio sites, personal domains, "about me" pages
+  - public professional directories or association member listings
+  - conference speaker pages / published-talk pages
+  - public team / "our staff" pages on company sites
+  - GitHub or Stack Overflow profiles cross-referenced with a name or personal site (technical fields)
+  - "hire me" / "open to work" / freelancer-listing style pages
+${location ? `Include "${location}" in your queries to anchor results to the right place.\n` : ""}
+Do NOT trust search snippets alone — call web_extract on the most promising URLs before citing
+a person, because snippets frequently omit the name, skills, or location you need to fill in a
+candidate record. Prefer pages that are actually ABOUT one specific person over listicles or
+aggregator articles ("10 best designers in ..."), which are not candidates.
+
+STOP EARLY once you have found a few solid, real people — quality over quantity. You do not have
+to use every turn. If nothing credible turns up, call submit_candidates with an empty array.
+
+You must NEVER attempt to access LinkedIn, or any other login-gated or ToS-restricted platform.
+You only ever see what the search tool's index legitimately surfaces — do not try to work around
+that restriction.
+
+THE SINGLE MOST IMPORTANT RULE: never invent a person, URL, skill, or location you did not
+actually see in a tool result. If you are not sure a detail is real, leave it out rather than
+guess. An empty candidates list is always better than a fabricated one.
+
+The "name" field is REQUIRED for every candidate you submit, and this creates a specific trap:
+if a page (e.g. a company/agency homepage) never actually states a specific person's name, do
+NOT invent one just to satisfy the schema — SKIP that candidate entirely instead. Only submit a
+candidate when you actually read that specific person's real name in a tool result. A company
+description with no named individual is not a candidate, no matter how well it matches the role.
+
+When you have found some real candidates (even just 2-3 is fine), call submit_candidates with
+what you found.`;
 }
 
 const SUBMIT_CANDIDATES_SCHEMA = {
@@ -167,7 +229,7 @@ const SUBMIT_CANDIDATES_SCHEMA = {
 
 // --- Per-backend agent loop --------------------------------------------------
 
-async function runAnthropicLoop(systemPrompt) {
+async function runAnthropicLoop(systemPrompt, budget) {
   const tools = [
     { name: "web_search", description: "Search the web.", input_schema: { type: "object", properties: { query: { type: "string" } }, required: ["query"] } },
     { name: "web_extract", description: "Read a page's full text.", input_schema: { type: "object", properties: { url: { type: "string" } }, required: ["url"] } },
@@ -175,16 +237,20 @@ async function runAnthropicLoop(systemPrompt) {
   ];
   let messages = [{ role: "user", content: systemPrompt }];
 
-  for (let turn = 0; turn < MAX_TURNS; turn++) {
-    const res = await fetchWithTimeout(ANTHROPIC_API_URL, {
-      method: "POST",
-      headers: {
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": ANTHROPIC_VERSION,
-        "content-type": "application/json",
+  for (let turn = 0; turn < budget.maxTurns; turn++) {
+    const res = await fetchWithTimeout(
+      ANTHROPIC_API_URL,
+      {
+        method: "POST",
+        headers: {
+          "x-api-key": process.env.ANTHROPIC_API_KEY,
+          "anthropic-version": ANTHROPIC_VERSION,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: 2048, tools, messages }),
       },
-      body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: 2048, tools, messages }),
-    });
+      budget.timeoutMs
+    );
     if (!res.ok) throw new Error(`Anthropic ${res.status}`);
     const data = await res.json();
     const blocks = Array.isArray(data.content) ? data.content : [];
@@ -199,7 +265,7 @@ async function runAnthropicLoop(systemPrompt) {
       toolUses.map(async (t) => ({
         type: "tool_result",
         tool_use_id: t.id,
-        content: await runTool(t.name, t.input || {}),
+        content: await runTool(t.name, t.input || {}, budget.timeoutMs),
       }))
     );
     messages.push({ role: "user", content: toolResults });
@@ -207,20 +273,27 @@ async function runAnthropicLoop(systemPrompt) {
   return [];
 }
 
-async function runGroqLoop(systemPrompt) {
+async function runGroqLoop(systemPrompt, budget) {
   const tools = [
     { type: "function", function: { name: "web_search", description: "Search the web.", parameters: { type: "object", properties: { query: { type: "string" } }, required: ["query"] } } },
     { type: "function", function: { name: "web_extract", description: "Read a page's full text.", parameters: { type: "object", properties: { url: { type: "string" } }, required: ["url"] } } },
     { type: "function", function: { name: "submit_candidates", description: "Submit the real candidates you found.", parameters: SUBMIT_CANDIDATES_SCHEMA } },
   ];
-  let messages = [{ role: "user", content: systemPrompt }];
+  let messages = [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: "Begin your research now." },
+  ];
 
-  for (let turn = 0; turn < MAX_TURNS; turn++) {
-    const res = await fetchWithTimeout(GROQ_API_URL, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ model: GROQ_MODEL, messages, tools }),
-    });
+  for (let turn = 0; turn < budget.maxTurns; turn++) {
+    const res = await fetchWithTimeout(
+      GROQ_API_URL,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}`, "content-type": "application/json" },
+        body: JSON.stringify({ model: GROQ_MODEL, messages, tools, tool_choice: "auto", temperature: 0, parallel_tool_calls: false }),
+      },
+      budget.timeoutMs
+    );
     if (!res.ok) throw new Error(`Groq ${res.status}`);
     const data = await res.json();
     const msg = data?.choices?.[0]?.message;
@@ -244,14 +317,14 @@ async function runGroqLoop(systemPrompt) {
       } catch {
         /* malformed args — runTool gets {} and reports appropriately via missing fields */
       }
-      const result = await runTool(t.function.name, args);
+      const result = await runTool(t.function.name, args, budget.timeoutMs);
       messages.push({ role: "tool", tool_call_id: t.id, content: result });
     }
   }
   return [];
 }
 
-async function runGeminiLoop(systemPrompt) {
+async function runGeminiLoop(systemPrompt, budget) {
   const functionDeclarations = [
     { name: "web_search", description: "Search the web.", parameters: { type: "OBJECT", properties: { query: { type: "STRING" } }, required: ["query"] } },
     { name: "web_extract", description: "Read a page's full text.", parameters: { type: "OBJECT", properties: { url: { type: "STRING" } }, required: ["url"] } },
@@ -283,13 +356,17 @@ async function runGeminiLoop(systemPrompt) {
   ];
   let contents = [{ role: "user", parts: [{ text: systemPrompt }] }];
 
-  for (let turn = 0; turn < MAX_TURNS; turn++) {
+  for (let turn = 0; turn < budget.maxTurns; turn++) {
     const url = `${GEMINI_API_URL}?key=${process.env.GEMINI_API_KEY}`;
-    const res = await fetchWithTimeout(url, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ contents, tools: [{ functionDeclarations }] }),
-    });
+    const res = await fetchWithTimeout(
+      url,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ contents, tools: [{ functionDeclarations }] }),
+      },
+      budget.timeoutMs
+    );
     if (!res.ok) throw new Error(`Gemini ${res.status}`);
     const data = await res.json();
     const parts = data?.candidates?.[0]?.content?.parts || [];
@@ -304,7 +381,7 @@ async function runGeminiLoop(systemPrompt) {
     contents.push({ role: "model", parts });
     const responseParts = [];
     for (const call of calls) {
-      const result = await runTool(call.functionCall.name, call.functionCall.args || {});
+      const result = await runTool(call.functionCall.name, call.functionCall.args || {}, budget.timeoutMs);
       responseParts.push({ functionResponse: { name: call.functionCall.name, response: { content: result } } });
     }
     contents.push({ role: "user", parts: responseParts });
@@ -340,18 +417,19 @@ export const provider = {
   label: "Open Web Search (AI agent — needs 2 free keys)",
   fields: ["*"],
 
-  async search(jobSpec, _options = {}) {
+  async search(jobSpec, options = {}) {
     if (!openWebAvailable()) return [];
     try {
-      const systemPrompt = buildSystemPrompt(jobSpec);
+      const budget = resolveBudget(options);
+      const systemPrompt = buildSystemPrompt(jobSpec, budget.maxTurns);
       const backend = activeLLMProvider();
       let found;
-      if (backend === "anthropic") found = await runAnthropicLoop(systemPrompt);
-      else if (backend === "groq") found = await runGroqLoop(systemPrompt);
-      else found = await runGeminiLoop(systemPrompt);
+      if (backend === "anthropic") found = await runAnthropicLoop(systemPrompt, budget);
+      else if (backend === "groq") found = await runGroqLoop(systemPrompt, budget);
+      else found = await runGeminiLoop(systemPrompt, budget);
 
       const valid = (Array.isArray(found) ? found : []).filter((f) => f && f.name && f.sourceUrl);
-      return valid.slice(0, MAX_CANDIDATES).map((f, i) => toCandidate(f, jobSpec, i));
+      return valid.slice(0, budget.maxCandidates).map((f, i) => toCandidate(f, jobSpec, i));
     } catch (err) {
       console.warn(`[recruiter-ai] open_web provider failed: ${err.message}`);
       return [];

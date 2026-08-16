@@ -22,15 +22,12 @@
 //     Per-source promises are already capped at 20s each and never throw
 //     uncaught, so letting a straggler keep running in the background after
 //     the deadline is harmless (its result is simply never read).
-//   - open_web budget: PLAN_V2 asks that a shrunk budget ({ maxTurns: 3 })
-//     be threaded into open_web's options when the provider supports it.
-//     lib/providers/openWeb.js's search(jobSpec, _options = {}) does NOT
-//     currently read ANY option — the `_options` param is accepted but
-//     entirely unused; MAX_TURNS is a hardcoded module constant (6). We still
-//     pass { ...options, maxTurns: 3 } through so this becomes a no-op wire
-//     that starts working the moment openWeb.js is updated to read it, but
-//     it has ZERO effect today. This is stated here and in the verification
-//     report rather than pretended to work — see PLAN_V2.md §5 Phase 3.
+//   - open_web budget: a shrunk budget ({ maxTurns: 3 }) is threaded into
+//     open_web's options so one slow agentic source can't dominate the 60s
+//     global deadline. As of PLAN_V2.md §5 Phase 3, lib/providers/openWeb.js
+//     actually reads and clamps this via resolveBudget() and honors it as
+//     the real loop bound (verified live: maxTurns genuinely changes turn
+//     count / elapsed time / results) — this is no longer a no-op.
 //   - Scoring happens ONCE on the merged+deduped list (BIG topN so nothing
 //     is truncated before consolidation) — fan-out never multiplies LLM
 //     calls, since rankCandidatesLLM already batches the whole list into one
@@ -80,7 +77,7 @@ function withTimeout(promise, ms) {
 }
 
 /** Build the options object passed to an individual provider's search().
- * open_web gets a shrunk-budget hint added (currently a no-op — see module
+ * open_web gets a shrunk-budget hint added (real as of Phase 3 — see module
  * doc comment above); every other source gets the caller's options as-is. */
 function searchOptionsFor(providerKey, options) {
   if (providerKey === "open_web") {

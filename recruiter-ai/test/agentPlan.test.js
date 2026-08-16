@@ -17,6 +17,19 @@ import assert from "node:assert/strict";
 import { selectSources } from "../lib/agent/plan.js";
 import { listProviders } from "../lib/providers/index.js";
 import { hasGooglePlacesKey } from "../lib/providers/googlePlaces.js";
+import { openWebAvailable } from "../lib/providers/openWeb.js";
+
+// As of Phase 3, a real TAVILY_API_KEY may also be configured alongside the
+// real GROQ_API_KEY noted above. When both are present, openWebAvailable()
+// is true and plan.js's STEP 1 unconditionally adds "open_web" to every
+// plan (fields: ["*"], no location required — see plan.js line ~111).
+// Field-mapping assertions below account for that additively so they stay
+// meaningful whether or not a Tavily key happens to be configured.
+function expectedSources(base) {
+  const expected = new Set(base);
+  if (openWebAvailable()) expected.add("open_web");
+  return expected;
+}
 
 const REGISTERED_KEYS = new Set(listProviders().map((p) => p.key));
 const NO_LLM = { useLLM: false };
@@ -44,25 +57,25 @@ function assertSourcePlanShape(result) {
 test("selectSources: software field maps to github, stackoverflow, hn_hiring, devto, huggingface", async () => {
   const result = await selectSources({ field: "software", title: "Backend Engineer" }, NO_LLM);
   assertSourcePlanShape(result);
-  assert.deepEqual(new Set(result.sources), new Set(["github", "stackoverflow", "hn_hiring", "devto", "huggingface"]));
+  assert.deepEqual(new Set(result.sources), expectedSources(["github", "stackoverflow", "hn_hiring", "devto", "huggingface"]));
 });
 
 test("selectSources: finance field maps to sebi_ria, finra", async () => {
   const result = await selectSources({ field: "finance", title: "Investment Adviser" }, NO_LLM);
   assertSourcePlanShape(result);
-  assert.deepEqual(new Set(result.sources), new Set(["sebi_ria", "finra"]));
+  assert.deepEqual(new Set(result.sources), expectedSources(["sebi_ria", "finra"]));
 });
 
 test("selectSources: healthcare field maps to nmc, npi", async () => {
   const result = await selectSources({ field: "healthcare", title: "Physician" }, NO_LLM);
   assertSourcePlanShape(result);
-  assert.deepEqual(new Set(result.sources), new Set(["nmc", "npi"]));
+  assert.deepEqual(new Set(result.sources), expectedSources(["nmc", "npi"]));
 });
 
 test("selectSources: research field maps to orcid, openalex", async () => {
   const result = await selectSources({ field: "research", title: "Research Scientist" }, NO_LLM);
   assertSourcePlanShape(result);
-  assert.deepEqual(new Set(result.sources), new Set(["orcid", "openalex"]));
+  assert.deepEqual(new Set(result.sources), expectedSources(["orcid", "openalex"]));
 });
 
 // ---------------------------------------------------------------------------
@@ -144,7 +157,10 @@ test("selectSources: an unknown/unmapped field does not throw and returns a sens
 test("selectSources: an unknown field with no location and no upload returns an empty-but-valid result, never throws", async () => {
   const result = await selectSources({ field: "underwater basket weaving" }, NO_LLM);
   assertSourcePlanShape(result);
-  assert.deepEqual(result.sources, []);
+  // When open_web is available (LLM + Tavily key configured), it is a
+  // catchall (fields: ["*"]) and is always included, so the plan is no
+  // longer literally empty — it falls back to just open_web instead.
+  assert.deepEqual(result.sources, openWebAvailable() ? ["open_web"] : []);
   assert.ok(result.log.length > 0, "an empty plan should still explain itself in the log");
 });
 

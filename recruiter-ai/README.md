@@ -473,6 +473,35 @@ Full detail is in [FAIRNESS.md](./FAIRNESS.md) — read it before acting on scor
   labor market signal, and never mixed into agent-search results.
 - **`upload`** — whatever the recruiter pastes in (CSV or JSON). As real as the data supplied.
 
+## 🩺 Quality tooling
+
+Two scripts exist because three real bugs once shipped past a fully green test suite — every
+test validated *logic against fabricated inputs*, while nothing validated *behavior against real
+provider output*. See [docs/DATA_QUALITY_PLAN.md](./docs/DATA_QUALITY_PLAN.md).
+
+```bash
+npm run doctor            # probe all 15 providers with REAL calls and flag anomalies
+npm run capture-fixtures  # record real provider responses into test/fixtures/
+npm test                  # 209 tests, incl. offline contract tests over those fixtures
+```
+
+**`npm run doctor`** prints a health table and flags three specific bug signatures:
+
+| Flag | Means | The bug it catches |
+| --- | --- | --- |
+| `SHARED-URL` | many candidates, one `sourceUrl`, on a provider that claims per-person URLs | 25 SEBI advisers once merged into 1 |
+| `NON-PERSON` | a people-provider returning organizations | OpenAlex once returned 20/20 conferences |
+| `SHAPE(n)` | `Candidate` contract violations (e.g. a date string in `yearsExperience`) | silent type drift |
+
+It makes real network calls, so it is deliberately **not** part of `npm test` — CI must not
+depend on third-party uptime, keys, or quota. Run it before a release and after touching any
+provider. It has already found two bugs that code review missed.
+
+Each provider declares `traits` (`lib/providers/traits.js`) — `sourceUrlIdentifiesPerson`,
+`nameIsHandle`, `dataIsLLMExtracted`, `entityType` — so `dedupe.js` reads facts instead of
+guessing. A provider that omits them gets the **safest** defaults, so a new source can never
+silently inherit a dangerous assumption.
+
 ## Further reading
 
 - [PLAN.md](./PLAN.md) — original roadmap, frozen data contracts, single-provider phase history.

@@ -1,7 +1,8 @@
 # Data-Quality Plan — preventing the "green tests, broken reality" bug class
 
-> **Status:** proposal. The three bugs below are already FIXED; this plan is about stopping
-> the *next* one, because all three shared a single root cause.
+> **Status: ✅ ALL OF P0–P4 IMPLEMENTED.** 209 tests, 0 failures, `npm run doctor` reports 0 flags.
+> The three bugs below were already fixed; this plan was about stopping the *next* one. It
+> immediately did — see §6.
 
 ---
 
@@ -48,7 +49,7 @@ output*. None were found by the test suite. That is the gap to close.
 
 ## 3. Proposed work, prioritized
 
-### P0 — `npm run doctor` (highest value, lowest cost)
+### P0 — `npm run doctor` — ✅ DONE
 
 A single script that queries **every** provider with a realistic jobSpec and prints a health
 table. This is precisely the manual sweep that caught all three bugs — automate it.
@@ -67,7 +68,7 @@ Flags, each mapping to a bug that actually happened:
 
 **Effort:** ~half a day. **Run it before every release and after touching any provider.**
 
-### P1 — Captured fixtures + provider contract tests
+### P1 — Captured fixtures + provider contract tests — ✅ DONE
 
 - Add `scripts/capture-fixtures.mjs` to record **real** provider responses into
   `test/fixtures/<provider>.json` (redacting nothing — this is public data).
@@ -82,7 +83,7 @@ had 25 identical URLs, and a dedupe test over real data would have failed loudly
 
 **Effort:** ~1 day. Re-capture quarterly, or when a provider's upstream changes.
 
-### P2 — Provider capability metadata (the structural fix)
+### P2 — Provider capability metadata (the structural fix) — ✅ DONE
 
 Today `dedupe.js` *guesses* what a `sourceUrl` means. Make providers declare it:
 
@@ -108,7 +109,7 @@ Then:
 **Effort:** ~1 day across 16 providers. **This is the highest-leverage item** — it converts a
 class of bug into a compile-time-ish contract.
 
-### P3 — Person-likeness gate for people-sourced providers
+### P3 — Person-likeness gate for people-sourced providers — ✅ DONE
 
 Generalize the `looksLikeOrganization` heuristic currently living only in `openalex.js` into
 `lib/personCheck.js`, and apply it to any provider whose `traits.entityType === "person"`.
@@ -120,7 +121,7 @@ recoverable, a conference presented as a hire is not.
 
 **Effort:** ~half a day.
 
-### P4 — Extend grounding beyond `name`
+### P4 — Extend grounding beyond `name` — ✅ DONE
 
 `nameWasSeen` currently grounds only the name. `skills`, `location`, and `summary` from
 `open_web` are still ungrounded LLM output. Extend the check to at least `location`, and mark
@@ -153,3 +154,64 @@ P0 alone recovers most of the value. P0 + P2 would have prevented **all three** 
   LLM-extracted web data is verified.
 - **No chasing 100% person-detection.** Heuristics will misfire in both directions; the goal is
   to make the *dangerous* direction rare and the *safe* direction documented.
+
+---
+
+## 6. Outcomes — what the plan actually found once implemented
+
+The plan justified itself immediately. `npm run doctor` found **two real bugs that code review
+and 138 passing tests had both missed**, plus one false positive in its own heuristic.
+
+### 6.1 Query strings were being destroyed (real bug, would have merged 20 people)
+
+`dedupe.js` normalized URLs with `s.split("#")[0].split("?")[0]` — stripping the entire query.
+But `hn_hiring`'s per-person permalink *is* the query: `news.ycombinator.com/item?id=<commentId>`.
+Every one of 20 distinct posters normalized to the same path `news.ycombinator.com/item`, so
+tier-1 auto-merge would have collapsed them into a single candidate. Only the name-conflict
+guard added for SEBI happened to prevent it — accidentally, not by design.
+
+The fix was not obvious, and the first attempt broke a correct case:
+
+| URL pair | Same person? | So the query must be… |
+| --- | --- | --- |
+| `github.com/janedoe` vs `…?tab=repositories` | **yes** | ignored |
+| `…/item?id=49156686` vs `…?id=49156693` | **no** | honored |
+
+Neither "always strip" nor "always keep" is correct. Resolved with a **noise-param denylist**
+(`utm_*`, `fbclid`, `tab`, `sort`, `page`, `view`, …): identity-bearing params are kept, view
+selectors and tracking are dropped, and remaining params are sorted so order never matters.
+
+### 6.2 Real people were being deleted as "organizations" (regression introduced by P3)
+
+With P3 wired in, a live search logged `dropped 5 non-person row(s) from sebi_ria`. Reading the
+actual dropped names showed **2 of the 5 were real humans**:
+
+```
+Abhishek Phore - Proprietor Control Wealth Advisers
+KUSHAL BHATEJA PROPRIETOR OF FINCLIN INVESTMENT ADVISORS
+```
+
+SEBI lists sole proprietors as `<PERSON> - Proprietor <FIRM>`. A sole proprietorship is legally
+a natural person, so the org-token rule was wrong here. `personCheck.js` now treats
+"proprietor" as a **person signal** and judges only the human part of the name. Live result:
+**20 → 22 advisers recovered**, while `PRIVATE LIMITED` / `Pvt Ltd` firms are still excluded.
+
+This is exactly the failure the plan predicted in P3 ("this will occasionally drop a real
+person") — and it was caught by *reading the output*, not by trusting the log line.
+
+### 6.3 A false positive in the doctor itself (not a product bug)
+
+`hn_hiring` was flagged `NON-PERSON 14/20` because HN usernames (`jborden13`, `varun636`,
+`nameless912`) trip the `\d{2,}` rule. Those are **handles, not personal names**. Fixed by the
+P2 traits work: `nameIsHandle: true` suppresses the person check for handle-based providers.
+
+### 6.4 Final state
+
+```
+15 providers probed with real calls — 0 flagged
+209 tests, 0 failures, 9 intentional skips (providers with no captured fixture)
+12 captured fixtures under test/fixtures/
+```
+
+`sebi_ria` sits at exactly the 80% person-like threshold (at, not below) — worth a human glance
+on future doctor runs, but not a defect today.

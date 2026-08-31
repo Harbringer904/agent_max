@@ -1,0 +1,17 @@
+{
+  "name": "agent_max (recruiter-ai)",
+  "install": "cd recruiter-ai && npm ci",
+  "terminals": [
+    {
+      "name": "server",
+      "command": "cd recruiter-ai && node server.js",
+      "description": "agent_max Express API + single-page UI on http://localhost:3000. Runs on the deterministic scorer with no API keys; add optional keys in recruiter-ai/.env for live GitHub/Stack Overflow/LLM providers."
+    }
+  ],
+  "ports": [
+    {
+      "name": "web",
+      "port": 3000
+    }
+  ]
+}

@@ -1,7 +1,3 @@
-// routes/templates.js
-//
-// GET /api/templates -> JobSpec[] (pre-built role templates)
-
 import { Router } from "express";
 import { JOB_TEMPLATES } from "../lib/jobTemplates.js";
 

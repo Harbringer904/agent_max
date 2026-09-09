@@ -1,14 +1,4 @@
-// lib/jobTemplates.js
-//
-// Pre-built JobSpec templates across fields, used to seed the criteria form.
-//
-// Exports:
-//   JOB_TEMPLATES              JobSpec[]
-//   templatesForField(field)   JobSpec[]
-//   getTemplate(field, title)  JobSpec|undefined
-
 export const JOB_TEMPLATES = [
-  // ---- software ----
   {
     field: "software",
     title: "Frontend Engineer",
@@ -42,8 +32,6 @@ export const JOB_TEMPLATES = [
       { key: "keyword", label: "Domain Focus", weight: 2, keywords: ["data science", "modeling", "analytics"] },
     ],
   },
-
-  // ---- healthcare ----
   {
     field: "healthcare",
     title: "Registered Nurse",
@@ -76,8 +64,6 @@ export const JOB_TEMPLATES = [
       { key: "experience", label: "Years of Experience", weight: 2, minYears: 1 },
     ],
   },
-
-  // ---- finance ----
   {
     field: "finance",
     title: "Accountant",
@@ -111,8 +97,6 @@ export const JOB_TEMPLATES = [
       { key: "location", label: "Location Preference", weight: 2, desiredLocation: "" },
     ],
   },
-
-  // ---- sales ----
   {
     field: "sales",
     title: "Sales Representative",
@@ -124,8 +108,6 @@ export const JOB_TEMPLATES = [
       { key: "location", label: "Location Preference", weight: 1, desiredLocation: "Remote" },
     ],
   },
-
-  // ---- marketing ----
   {
     field: "marketing",
     title: "Marketing Manager",
@@ -137,8 +119,6 @@ export const JOB_TEMPLATES = [
       { key: "keyword", label: "Marketing Focus", weight: 3, keywords: ["brand", "growth", "digital marketing"] },
     ],
   },
-
-  // ---- design ----
   {
     field: "design",
     title: "UX Designer",
@@ -150,8 +130,6 @@ export const JOB_TEMPLATES = [
       { key: "keyword", label: "Design Focus", weight: 2, keywords: ["ux", "design systems", "usability"] },
     ],
   },
-
-  // ---- research ----
   {
     field: "research",
     title: "Research Scientist",
@@ -176,8 +154,6 @@ export const JOB_TEMPLATES = [
       { key: "location", label: "Location Preference", weight: 1, desiredLocation: "" },
     ],
   },
-
-  // ---- operations ----
   {
     field: "operations",
     title: "Project Manager",

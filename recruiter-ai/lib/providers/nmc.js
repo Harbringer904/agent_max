@@ -1,25 +1,3 @@
-// lib/providers/nmc.js
-//
-// NMC (National Medical Commission) provider — LIVE queries against India's
-// official public doctor registry (nmc.org.in), the healthcare equivalent of
-// the SEBI provider. Unlike sebi_ria this is NOT a bundled snapshot: NMC's
-// register is huge (31,500+ registered doctors under Delhi's council alone;
-// likely 1M+ nationally), so we query it live, server-side-paginated, same
-// shape as the github/stackoverflow providers.
-//
-// Two real endpoints, reverse-engineered the same way as SEBI's (read the
-// site's own JS, no login/CAPTCHA on this data — it's a public verification
-// tool by design):
-//   GET  MCIRest/open/getPaginatedData?service=getPaginatedDoctor&smcId=<id>
-//        -> a name/registration-number/year list, filterable by State Medical
-//           Council (India has no city-level doctor registry; state is the
-//           finest granularity NMC exposes).
-//   POST MCIRest/open/getDataFromService?service=getDoctorDetailsByIdImrExt
-//        -> per-doctor detail: degree, university, year of passing, address.
-//           We enrich each of the (capped) list results with one of these,
-//           in parallel, best-effort (a slow/failed detail call just means
-//           that candidate keeps less detail, never fails the whole search).
-//
 // KNOWN CAVEAT — TLS: nmc.org.in's certificate chain is missing its
 // intermediate CA cert (verified independently: the leaf is a real
 // Sectigo-issued cert for *.nmc.org.in; browsers paper over this via cached
@@ -28,9 +6,6 @@
 // for THIS PROVIDER ONLY — every other request in the app (GitHub, Stack
 // Overflow, Google, LLM APIs) keeps full TLS verification. This only ever
 // reads public, non-sensitive government data; no credentials cross it.
-//
-// Exports:
-//   provider   { key:"nmc", label, fields:["healthcare"], search(jobSpec, options) }
 
 import https from "https";
 import { normalizeCandidate } from "../normalize.js";
@@ -40,11 +15,8 @@ const BASE_PATH = "/MCIRest/open";
 const TIMEOUT_MS = 20_000;
 const MAX_CANDIDATES = 20;
 
-// See the TLS caveat above — scoped to this file only.
 const insecureAgent = new https.Agent({ rejectUnauthorized: false });
 
-// State Medical Council id -> name, scraped from NMC's own live search form
-// (commented-out/deprecated options in that form are excluded here).
 const SMC_MAP = {
   1: "Andhra Pradesh Medical Council",
   2: "Arunachal Pradesh Medical Council",
@@ -87,8 +59,6 @@ const SMC_MAP = {
   25: "West Bengal Medical Council",
 };
 
-// Best-effort major-city -> the State Medical Council a recruiter searching
-// that city almost certainly means. India has no city-level doctor registry.
 const CITY_TO_SMC_ID = {
   delhi: 6,
   "new delhi": 6,
@@ -116,9 +86,6 @@ const CITY_TO_SMC_ID = {
   goa: 7,
 };
 
-/** Resolve free-text jobSpec.location to a State Medical Council id, or:
- *  null      -> no location given, search all councils
- *  "unknown" -> a location was given but we couldn't map it to any council */
 function resolveSmcId(locationText) {
   const loc = String(locationText || "").toLowerCase().trim();
   if (!loc) return null;
@@ -180,8 +147,6 @@ async function fetchList(smcId) {
   return Array.isArray(json?.data) ? json.data : [];
 }
 
-/** Best-effort per-doctor detail fetch. Returns {} on any failure — a failed
- * enrichment never sinks the candidate, it just has less detail. */
 async function fetchDetail(doctorId, regdNo) {
   try {
     const detail = await httpsJson(`${BASE_PATH}/getDataFromService?service=getDoctorDetailsByIdImrExt`, {
@@ -224,7 +189,7 @@ function toCandidate(row, detail, index) {
       location: address || councilName || null,
       yearsExperience,
       education: degree,
-      educationLevel: degree ? 3 : null, // professional undergraduate medical degree ~ bachelor-equivalent
+      educationLevel: degree ? 3 : null,
       skills: degree ? [degree] : [],
       certifications: ["NMC Registered"],
       summary: [degree, university && `(${university})`, `Reg. ${regNo}, ${councilName}`]
@@ -244,9 +209,6 @@ export const provider = {
   label: "NMC Registered Doctors (official data)",
   fields: ["healthcare"],
   traits: {
-    // Every record gets the SAME hardcoded sourceUrl (the register's landing
-    // page, not a per-doctor permalink) — see toCandidate() above. Verified
-    // live: 20 distinct doctors sharing 1 URL. Must never drive URL-merge.
     sourceUrlIdentifiesPerson: false,
     nameIsHandle: false,
     dataIsLLMExtracted: false,
@@ -256,7 +218,7 @@ export const provider = {
   async search(jobSpec, _options = {}) {
     try {
       const smcId = resolveSmcId(jobSpec?.location);
-      if (smcId === "unknown") return []; // named a location we can't map — don't guess
+      if (smcId === "unknown") return [];
 
       const rows = await fetchList(smcId);
       if (rows.length === 0) return [];

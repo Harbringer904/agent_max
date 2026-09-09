@@ -1,12 +1,3 @@
-// lib/normalize.js
-//
-// Field-agnostic Candidate normalizer. Pure, no I/O.
-//
-// Exports:
-//   normalizeCandidate(partial, sourceKey, index) -> full Candidate
-//   EDUCATION_LEVELS   label -> number map
-//   educationLevelFromText(str) -> number|null
-
 export const EDUCATION_LEVELS = Object.freeze({
   none: 0,
   highschool: 1,

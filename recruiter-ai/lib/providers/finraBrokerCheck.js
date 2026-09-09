@@ -1,18 +1,9 @@
-// lib/providers/finraBrokerCheck.js
-//
-// FINRA BrokerCheck provider — LIVE queries against the official US
-// financial-industry regulator's public registry of FINRA-registered
-// representatives. Free, no key.
-//
 // IMPORTANT — this API is a NAME/FIRM full-text search, not a location
 // search. There is no "search by city" endpoint. We derive the query text
 // from jobSpec.location (a city name often also matches firm/branch text)
 // or fall back to jobSpec.title, then post-filter the results against each
 // hit's own employment/branch fields when that data is present — so the
 // location filtering here is approximate by construction, not a bug.
-//
-// Exports:
-//   provider   { key:"finra", label, fields:["finance"], search(jobSpec, options) }
 
 import { normalizeCandidate } from "../normalize.js";
 
@@ -20,12 +11,9 @@ const API_BASE = "https://api.brokercheck.finra.org/search/individual";
 const TIMEOUT_MS = 15_000;
 const MAX_CANDIDATES = 20;
 
-/** Derive the full-text search query. Prefers location (city names often
- * match firm/branch text in this index) over title. Null if neither exists,
- * so the caller can bail out rather than sending a meaningless query. */
 function deriveQuery(jobSpec) {
   const location = String(jobSpec?.location || "").trim();
-  if (location) return location.split(",")[0].trim(); // "Austin, TX" -> "Austin"
+  if (location) return location.split(",")[0].trim();
   const title = String(jobSpec?.title || "").trim();
   if (title) return title;
   return null;
@@ -50,9 +38,6 @@ function titleCase(raw) {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-/** True when jobSpec.location isn't set (nothing to filter on), when the hit
- * has no employment records to check (can't verify either way — keep it),
- * or when at least one employment's branch city/state matches. */
 function locationMatchesEmployments(wanted, employments) {
   const w = String(wanted || "").trim().toLowerCase();
   if (!w) return true;
@@ -119,7 +104,6 @@ export const provider = {
   label: "FINRA BrokerCheck (US finance, official)",
   fields: ["finance"],
   traits: {
-    // brokercheck.finra.org/individual/summary/<CRD> is unique per CRD.
     sourceUrlIdentifiesPerson: true,
     nameIsHandle: false,
     dataIsLLMExtracted: false,

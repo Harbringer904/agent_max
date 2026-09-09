@@ -1,8 +1,3 @@
-// lib/providers/sample.js
-//
-// Sample dataset provider — loads bundled synthetic candidates per field from
-// data/samples/<field>.json, normalizes them, and filters by jobSpec.field.
-
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -11,8 +6,6 @@ import { normalizeCandidate } from "../normalize.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SAMPLES_DIR = path.join(__dirname, "..", "..", "data", "samples");
 
-// A field key doesn't always match its data file's basename (e.g. the
-// "healthcare" field's candidates live in nursing.json).
 const FIELD_TO_FILE = {
   healthcare: "nursing",
 };
@@ -22,8 +15,6 @@ export const provider = {
   label: "Sample dataset",
   fields: ["*"],
   traits: {
-    // Bundled fixtures never set a sourceUrl (see data/samples/*.json), so
-    // there's nothing to identify — false is also just the safe default.
     sourceUrlIdentifiesPerson: false,
     nameIsHandle: false,
     dataIsLLMExtracted: false,

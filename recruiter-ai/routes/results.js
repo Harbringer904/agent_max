@@ -1,11 +1,3 @@
-// routes/results.js
-//
-// POST /api/results     { jobSpec, candidates, scoredBy } -> { id, url:"/?r=<id>" }
-// GET  /api/results/:id -> saved payload | 404 { error }
-//
-// Request body/params are validated before touching the store; violations respond
-// with an opaque coded error. See docs/ERROR_CODES.md for the code meanings.
-
 import { Router } from "express";
 import { saveResult, getResult } from "../lib/resultsStore.js";
 

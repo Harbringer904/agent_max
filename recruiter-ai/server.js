@@ -1,19 +1,3 @@
-// server.js — Express API server for the recruiter AI.
-//
-// Wiring only. Route logic lives under ./routes/*.
-//
-// Routes:
-//   GET  /                → serves the frontend (public/index.html)
-//   GET  /api/health      → health check
-//   GET  /api/fields      → fields + which providers serve each
-//   GET  /api/templates   → pre-built JobSpec templates
-//   POST /api/search       → search + score candidates via a provider
-//   POST /api/agent-search → autonomous multi-source search + consolidated ranking (PLAN_V2 Phase 1)
-//   POST /api/agent-search/jobs        → start an async agent search, returns { jobId } (PLAN_V2 Phase 5)
-//   GET  /api/agent-search/jobs/:jobId → poll job progress/result (PLAN_V2 Phase 5)
-//   POST /api/results     → save a result set, get back a shareable id/url
-//   GET  /api/results/:id → fetch a saved result set
-
 import express from "express";
 import { fileURLToPath } from "url";
 import path from "path";

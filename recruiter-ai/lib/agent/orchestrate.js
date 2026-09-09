@@ -1,57 +1,3 @@
-// lib/agent/orchestrate.js
-//
-// PLAN_V2 §4 P4 — the autonomous orchestration core. Given only a jobSpec,
-// decide sources (lib/agent/plan.js), fan them out in parallel with bounded
-// latency, merge+dedupe (lib/agent/dedupe.js), score ONCE with the existing
-// unchanged scoring engines (lib/scoring/rules.js or lib/scoring/llm.js),
-// consolidate into one comparable ranked list (lib/agent/consolidate.js),
-// apply the `required` hard filter exactly as routes/search.js does, and
-// trim to a ceiling of N.
-//
-// LATENCY CONTRACT (PLAN_V2 §4 P4):
-//   - Per-source timeout guard: SOURCE_TIMEOUT_MS (20s), via Promise.race
-//     against a timer, since not all providers have internal timeouts. A
-//     source that rejects, times out, or throws contributes ZERO candidates
-//     and is recorded in `sourcesQueried` — it NEVER fails the whole search.
-//   - Global deadline: GLOBAL_DEADLINE_MS (60s) across the whole fan-out.
-//     Implemented by racing Promise.allSettled(perSourcePromises) against a
-//     deadline timer; each per-source promise writes its outcome into a
-//     shared results Map as soon as IT finishes (not when all finish), so if
-//     the deadline wins the race, whatever is already in the Map is used —
-//     "whatever has returned by then is what gets scored", per the plan.
-//     Per-source promises are already capped at 20s each and never throw
-//     uncaught, so letting a straggler keep running in the background after
-//     the deadline is harmless (its result is simply never read).
-//   - open_web budget: a shrunk budget ({ maxTurns: 3 }) is threaded into
-//     open_web's options so one slow agentic source can't dominate the 60s
-//     global deadline. As of PLAN_V2.md §5 Phase 3, lib/providers/openWeb.js
-//     actually reads and clamps this via resolveBudget() and honors it as
-//     the real loop bound (verified live: maxTurns genuinely changes turn
-//     count / elapsed time / results) — this is no longer a no-op.
-//   - Scoring happens ONCE on the merged+deduped list (BIG topN so nothing
-//     is truncated before consolidation) — fan-out never multiplies LLM
-//     calls, since rankCandidatesLLM already batches the whole list into one
-//     request.
-//   - N (topN) is a ceiling, never a promise: real people only, no padding.
-//
-// agentSearch() NEVER throws — every stage is defensive so a bug in one
-// source, or in dedupe/consolidate, degrades the report rather than crashing
-// the route.
-//
-// PLAN_V2 §5 Phase 5 — optional incremental progress: pass
-// options.onProgress(update) and it is invoked as planning completes and as
-// EACH source settles (never batched at the end), with
-// { phase, sourcesTotal, sourcesDone, sourcePlan?, sourceResult?, logLine? }.
-// Fully optional and defensive (a throwing callback is swallowed) — the
-// return shape below is unchanged, and every existing caller that omits
-// onProgress behaves identically to before.
-//
-// Exports:
-//   agentSearch(jobSpec, options = {}) -> {
-//     candidates, totalFound, matched, scoredBy, sourcePlan, agentLog,
-//     sourcesQueried: [{ key, count, ms, status }]
-//   }
-
 import { getProvider } from "../providers/index.js";
 import { rankCandidates } from "../scoring/rules.js";
 import { rankCandidatesLLM } from "../scoring/llm.js";
@@ -63,7 +9,7 @@ import { looksLikeOrganization } from "../personCheck.js";
 
 const SOURCE_TIMEOUT_MS = 20_000;
 const GLOBAL_DEADLINE_MS = 60_000;
-const SCORE_BATCH_SIZE = 200; // large enough not to truncate before consolidation
+const SCORE_BATCH_SIZE = 200;
 const DEFAULT_TOP_N = 10;
 const MIN_TOP_N = 1;
 const MAX_TOP_N = 50;
@@ -76,8 +22,6 @@ function clampTopN(n) {
   return Math.min(MAX_TOP_N, Math.max(MIN_TOP_N, Math.round(num)));
 }
 
-/** Race a promise against a timer; rejects with TIMEOUT_MESSAGE on expiry.
- * Always clears the timer so the process doesn't hang open on a fast source. */
 function withTimeout(promise, ms) {
   let timer;
   const timeout = new Promise((_, reject) => {
@@ -86,9 +30,6 @@ function withTimeout(promise, ms) {
   return Promise.race([Promise.resolve(promise), timeout]).finally(() => clearTimeout(timer));
 }
 
-/** Build the options object passed to an individual provider's search().
- * open_web gets a shrunk-budget hint added (real as of Phase 3 — see module
- * doc comment above); every other source gets the caller's options as-is. */
 function searchOptionsFor(providerKey, options) {
   if (providerKey === "open_web") {
     return { ...options, maxTurns: 3 };
@@ -96,27 +37,14 @@ function searchOptionsFor(providerKey, options) {
   return options;
 }
 
-/** Invoke an optional progress callback defensively — a throwing or absent
- * callback must never affect the search itself (PLAN_V2 Phase 5). */
 function emitProgress(onProgress, update) {
   if (typeof onProgress !== "function") return;
   try {
     onProgress(update);
   } catch {
-    // progress callbacks must never break the search
   }
 }
 
-/**
- * Fan out search() across every planned source. Returns a Map keyed by
- * providerKey -> { candidates, ms, status, error? }. Never throws: every
- * per-source failure (unknown key, provider exception, timeout) is caught
- * and recorded as a zero-candidate outcome.
- *
- * When `onProgress` is provided, it is invoked once per source AS SOON AS
- * that source settles (not batched at the end) with
- * { phase: "sourcing", sourcesTotal, sourcesDone, sourceResult, logLine }.
- */
 async function fanOut(sourcePlan, jobSpec, options, onProgress) {
   const results = new Map();
   const sourcesTotal = sourcePlan.length;
@@ -152,11 +80,6 @@ async function fanOut(sourcePlan, jobSpec, options, onProgress) {
     });
   });
 
-  // Race the WHOLE fan-out against the global deadline. Each per-source
-  // promise above already wrote its own outcome into `results` (and fired
-  // its own progress event) by the time it settles — so if the deadline
-  // timer wins this race, `results` simply holds whatever finished so far,
-  // and any still-pending source is left out of scoring (per PLAN_V2 §4 P4).
   await Promise.race([
     Promise.allSettled(perSourcePromises),
     new Promise((resolve) => setTimeout(resolve, GLOBAL_DEADLINE_MS)),
@@ -165,9 +88,6 @@ async function fanOut(sourcePlan, jobSpec, options, onProgress) {
   return results;
 }
 
-/** Apply the `required` hard filter exactly as routes/search.js does: for
- * every criterion with required===true, drop candidates whose
- * criteriaScores[key].raw < 1 - 1e-9 (float-safe "must equal 1.0"). */
 function applyRequiredFilter(scored, jobSpec) {
   const requiredKeys = (Array.isArray(jobSpec?.criteria) ? jobSpec.criteria : [])
     .filter((c) => c && c.required === true)
@@ -178,28 +98,6 @@ function applyRequiredFilter(scored, jobSpec) {
   );
 }
 
-/**
- * Safety net (docs/DATA_QUALITY_PLAN.md P3): drop candidates from any
- * person-sourced, non-handle provider whose name looks like an organization
- * rather than an individual (lib/personCheck.js's looksLikeOrganization).
- * Only providers that DECLARE entityType:"person" && nameIsHandle:false are
- * checked — handle-based providers (github, stackoverflow, devto,
- * huggingface, hn_hiring) and organization providers (google_places, osm)
- * are exempt, because running a person-name heuristic against a username or
- * a business name is exactly the hn_hiring false-positive trap this plan
- * documents (a username like "jborden13" trips the digit-run rule). A
- * provider with no declared traits defaults to entityType:"person" +
- * nameIsHandle:false (see traits.js SAFE_DEFAULT_TRAITS) and so is checked
- * too — the safe default is "verify", not "skip".
- *
- * Deliberate tradeoff, documented in FAIRNESS.md: this will occasionally
- * drop a real person with an unusual name. A dropped real person is
- * recoverable (another source, a looser query); an organization presented
- * as a hireable candidate is a credibility failure a recruiter may act on.
- *
- * Logs one line per affected source into agentLog, e.g.
- * "dropped 3 non-person row(s) from openalex".
- */
 function dropNonPersonRows(candidates, agentLog) {
   const droppedBySource = new Map();
   const kept = candidates.filter((c) => {
@@ -219,7 +117,6 @@ function buildSourcesQueried(sourcePlan, results) {
   return sourcePlan.map((entry) => {
     const r = results.get(entry.providerKey);
     if (!r) {
-      // Never settled before the global deadline won the race.
       return { key: entry.providerKey, count: 0, ms: GLOBAL_DEADLINE_MS, status: "timeout" };
     }
     return {

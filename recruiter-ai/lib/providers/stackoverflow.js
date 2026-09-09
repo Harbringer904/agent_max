@@ -1,12 +1,3 @@
-// lib/providers/stackoverflow.js
-//
-// Stack Overflow provider — searches the free Stack Exchange API (no key
-// required for low volume) for top answerers on a tag derived from the
-// jobSpec's 'skills' criterion, and maps them to unified Candidates.
-//
-// Exports:
-//   provider   { key:"stackoverflow", label:"Stack Overflow", fields:["software"], search(jobSpec, options) }
-
 import { normalizeCandidate } from "../normalize.js";
 
 const API_BASE = "https://api.stackexchange.com/2.3";
@@ -15,8 +6,6 @@ const TIMEOUT_MS = 15_000;
 const MAX_CANDIDATES = 15;
 const TOP_ANSWERERS_PAGESIZE = 20;
 
-// Best-effort mapping from common skill names (as recruiters type them) to
-// the Stack Overflow tag that actually exists on the site.
 const SKILL_TO_TAG = {
   javascript: "javascript",
   js: "javascript",
@@ -66,16 +55,13 @@ const SKILL_TO_TAG = {
   "objective-c": "objective-c",
 };
 
-/** Map a raw skill string to a Stack Overflow tag slug. */
 function skillToTag(skill) {
   const s = String(skill || "").trim().toLowerCase();
   if (!s) return null;
   if (SKILL_TO_TAG[s]) return SKILL_TO_TAG[s];
-  // Fall back to a slug guess: spaces -> hyphens.
   return s.replace(/\s+/g, "-");
 }
 
-/** Derive the primary SO tag from the jobSpec's 'skills' criterion. */
 function primaryTag(jobSpec) {
   const skillsCriterion = (jobSpec?.criteria || []).find((c) => c.key === "skills");
   const requiredSkills = skillsCriterion?.requiredSkills || [];
@@ -98,7 +84,6 @@ async function fetchJson(url) {
   }
 }
 
-/** Strip HTML tags and decode a few common entities from about_me. */
 function stripHtml(html) {
   if (!html) return null;
   const text = String(html)
@@ -113,7 +98,6 @@ function stripHtml(html) {
   return text || null;
 }
 
-/** Whole years since a Stack Overflow account was created. */
 function yearsSinceCreation(creationDateSeconds) {
   if (!creationDateSeconds) return null;
   const ms = Date.now() - creationDateSeconds * 1000;
@@ -152,9 +136,7 @@ export const provider = {
   label: "Stack Overflow",
   fields: ["software"],
   traits: {
-    // user.link is unique per user_id.
     sourceUrlIdentifiesPerson: true,
-    // display_name is a self-chosen handle, not a verified legal name.
     nameIsHandle: true,
     dataIsLLMExtracted: false,
     entityType: "person",

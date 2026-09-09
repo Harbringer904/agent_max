@@ -1,16 +1,3 @@
-// routes/agentJobs.js
-//
-// PLAN_V2 §5 Phase 5 — async counterpart to POST /api/agent-search.
-//
-//   POST /api/agent-search/jobs        { jobSpec, topN, options } -> 202 { jobId }
-//   GET  /api/agent-search/jobs/:jobId -> the job snapshot (lib/agent/jobs.js)
-//
-// jobSpec validation is byte-for-byte the same as routes/agentSearch.js, and
-// reuses the same opaque Rxxx error style (see docs/ERROR_CODES.md). The
-// existing blocking POST /api/agent-search is untouched — this is a new,
-// additive surface for long-running searches so the UI can show live
-// progress instead of holding one request open for up to 60s.
-
 import { Router } from "express";
 import { createJob, getJob, isValidJobId } from "../lib/agent/jobs.js";
 

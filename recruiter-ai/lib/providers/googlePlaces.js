@@ -1,21 +1,3 @@
-// lib/providers/googlePlaces.js
-//
-// Google Places provider — searches Google's live business index (Places API,
-// "New" Text Search) for real local professionals/firms matching the job
-// title + location, and maps them to unified Candidates. Works for ANY
-// field (finance, sales, design, ...), unlike the dev-only github/stackoverflow
-// providers, because it searches real-world businesses rather than a coder
-// platform.
-//
-// Requires a free-tier Google Cloud API key (GOOGLE_PLACES_API_KEY). Google
-// requires a billing account on file to issue the key, but Places Text Search
-// carries a monthly free-usage credit that ordinary use stays well within.
-// Without a key, this provider returns [] — it never crashes the app.
-//
-// Exports:
-//   provider          { key:"google_places", label:"Google Places", fields:["*"], search(jobSpec, options) }
-//   hasGooglePlacesKey()  boolean — whether GOOGLE_PLACES_API_KEY is configured
-
 import dotenv from "dotenv";
 import { normalizeCandidate } from "../normalize.js";
 
@@ -24,7 +6,7 @@ dotenv.config();
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY?.trim() || null;
 const SEARCH_URL = "https://places.googleapis.com/v1/places:searchText";
 const TIMEOUT_MS = 15_000;
-const MAX_CANDIDATES = 20; // Places Text Search returns up to 20 results per page.
+const MAX_CANDIDATES = 20;
 const FIELD_MASK = [
   "places.id",
   "places.displayName",
@@ -41,12 +23,6 @@ export function hasGooglePlacesKey() {
   return Boolean(API_KEY);
 }
 
-/**
- * Build the free-text search query from the jobSpec: "<title> in <location>".
- * Falls back to a location criterion's desiredLocation if jobSpec.location is
- * unset, and to jobSpec.field if there's no title. Returns null if there is
- * no usable title at all (Places needs a real category to search).
- */
 function buildQuery(jobSpec) {
   const title = String(jobSpec?.title || jobSpec?.field || "").trim();
   if (!title) return null;
@@ -99,10 +75,10 @@ function toCandidate(place, jobSpec, index) {
           : jobSpec?.title || "Local business",
       field: jobSpec?.field || "",
       location: place.formattedAddress ?? null,
-      yearsExperience: null, // Google Places doesn't expose this
+      yearsExperience: null,
       education: null,
       educationLevel: null,
-      skills: types, // Google's coarse business-category tags — weak signal, but real
+      skills: types,
       certifications: [],
       summary: [jobSpec?.title, place.formattedAddress].filter(Boolean).join(" — ") || null,
       sourceUrl: place.googleMapsUri ?? null,
@@ -126,9 +102,6 @@ export const provider = {
   label: "Google Places (real local businesses)",
   fields: ["*"],
   traits: {
-    // place.googleMapsUri is unique per place — not a shared listing page —
-    // so a URL match still reliably means "the same record", even though
-    // the record is a business rather than a person.
     sourceUrlIdentifiesPerson: true,
     nameIsHandle: false,
     dataIsLLMExtracted: false,

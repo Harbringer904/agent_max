@@ -1,9 +1,3 @@
-// lib/providers/openalex.js
-//
-// OpenAlex provider — finds REAL academic researchers working on the
-// jobSpec's topic via the free, keyless OpenAlex API, and maps them to
-// unified Candidates.
-//
 // QUERY STRATEGY (this matters — the obvious approach is badly wrong):
 // Using `?search=<term>` on /authors performs a full-text match against the
 // AUTHOR NAME, not against what the author researches. Verified live: a
@@ -22,9 +16,6 @@
 // A defensive non-person name filter (see looksLikeOrganization) runs on top,
 // because OpenAlex's author records do still contain some lab/consortium
 // entries that no name-based query can fully exclude.
-//
-// Exports:
-//   provider   { key:"openalex", label:"OpenAlex (academic authors)", fields:["research"], search(jobSpec, options) }
 
 import { normalizeCandidate } from "../normalize.js";
 import { looksLikeOrganization } from "../personCheck.js";
@@ -33,14 +24,9 @@ const API_BASE = "https://api.openalex.org/authors";
 const TOPICS_API = "https://api.openalex.org/topics";
 const TIMEOUT_MS = 15_000;
 const MAX_CANDIDATES = 20;
-// Over-fetch, because the organization filter below discards some rows.
 const PER_PAGE = 50;
-// OpenAlex's own docs ask API users to identify themselves via a `mailto`
-// param in exchange for faster, more reliable service ("polite pool").
 const MAILTO = "agent-max@example.com";
 
-// Small country name -> ISO-2 map for the `last_known_institutions.country_code`
-// filter. Not exhaustive — extend as needed.
 const COUNTRY_MAP = {
   india: "IN",
   "united states": "US",
@@ -106,11 +92,6 @@ function buildSearchTerms(jobSpec) {
   return String(jobSpec?.title || "").trim();
 }
 
-/**
- * Resolve a free-text topic term to an OpenAlex topic id (e.g. "T12072").
- * Returns null when nothing matches, in which case the caller must NOT fall
- * back to `?search=` (see the header note — that returns organizations).
- */
 async function resolveTopicId(term) {
   const params = new URLSearchParams({ search: term, "per-page": "1", mailto: MAILTO });
   const data = await fetchJson(`${TOPICS_API}?${params.toString()}`);
@@ -120,21 +101,10 @@ async function resolveTopicId(term) {
   return String(topic.id).split("/").pop();
 }
 
-// Non-person filtering (organizations, labs, conferences, datasets that
-// OpenAlex mixes into its author index) is delegated to the shared
-// lib/personCheck.js heuristic — see docs/DATA_QUALITY_PLAN.md P3. It used
-// to live here as a private copy; now this is the single source of truth so
-// other person-sourced providers (and the orchestrate.js safety net) apply
-// the exact same rule.
-
 function toCandidate(author, index, countryCode = null) {
   const allInstitutions = Array.isArray(author.last_known_institutions)
     ? author.last_known_institutions.filter(Boolean)
     : [];
-  // When the search was narrowed to a country, show the affiliation that
-  // actually satisfies it. An author often has many institutions, and showing
-  // an arbitrary first one (e.g. "Microsoft (United States)" for an author
-  // matched on "Microsoft Research (India)") makes correct filtering look broken.
   const institutions = countryCode
     ? [
         ...allInstitutions.filter((i) => i.country_code === countryCode),
@@ -152,8 +122,6 @@ function toCandidate(author, index, countryCode = null) {
       name: author.display_name,
       headline: `Academic author — h-index ${hIndex ?? "?"}, ${worksCount} works`,
       field: "research",
-      // OpenAlex gives the author's institution, not a city — say so here
-      // rather than treating an institution name as a location.
       location: institutions[0]?.display_name || null,
       yearsExperience: null,
       education: null,
@@ -183,7 +151,6 @@ export const provider = {
   label: "OpenAlex (academic authors)",
   fields: ["research"],
   traits: {
-    // author.id (the OpenAlex author URL) is unique per author.
     sourceUrlIdentifiesPerson: true,
     nameIsHandle: false,
     dataIsLLMExtracted: false,
@@ -195,20 +162,16 @@ export const provider = {
       const searchTerms = buildSearchTerms(jobSpec);
       if (!searchTerms) return [];
 
-      // Step 1: term -> topic id. If the term matches no known research topic,
-      // return nothing rather than degrading to a name search (which yields
-      // organizations, not people — see the header note).
       const topicId = await resolveTopicId(searchTerms);
       if (!topicId) return [];
 
-      // Step 2: authors who publish on that topic, optionally narrowed by country.
       const filters = [`topics.id:${topicId}`];
       const countryCode = locationToCountryCode(jobSpec?.location);
       if (countryCode) filters.push(`last_known_institutions.country_code:${countryCode}`);
 
       const params = new URLSearchParams({
         filter: filters.join(","),
-        sort: "cited_by_count:desc", // most impactful researchers first
+        sort: "cited_by_count:desc",
         "per-page": String(PER_PAGE),
         mailto: MAILTO,
       });

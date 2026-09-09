@@ -1,11 +1,3 @@
-// routes/fields.js
-//
-// GET /api/fields -> [{ key, label, providers:string[] }]
-//
-// Derived from the registered providers' `fields` lists and the field values
-// present in JOB_TEMPLATES, so a field shows up here as soon as either a
-// provider or a template declares it.
-
 import { Router } from "express";
 import { listProviders } from "../lib/providers/index.js";
 import { JOB_TEMPLATES } from "../lib/jobTemplates.js";

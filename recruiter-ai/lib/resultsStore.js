@@ -1,12 +1,3 @@
-// lib/resultsStore.js
-//
-// Saved-results store backing shareable localhost result links.
-// Persists { id, createdAt, jobSpec, candidates, scoredBy } as JSON files under data/results/.
-//
-// Exports:
-//   saveResult({ jobSpec, candidates, scoredBy }) -> id
-//   getResult(id) -> payload|null
-
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
@@ -15,8 +6,6 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const RESULTS_DIR = path.join(__dirname, "..", "data", "results");
 
-// URL-safe id: base64url alphabet only, 1-64 chars. Guards against path traversal
-// on both write (we generate it) and read (caller-supplied param is validated).
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 
 function ensureDir() {

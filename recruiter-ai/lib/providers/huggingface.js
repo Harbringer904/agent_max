@@ -1,12 +1,3 @@
-// lib/providers/huggingface.js
-//
-// Hugging Face provider — searches the free, no-key Hugging Face Models API
-// for models matching skills/title from the jobSpec, then groups results by
-// author to build one ML/AI candidate per publisher.
-//
-// Exports:
-//   provider   { key:"huggingface", label:"Hugging Face (ML/AI)", fields:["software"], search(jobSpec, options) }
-
 import { normalizeCandidate } from "../normalize.js";
 
 const API_BASE = "https://huggingface.co/api/models";
@@ -14,8 +5,6 @@ const TIMEOUT_MS = 15_000;
 const MAX_CANDIDATES = 15;
 const LIMIT = 50;
 
-// Best-effort filter for well-known vendor/org accounts rather than
-// individual practitioners. Not exhaustive — just the obvious ones.
 const SKIP_ORGS = new Set([
   "meta-llama",
   "openai",
@@ -84,10 +73,7 @@ export const provider = {
   label: "Hugging Face (ML/AI)",
   fields: ["software"],
   traits: {
-    // https://huggingface.co/<author> is unique per author.
     sourceUrlIdentifiesPerson: true,
-    // `name` is always the raw author/org slug (`author.author`) — there is
-    // no separate display-name field, so this is always a handle.
     nameIsHandle: true,
     dataIsLLMExtracted: false,
     entityType: "person",

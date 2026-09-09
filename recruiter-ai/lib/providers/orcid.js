@@ -1,13 +1,3 @@
-// lib/providers/orcid.js
-//
-// ORCID provider — searches the free, keyless public ORCID API
-// (expanded-search) for researchers matching the jobSpec's required skills
-// and (optionally) current institution affiliation, and maps them to
-// unified Candidates.
-//
-// Exports:
-//   provider   { key:"orcid", label:"ORCID (researchers)", fields:["research"], search(jobSpec, options) }
-
 import { normalizeCandidate } from "../normalize.js";
 
 const API_BASE = "https://pub.orcid.org/v3.0/expanded-search/";
@@ -31,17 +21,6 @@ async function fetchJson(url) {
   }
 }
 
-/**
- * Build the ORCID Solr/Lucene query string.
- *
- * Location: verified both `affiliation-org-name:"<X>"` (broader — matches
- * any past or present affiliation) and `current-institution-affiliation-name:"<X>"`
- * (narrower — only the researcher's CURRENT institution) work. We use the
- * latter: it's more semantically correct for a recruiter search (you want
- * who works there NOW, not who passed through decades ago), and it's the
- * form verified in this task's spec (q=`biology AND
- * current-institution-affiliation-name:Harvard` -> num-found 4717).
- */
 function buildQuery(jobSpec) {
   const skillsCriterion = (jobSpec?.criteria || []).find((c) => c.key === "skills");
   const requiredSkills = skillsCriterion?.requiredSkills || [];
@@ -66,8 +45,6 @@ function toCandidate(result, requiredSkills, index) {
     result["credit-name"] ||
     [result["given-names"], result["family-names"]].filter(Boolean).join(" ").trim();
 
-  // Honest skill matching: only include required skills that literally
-  // appear in text we actually have (institution names) — never invent.
   const haystack = institutions.join(" ").toLowerCase();
   const matchedSkills = requiredSkills.filter(
     (skill) => skill && haystack.includes(String(skill).toLowerCase())
@@ -81,7 +58,6 @@ function toCandidate(result, requiredSkills, index) {
         ? `Researcher — ${institutions[0]}`
         : "Researcher",
       field: "research",
-      // ORCID gives institution affiliation, not a city/region — do not fake one.
       location: null,
       yearsExperience: null,
       education: null,
@@ -109,7 +85,6 @@ export const provider = {
   label: "ORCID (researchers)",
   fields: ["research"],
   traits: {
-    // orcid.org/<orcid-id> is unique per researcher.
     sourceUrlIdentifiesPerson: true,
     nameIsHandle: false,
     dataIsLLMExtracted: false,

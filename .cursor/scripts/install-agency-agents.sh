@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Install project Agency Agents into Cursor user dirs (all repos on this machine).
-set -euo pipefail
+# Windows: use install-agency-agents.ps1 instead of this file.
+set -eu
 SRC="$(cd "$(dirname "$0")/../agents" && pwd)"
 DEST_CURSOR="${CURSOR_AGENTS_DIR:-$HOME/.cursor/agents}"
 DEST_CLAUDE="${CLAUDE_AGENTS_DIR:-$HOME/.claude/agents}"

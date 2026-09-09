@@ -1,19 +1,3 @@
-// lib/providers/hnHiring.js
-//
-// Hacker News "Who wants to be hired?" provider — the highest-intent source
-// in the app: every person here posted, in the current or most recent
-// monthly thread, that they are actively looking for work right now.
-// Free, no-key Algolia HN Search API.
-//
-// Two-step lookup:
-//   1. search_by_date for "Who wants to be hired" story threads, pick the
-//      newest one whose title matches /^Ask HN: Who wants to be hired\?/i.
-//   2. fetch that thread's items (top-level children = individual posts) and
-//      parse each post's loosely-structured text.
-//
-// Exports:
-//   provider   { key:"hn_hiring", label, fields:["software"], search(jobSpec, options) }
-
 import { normalizeCandidate } from "../normalize.js";
 
 const SEARCH_URL =
@@ -36,7 +20,6 @@ async function fetchJson(url) {
   }
 }
 
-/** Decode the common HTML entities Algolia/HN text shows up with. */
 function decodeEntities(str) {
   return String(str || "")
     .replace(/&amp;/g, "&")
@@ -63,7 +46,6 @@ function htmlToLines(html) {
   return text;
 }
 
-/** Single-line, whitespace-collapsed version for summaries. */
 function htmlToPlainText(html) {
   return htmlToLines(html).replace(/\n+/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -86,9 +68,6 @@ const FIELD_LABELS = [
 ];
 const STOP_BOUNDARY = FIELD_LABELS.join("|");
 
-/** Tolerant "Label: value" extractor — value runs to end-of-line or the next
- * recognized field label, whichever comes first (handles posts that cram
- * every field onto a single line). */
 function extractField(text, labelPattern) {
   const re = new RegExp(
     `\\b(?:${labelPattern})\\s*:\\s*([^\\n]*?)(?=\\s*(?:\\n|(?:${STOP_BOUNDARY})\\s*:)|$)`,
@@ -100,8 +79,6 @@ function extractField(text, labelPattern) {
   return val || null;
 }
 
-/** Best-effort "N years [of] ... experience" — returns null rather than
- * guessing when no such phrase is present. */
 function extractYears(text) {
   const m = text.match(/\b(\d{1,2})\+?\s*years?\b(?:\s+of)?\s*(?:professional\s+)?experience/i);
   if (!m) return null;
@@ -169,11 +146,7 @@ export const provider = {
   label: "HN: Who Wants To Be Hired",
   fields: ["software"],
   traits: {
-    // news.ycombinator.com/item?id=<commentId> is unique per post/poster —
-    // see the normalizeUrl() header note in lib/agent/dedupe.js for the real
-    // bug this identity depends on (the query string must be kept).
     sourceUrlIdentifiesPerson: true,
-    // `name` is always the raw HN username (child.author), never a real name.
     nameIsHandle: true,
     dataIsLLMExtracted: false,
     entityType: "person",

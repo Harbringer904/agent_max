@@ -1,20 +1,9 @@
-// lib/providers/npiRegistry.js
-//
-// NPI Registry provider — LIVE queries against the official US CMS National
-// Plan and Provider Enumeration System (NPPES) registry, the free public
-// directory of every enumerated healthcare provider in the US. No API key.
-//
-// Exports:
-//   provider   { key:"npi", label, fields:["healthcare"], search(jobSpec, options) }
-
 import { normalizeCandidate } from "../normalize.js";
 
 const API_BASE = "https://npiregistry.cms.hhs.gov/api/";
 const TIMEOUT_MS = 15_000;
 const MAX_CANDIDATES = 20;
 
-// All 50 states + DC, full name (lowercase) -> 2-letter code. Used both to
-// validate a raw 2-letter code and to resolve a spelled-out state name.
 const US_STATE_MAP = {
   alabama: "AL", alaska: "AK", arizona: "AZ", arkansas: "AR", california: "CA",
   colorado: "CO", connecticut: "CT", delaware: "DE", florida: "FL", georgia: "GA",
@@ -27,7 +16,6 @@ const US_STATE_MAP = {
   "south dakota": "SD", tennessee: "TN", texas: "TX", utah: "UT", vermont: "VT",
   virginia: "VA", washington: "WA", "west virginia": "WV", wisconsin: "WI", wyoming: "WY",
   "district of columbia": "DC",
-  // Major city -> state, so a recruiter typing a city still resolves.
   "new york city": "NY", nyc: "NY", brooklyn: "NY", manhattan: "NY", "los angeles": "CA",
   la: "CA", "san francisco": "CA", "san diego": "CA", "san jose": "CA", chicago: "IL",
   houston: "TX", austin: "TX", dallas: "TX", "san antonio": "TX", phoenix: "AZ",
@@ -37,22 +25,16 @@ const US_STATE_MAP = {
 
 const VALID_STATE_CODES = new Set(Object.values(US_STATE_MAP));
 
-/** Best-effort jobSpec.location -> 2-letter US state code, or null.
- * Deliberately returns null (never a guess/default) when the location
- * doesn't resolve to a US state, so a non-US search silently returns
- * nothing rather than wrong-state data. */
 function mapLocationToState(location) {
   const raw = String(location || "").trim();
   if (!raw) return null;
 
-  // A bare 2-letter code (e.g. "NY", or "Austin, TX") as its own token.
   const tokens = raw.split(/[,\s]+/).map((t) => t.trim()).filter(Boolean);
   for (const tok of tokens) {
     const code = tok.toUpperCase();
     if (VALID_STATE_CODES.has(code)) return code;
   }
 
-  // Longest keys first so "new york city" matches before "new york".
   const lower = raw.toLowerCase();
   const keys = Object.keys(US_STATE_MAP).sort((a, b) => b.length - a.length);
   for (const key of keys) {
@@ -61,7 +43,6 @@ function mapLocationToState(location) {
   return null;
 }
 
-// Best-effort jobSpec.title/skills -> NPI taxonomy_description search term.
 const TITLE_TO_TAXONOMY = [
   [/\bnurse\b/, "Registered Nurse"],
   [/\bphysician\b|\bdoctor\b/, "Family Medicine"],
@@ -77,7 +58,7 @@ function deriveTaxonomyDescription(jobSpec) {
   for (const [pattern, taxonomy] of TITLE_TO_TAXONOMY) {
     if (pattern.test(text)) return taxonomy;
   }
-  return null; // omit the param entirely if nothing matches
+  return null;
 }
 
 async function fetchJson(url) {
@@ -99,7 +80,6 @@ function titleCase(raw) {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-/** Whole years since an NPI enumeration date (YYYY-MM-DD). Null if unparseable. */
 function yearsSinceEnumeration(dateStr) {
   if (!dateStr) return null;
   const d = new Date(dateStr);
@@ -156,7 +136,6 @@ export const provider = {
   label: "NPI Registry (US healthcare, official)",
   fields: ["healthcare"],
   traits: {
-    // npiregistry.cms.hhs.gov/provider-view/<NPI> is unique per provider.
     sourceUrlIdentifiesPerson: true,
     nameIsHandle: false,
     dataIsLLMExtracted: false,
@@ -166,11 +145,11 @@ export const provider = {
   async search(jobSpec, _options = {}) {
     try {
       const state = mapLocationToState(jobSpec?.location);
-      if (!state) return []; // can't map to a US state — deliberately don't query nationwide
+      if (!state) return [];
 
       const params = new URLSearchParams({
         version: "2.1",
-        enumeration_type: "NPI-1", // individuals only, not organizations
+        enumeration_type: "NPI-1",
         state,
         limit: String(MAX_CANDIDATES),
       });

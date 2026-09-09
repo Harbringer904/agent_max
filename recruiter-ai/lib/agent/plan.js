@@ -1,50 +1,10 @@
-// lib/agent/plan.js
-//
-// PLAN_V2 §4 P1 — autonomous source selection. This is what replaces the
-// recruiter picking a data source from a dropdown: given only a jobSpec, the
-// agent decides on its own which registered providers are worth querying.
-//
-// ARCHITECTURE: deterministic baseline, LLM only refines.
-//
-//   STEP 1 — deterministic baseline from jobSpec.field (+ location, + an
-//            optional upload). This is the WHOLE mechanism when no LLM key
-//            is configured — a zero-key deployment is not degraded.
-//   STEP 2 — cheap synchronous availability filter (drop sources whose
-//            required key is missing) BEFORE anything is dispatched.
-//   STEP 3 — OPTIONAL LLM refinement, only when an LLM key is configured.
-//            One tool call may ADD or SKIP sources with a stated reason. It
-//            is hard-constrained: every returned key is validated against
-//            the real provider registry (hallucinated keys silently
-//            dropped), `sample` can never be added, the final list is
-//            capped, and the call can ONLY change list membership — it is
-//            structurally incapable of influencing scores or ordering,
-//            mirroring how lib/scoring/llm.js recomputes weight math itself
-//            rather than trusting the model with the contract.
-//            ANY failure (no key, network error, timeout, malformed
-//            response) silently keeps the deterministic list. This module
-//            NEVER throws and NEVER returns an empty list when the
-//            deterministic baseline was non-empty.
-//
-// `sample` (fabricated demo data) is EXCLUDED from auto mode, always.
-// Fabricated people must never be silently blended into a report presented
-// as real — see PLAN_V2.md §4 P1 and §6.1.
-//
-// The LLM path is kept behind a clear boundary (buildBaseline/filterAvailability
-// vs. refineWithLLM) so the deterministic path is trivially testable without
-// any network access — callers can also force `options.useLLM = false` to
-// skip STEP 3 outright regardless of what keys happen to be configured.
-//
-// Exports:
-//   selectSources(jobSpec, options) -> { sources: string[],
-//     sourcePlan: [{ providerKey, reason }], log: string[] }
-
 import { listProviders } from "../providers/index.js";
 import { openWebAvailable } from "../providers/openWeb.js";
 import { hasGooglePlacesKey } from "../providers/googlePlaces.js";
 import { activeLLMProvider } from "../scoring/llm.js";
 
 const REQUEST_TIMEOUT_MS = 15_000;
-const MAX_LLM_SOURCES = 6; // hard cap on the final list once the LLM has refined it
+const MAX_LLM_SOURCES = 6;
 
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_VERSION = "2023-06-01";
@@ -56,13 +16,6 @@ const GROQ_MODEL = "llama-3.3-70b-versatile";
 const GEMINI_MODEL = "gemini-2.0-flash";
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
-// ---------------------------------------------------------------------------
-// STEP 1 — deterministic field -> sources baseline
-// ---------------------------------------------------------------------------
-
-// Extends today's proven defaultProviderForField() into a full multi-source
-// map. Every providerKey here MUST be a real key in lib/providers/index.js —
-// covered by a test that cross-checks against listProviders().
 const FIELD_SOURCE_MAP = Object.freeze({
   software: [
     { providerKey: "github", reason: "software field: developer profiles with a real public API" },
@@ -85,7 +38,6 @@ const FIELD_SOURCE_MAP = Object.freeze({
   ],
 });
 
-/** Build the raw STEP 1 plan: field map + location-anchored + open_web + upload. */
 function buildBaseline(jobSpec, options) {
   const plan = [];
   const seen = new Set();
@@ -102,8 +54,6 @@ function buildBaseline(jobSpec, options) {
 
   const location = typeof jobSpec?.location === "string" ? jobSpec.location.trim() : "";
   if (location) {
-    // Location-anchored sources are useless without a location, so they are
-    // only ever proposed when one is given — independent of field.
     pushOnce("google_places", "location given: local business index");
     pushOnce("osm", "location given: OpenStreetMap points of interest");
   }
@@ -116,19 +66,9 @@ function buildBaseline(jobSpec, options) {
     pushOnce("upload", "recruiter-supplied file included in this search");
   }
 
-  // `sample` is fabricated demo data and is NEVER added here, for any field —
-  // see module doc comment. It must never be silently blended into a report
-  // presented as real.
-
   return plan;
 }
 
-// ---------------------------------------------------------------------------
-// STEP 2 — availability filter (cheap + synchronous, before any dispatch)
-// ---------------------------------------------------------------------------
-
-/** Drop sources whose required key is missing, logging why. Everything else
- * needs no key and passes through untouched. */
 function filterAvailability(plan, log) {
   const filtered = [];
   for (const entry of plan) {
@@ -144,11 +84,6 @@ function filterAvailability(plan, log) {
   }
   return filtered;
 }
-
-// ---------------------------------------------------------------------------
-// STEP 3 — optional LLM refinement (network boundary — everything below this
-// point is what a test must avoid calling to stay network-free)
-// ---------------------------------------------------------------------------
 
 const PLANNER_TOOL_NAME = "submit_source_plan";
 
@@ -343,11 +278,6 @@ async function callPlannerLLM(provider, jobSpec, currentPlan) {
 
 const KNOWN_PROVIDER_KEYS = new Set(listProviders().map((p) => p.key));
 
-/** Apply a validated LLM add/skip proposal to the current plan. Hard
- * constraints enforced here: hallucinated keys dropped silently, `sample`
- * never allowed, unavailable keyed sources never added, capped at
- * MAX_LLM_SOURCES. Pure/synchronous — no I/O, easy to unit test in isolation
- * if ever needed. */
 function applyLLMProposal(currentPlan, proposal, log) {
   let plan = currentPlan.slice();
   const present = new Set(plan.map((e) => e.providerKey));
@@ -366,9 +296,9 @@ function applyLLMProposal(currentPlan, proposal, log) {
     if (plan.length >= MAX_LLM_SOURCES) break;
     const key = a && typeof a.providerKey === "string" ? a.providerKey : null;
     if (!key) continue;
-    if (key === "sample") continue; // never allowed, even if hallucinated
-    if (!KNOWN_PROVIDER_KEYS.has(key)) continue; // drop hallucinated keys silently
-    if (present.has(key)) continue; // already present
+    if (key === "sample") continue;
+    if (!KNOWN_PROVIDER_KEYS.has(key)) continue;
+    if (present.has(key)) continue;
     if (key === "google_places" && !hasGooglePlacesKey()) continue;
     if (key === "open_web" && !openWebAvailable()) continue;
 
@@ -382,9 +312,6 @@ function applyLLMProposal(currentPlan, proposal, log) {
   return plan;
 }
 
-/** Attempt the optional LLM refinement pass. NEVER throws; on any failure
- * (or if the LLM would empty out a non-empty deterministic plan) it returns
- * `currentPlan` unchanged. */
 async function refineWithLLM(jobSpec, currentPlan, log) {
   const provider = activeLLMProvider();
   try {
@@ -401,10 +328,6 @@ async function refineWithLLM(jobSpec, currentPlan, log) {
     return currentPlan;
   }
 }
-
-// ---------------------------------------------------------------------------
-// Public entry point
-// ---------------------------------------------------------------------------
 
 /**
  * Decide which registered providers to query for a jobSpec, with no source

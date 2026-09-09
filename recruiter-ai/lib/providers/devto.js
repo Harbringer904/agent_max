@@ -1,13 +1,3 @@
-// lib/providers/devto.js
-//
-// Dev.to provider — searches the free, no-key Dev.to Articles API for recent
-// posts tagged with a skill derived from the jobSpec, then de-dupes by
-// author to build one candidate per writer (their skill set is the union of
-// tags across their articles in the result set).
-//
-// Exports:
-//   provider   { key:"devto", label:"Dev.to", fields:["software"], search(jobSpec, options) }
-
 import { normalizeCandidate } from "../normalize.js";
 
 const API_BASE = "https://dev.to/api/articles";
@@ -27,7 +17,6 @@ async function fetchJson(url) {
   }
 }
 
-/** Turn a raw skill string into a Dev.to tag slug: lowercase, alphanumerics only. */
 function skillToTag(skill) {
   const s = String(skill || "").toLowerCase().replace(/[^a-z0-9]/g, "");
   return s || null;
@@ -77,10 +66,7 @@ export const provider = {
   label: "Dev.to",
   fields: ["software"],
   traits: {
-    // https://dev.to/<username> is unique per author.
     sourceUrlIdentifiesPerson: true,
-    // name falls back to author.username (the handle) whenever the author
-    // has no display name set — same pattern as github.js.
     nameIsHandle: true,
     dataIsLLMExtracted: false,
     entityType: "person",

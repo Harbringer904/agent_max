@@ -1,14 +1,3 @@
-// lib/providers/github.js
-//
-// GitHub provider — searches GitHub users and maps them to unified Candidates.
-// The ONLY file in the project that performs network I/O against GitHub.
-// Refactored from the former lib/githubClient.js into the Provider interface;
-// the working search/backoff/rate-limit logic is unchanged.
-//
-// Exports:
-//   provider     { key:"github", label:"GitHub", fields:["software"], search(jobSpec, options) }
-//   hasToken()   boolean — whether a GITHUB_TOKEN is configured
-
 import dotenv from "dotenv";
 import { normalizeCandidate } from "../normalize.js";
 
@@ -48,7 +37,6 @@ function buildHeaders() {
   return h;
 }
 
-// Throttle search endpoint (10 req/min unauth, 30 auth)
 let lastSearchAt = 0;
 async function throttleSearch() {
   const rpm = TOKEN ? 30 : 10;
@@ -139,7 +127,6 @@ async function getUserTopLanguages(username, max = 8) {
   }
 }
 
-/** Whole years since the GitHub account was created — a proxy for experience. */
 function yearsSinceAccountCreated(isoDate) {
   if (!isoDate) return null;
   const created = new Date(isoDate);
@@ -181,7 +168,6 @@ function toCandidate(raw, topLanguages, index) {
   );
 }
 
-/** Derive a GitHub search query from the jobSpec's 'skills' criterion + location. */
 function buildQuery(jobSpec, options = {}) {
   const parts = [];
   const skillsCriterion = (jobSpec?.criteria || []).find((c) => c.key === "skills");
@@ -204,12 +190,7 @@ export const provider = {
   label: "GitHub",
   fields: ["software"],
   traits: {
-    // Unique per login (raw.html_url / https://github.com/<login>) — a shared
-    // URL across two candidates can only mean the same account.
     sourceUrlIdentifiesPerson: true,
-    // `name` prefers raw.name (real name) but falls back to raw.login (the
-    // handle) whenever the account has no display name set — common enough
-    // on GitHub that downstream code must not assume it's always a real name.
     nameIsHandle: true,
     dataIsLLMExtracted: false,
     entityType: "person",

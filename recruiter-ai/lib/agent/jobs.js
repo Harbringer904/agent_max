@@ -1,58 +1,17 @@
-// lib/agent/jobs.js
-//
-// PLAN_V2 §5 Phase 5 — in-memory job registry backing async agent-search
-// polling. No new deps, no database: jobs live in a Map for the life of the
-// process. Converts the blocking agentSearch() call into
-// createJob() (returns immediately) + getJob() (poll for progress/result).
-//
-// Job shape (FROZEN — routes/agentJobs.js and the frontend build against
-// exactly this):
-//   { jobId, status: "running" | "done" | "error",
-//     startedAt, updatedAt,
-//     progress: { phase: string, sourcesTotal: number, sourcesDone: number },
-//     sourcePlan: [{ providerKey, reason }] | null,
-//     sourcesQueried: [{ key, count, ms, status }],
-//     agentLog: string,
-//     result: <full agentSearch response> | null,
-//     error: string | null }
-//
-// Resilience:
-//   - A run that throws lands the job in status "error" with a message —
-//     it never crashes the process (the runner promise's .catch always
-//     resolves the job, never rejects).
-//   - TTL: jobs untouched (no status/progress update) for TTL_MS are dropped
-//     on the next sweep. Swept lazily on createJob() — no background timer,
-//     so nothing keeps the process alive or complicates tests.
-//   - Cap: MAX_JOBS jobs max; creating a new job past the cap evicts the
-//     oldest (by creation order, which a Map's insertion order gives us for
-//     free since jobs are never re-inserted on update).
-//
-// Exports:
-//   createJob(jobSpec, options, runner = agentSearch) -> jobId
-//   getJob(jobId) -> job snapshot | null
-//   MAX_JOBS, TTL_MS — exported for tests
-//   _jobs — the live Map, exported ONLY so tests can manipulate timestamps
-//           to exercise TTL/eviction without sleeping. Not for production use.
-
 import crypto from "crypto";
 import { agentSearch } from "./orchestrate.js";
 
 export const MAX_JOBS = 100;
-export const TTL_MS = 10 * 60 * 1000; // 10 minutes
+export const TTL_MS = 10 * 60 * 1000;
 
 const JOB_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// Live job store. Insertion order == creation order (Map contract), which is
-// exactly what oldest-first eviction needs; jobs are only ever mutated in
-// place, never deleted-and-reinserted, so that ordering stays valid.
 export const _jobs = new Map();
 
 function nowIso() {
   return new Date().toISOString();
 }
 
-/** Drop jobs whose updatedAt is older than TTL_MS. Lazy — runs on every
- * createJob() call so memory can't grow unbounded without needing a timer. */
 function sweepExpired() {
   const cutoff = Date.now() - TTL_MS;
   for (const [jobId, job] of _jobs) {
@@ -62,7 +21,6 @@ function sweepExpired() {
   }
 }
 
-/** Evict the oldest job(s) if adding one more would exceed MAX_JOBS. */
 function evictIfNeeded() {
   while (_jobs.size >= MAX_JOBS) {
     const oldestKey = _jobs.keys().next().value;
@@ -71,8 +29,6 @@ function evictIfNeeded() {
   }
 }
 
-/** Merge a progress update from agentSearch's onProgress callback into the
- * live job. Defensive against malformed/partial updates. */
 function applyProgress(job, update) {
   if (!update || typeof update !== "object") return;
 
@@ -129,15 +85,10 @@ export function createJob(jobSpec, options = {}, runner = agentSearch) {
       try {
         applyProgress(job, update);
       } catch {
-        // a malformed progress update must never break the run
       }
     },
   };
 
-  // Fire-and-forget: never awaited, never allowed to reject uncaught. Both
-  // branches always resolve the job, so this can't produce an unhandled
-  // rejection even if `runner` itself throws synchronously (Promise.resolve
-  // wraps that too).
   Promise.resolve()
     .then(() => runner(jobSpec, runnerOptions))
     .then((result) => {
@@ -164,8 +115,6 @@ export function createJob(jobSpec, options = {}, runner = agentSearch) {
   return jobId;
 }
 
-/** Strict jobId validation before any lookup — same defensive posture as
- * lib/resultsStore.js's id check. */
 export function isValidJobId(jobId) {
   return typeof jobId === "string" && JOB_ID_PATTERN.test(jobId);
 }

@@ -1,22 +1,3 @@
-// routes/search.js
-//
-// POST /api/search { jobSpec, provider, options } -> { totalFound, candidates:Scored[], matched, scoredBy }
-// options.useLLM === true routes through rankCandidatesLLM (falls back to rules internally
-// on any failure); scoredBy reflects the ACTUAL scorer used, taken from the candidates.
-//
-// When provider === "upload" and options.combineWithDefault === true, the uploaded candidates
-// are merged with results from that field's default provider (defaultProviderForField) before
-// scoring — so the recruiter can search their own list ALONGSIDE our bundled/official data
-// instead of only one or the other.
-//
-// A criterion may carry an optional boolean `required`. After ranking (rules or LLM — both
-// return criteriaScores with a numeric raw), candidates that don't fully meet (raw >= 1 - 1e-9)
-// EVERY required criterion are dropped. `totalFound` stays the provider result count; `matched`
-// is the post-filter candidate count.
-//
-// Request body is validated before touching any provider/scoring logic; violations
-// respond 400 with an opaque coded error. See docs/ERROR_CODES.md for the code meanings.
-
 import { Router } from "express";
 import { getProvider, listProviders, defaultProviderForField } from "../lib/providers/index.js";
 import { rankCandidates } from "../lib/scoring/rules.js";
@@ -78,7 +59,6 @@ router.post("/", async (req, res) => {
           candidates = candidates.concat(extra.filter((c) => !seenIds.has(c.id)));
         } catch (err) {
           console.error(`combineWithDefault (${fallbackKey}) failed:`, err.message);
-          // Uploaded candidates still stand on their own — combine is best-effort.
         }
       }
     }

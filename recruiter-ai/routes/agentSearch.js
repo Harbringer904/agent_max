@@ -1,21 +1,3 @@
-// routes/agentSearch.js
-//
-// POST /api/agent-search { jobSpec, topN, options } -> { totalFound, matched,
-//   candidates:Scored[], scoredBy, sourcePlan, agentLog, sourcesQueried }
-//
-// The autonomous counterpart to /api/search (routes/search.js, UNTOUCHED by
-// this file): the recruiter supplies only a jobSpec (+ optional topN and
-// options.data upload / options.useLLM) and lib/agent/orchestrate.js decides
-// which sources to query, on its own, per PLAN_V2.md. There is no `provider`
-// field in the request body — the whole point of Phase 1 is removing that
-// picker from the contract.
-//
-// jobSpec validation mirrors routes/search.js exactly (field is a non-empty
-// string; criteria is a non-empty array; each criterion has a string key and
-// numeric weight) so the two routes behave identically on malformed input.
-// Error codes reuse the SAME opaque `(Rxxx)` style as routes/search.js — see
-// docs/ERROR_CODES.md for what each code means.
-
 import { Router } from "express";
 import { agentSearch } from "../lib/agent/orchestrate.js";
 

@@ -1,12 +1,3 @@
-// lib/providers/index.js
-//
-// Provider registry — the single place that knows which providers exist.
-//
-// Exports:
-//   getProvider(key)              -> provider object (throws on unknown key)
-//   listProviders()                -> [{ key, label, fields }]
-//   defaultProviderForField(field) -> provider key
-
 import { provider as github } from "./github.js";
 import { provider as sample } from "./sample.js";
 import { provider as upload } from "./upload.js";

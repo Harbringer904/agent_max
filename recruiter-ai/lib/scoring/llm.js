@@ -1,26 +1,3 @@
-// lib/scoring/llm.js
-//
-// Optional LLM scoring layer (Phase 2, generalized in Phase 5). Hybrid
-// design: the LLM judges each criterion's raw fit (0..1) + a short note +
-// an overall reasoning; this module applies the weight math itself, reusing
-// the exact round2/weighting logic from rules.js so LLM and rules scores are
-// directly comparable.
-//
-// Three interchangeable backends, auto-detected by env var so users with a
-// free key (Groq or Gemini) can enable reasoning without an Anthropic key:
-//   ANTHROPIC_API_KEY -> anthropic (claude-sonnet-5)
-//   GROQ_API_KEY       -> groq (llama-3.3-70b-versatile)
-//   GEMINI_API_KEY      -> gemini (gemini-2.0-flash)
-// Priority above, unless overridden by LLM_PROVIDER=anthropic|groq|gemini.
-// Each adapter normalizes its response into the same shape:
-//   { scores: [{ id, criteria: [{ key, raw, note }], reasoning }] }
-// so the rest of this module (weight math, fallback, sorting) is backend-agnostic.
-//
-// Exports:
-//   activeLLMProvider() -> "anthropic" | "groq" | "gemini" | null
-//   llmAvailable() -> boolean
-//   rankCandidatesLLM(candidates, jobSpec, topN=25) -> Scored[] (never throws)
-
 import { rankCandidates } from "./rules.js";
 
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
@@ -69,7 +46,6 @@ export function llmAvailable() {
   return activeLLMProvider() !== null;
 }
 
-/** Build a human-readable description of one criterion's requirement values. */
 function describeCriterion(criterion) {
   const parts = [`key="${criterion.key}"`, `label="${criterion.label || ""}"`, `weight=${criterion.weight}`];
   switch (criterion.key) {
@@ -128,8 +104,6 @@ For each candidate, call submit_scores with:
 Score ALL ${candidatesForPrompt.length} candidates. Do not skip any.`;
 }
 
-// --- Tool / function-calling schemas, one shape per provider's dialect --------------------
-
 const ANTHROPIC_TOOL = {
   name: "submit_scores",
   description:
@@ -179,7 +153,6 @@ const ANTHROPIC_TOOL = {
   },
 };
 
-// OpenAI-compatible (Groq) function schema — same logical shape as ANTHROPIC_TOOL.input_schema.
 const GROQ_FUNCTION = {
   name: "submit_scores",
   description:
@@ -187,7 +160,6 @@ const GROQ_FUNCTION = {
   parameters: ANTHROPIC_TOOL.input_schema,
 };
 
-// Gemini function-declaration schema — same logical shape, uppercase JSON Schema types.
 const GEMINI_FUNCTION = {
   name: "submit_scores",
   description:
@@ -247,7 +219,6 @@ async function fetchWithTimeout(url, options) {
   }
 }
 
-/** Call Anthropic, return the normalized { scores: [...] } object. Throws on any failure. */
 async function callAnthropic(candidates, jobSpec) {
   const response = await fetchWithTimeout(ANTHROPIC_API_URL, {
     method: "POST",
@@ -281,7 +252,6 @@ async function callAnthropic(candidates, jobSpec) {
   return toolUseBlock.input;
 }
 
-/** Call Groq (OpenAI-compatible), return the normalized { scores: [...] } object. Throws on any failure. */
 async function callGroq(candidates, jobSpec) {
   const response = await fetchWithTimeout(GROQ_API_URL, {
     method: "POST",
@@ -321,7 +291,6 @@ async function callGroq(candidates, jobSpec) {
   return parsed;
 }
 
-/** Call Gemini, return the normalized { scores: [...] } object. Throws on any failure. */
 async function callGemini(candidates, jobSpec) {
   const url = `${GEMINI_API_URL}?key=${process.env.GEMINI_API_KEY}`;
   const response = await fetchWithTimeout(url, {
@@ -352,11 +321,6 @@ async function callGemini(candidates, jobSpec) {
   return args;
 }
 
-/**
- * Apply jobSpec weight math to a candidate given the LLM's per-criterion raw
- * scores. Mirrors scoreCandidate() in rules.js exactly so LLM and rules
- * scores are directly comparable.
- */
 function applyWeights(candidate, jobSpec, criteriaRawByKey) {
   const criteria = Array.isArray(jobSpec?.criteria) ? jobSpec.criteria : [];
   const criteriaScores = {};
@@ -430,7 +394,6 @@ export async function rankCandidatesLLM(candidates, jobSpec, topN = 25) {
     const scored = list.map((candidate) => {
       const llmResult = scoresById.get(candidate.id);
       if (!llmResult) {
-        // Candidate omitted by the LLM: fall back to its rules score.
         const rulesScored = rankCandidates([candidate], jobSpec, 1)[0];
         return { ...rulesScored, scoredBy: "rules", reasoning: null };
       }

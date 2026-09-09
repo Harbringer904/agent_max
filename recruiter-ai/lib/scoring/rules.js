@@ -1,12 +1,3 @@
-// lib/scoring/rules.js
-//
-// Field-agnostic, deterministic weighted scoring engine. Pure — no I/O.
-//
-// Exports:
-//   scoreCandidate(candidate, jobSpec)             -> Scored candidate
-//   rankCandidates(candidates, jobSpec, topN=25)    -> Scored candidate[]
-//   skillMatches(term, haystackArrayOrString)       -> boolean
-
 function round2(n) {
   return Math.round((n + Number.EPSILON) * 100) / 100;
 }

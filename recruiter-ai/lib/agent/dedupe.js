@@ -1,69 +1,8 @@
-// lib/agent/dedupe.js
-//
-// PLAN_V2.md §4 P3 — three-tier deduplication across sources.
-//
-// Governing principle (stated in the plan): NEVER merge on name alone.
-// Under-merging leaves a redundant row a human dismisses in seconds.
-// Over-merging silently DELETES a real distinct candidate with no way to
-// notice. This module is biased hard toward under-merging.
-//
-// THREE TIERS, applied in order:
-//
-//   1. AUTO-MERGE (silent, safe) — identical normalized sourceUrl
-//      (lowercased, protocol/`www.`/query/hash/trailing-slash stripped,
-//      compared as host+path). A match this specific cannot be coincidental,
-//      so this tier merges regardless of name — BUT only when every
-//      candidate sharing the URL came from a provider whose declared
-//      lib/providers/traits.js trait `sourceUrlIdentifiesPerson` is true (see
-//      docs/DATA_QUALITY_PLAN.md P2). Some providers (sebi_ria, nmc) stamp
-//      every record with the same registry listing URL; open_web's URL is
-//      LLM-supplied and unverified. For those, this tier never fires.
-//
-//   2. CORROBORATED MERGE (merged, but marked) — normalized-name match PLUS
-//      at least 2 independent corroborating signals:
-//        (a) location overlap — case-insensitive substring either direction
-//        (b) at least one shared skill — case-insensitive
-//        (c) a shared distinctive token in headline/summary/employer —
-//            stopwords and very short tokens ignored
-//      `mergedFrom` is set on the result so the merge is auditable.
-//
-//   3. FLAG ONLY (never merged) — name matches but fewer than 2 corroborating
-//      signals. Both rows are kept; the weaker one (lower trust, tie-broken
-//      by data richness) gets `possibleDuplicateOf` pointing at the id of the
-//      stronger/kept row. The recruiter decides.
-//
-// NAME NORMALIZATION: lowercase; strip honorifics/titles (dr, mr, mrs, ms,
-// prof, professor, sir, md, phd) as whole words; collapse punctuation and
-// whitespace.
-//
-// EXPLICITLY OUT OF SCOPE: phonetic / transliteration / nickname matching
-// (Mohammed vs Muhammad, Bob vs Robert). The same person CAN therefore appear
-// twice, unflagged. This is an accepted, documented tradeoff — see PLAN_V2.md
-// §4 P3 — not an oversight.
-//
-// MERGE MECHANICS: the surviving primary is the record from the more trusted
-// source (compareTrust from lib/agent/trust.js), tie-broken by data richness
-// (count of non-null/non-empty fields). `skills`/`certifications` are unioned
-// (case-insensitive dedupe, original casing preserved from first occurrence).
-// Scalars (yearsExperience, education, educationLevel, location, summary,
-// headline, avatarUrl) keep the primary's value, filled from the other
-// record(s) only when null/empty. `provenance` always lists every source the
-// merged person came from.
-//
-// This module is PURE (no I/O, no network) and never throws on malformed
-// input — every field access is defensive.
-//
-// Exports:
-//   dedupeCandidates(candidates) -> { candidates: Candidate[], log: string[] }
-
 import { compareTrust } from "./trust.js";
 import { traitsFor } from "../providers/traits.js";
 
 const HONORIFICS = new Set(["dr", "mr", "mrs", "ms", "prof", "professor", "sir", "md", "phd"]);
 
-// Generic words that would spuriously "corroborate" almost any two people in
-// the same field (job-title/company boilerplate + English stopwords). Not
-// exhaustive — a heuristic, documented as such per PLAN_V2.md §4 P2/P3.
 const STOPWORDS = new Set([
   "the",
   "and",
@@ -128,8 +67,6 @@ function isNonEmptyString(v) {
   return typeof v === "string" && v.trim().length > 0;
 }
 
-/** Lowercase; strip protocol, `www.`, query, hash, trailing slash. Returns
- * null for anything that isn't a usable string. */
 // Query params that never change WHICH page/person a URL refers to: analytics
 // tracking plus view-selectors (which tab, which sort, which page of results).
 // Everything else is treated as identity-bearing and kept.
@@ -172,8 +109,6 @@ function normalizeUrl(url) {
   path = path.replace(/\/+$/, "");
 
   if (!query) return path || null;
-  // Keep identity-bearing params, drop tracking, and sort so param order
-  // never makes the same page look like two different pages.
   const kept = query
     .split("&")
     .filter((kv) => kv && !NOISE_PARAMS.test(kv.split("=")[0]))
@@ -181,7 +116,6 @@ function normalizeUrl(url) {
   return (kept.length ? `${path}?${kept.join("&")}` : path) || null;
 }
 
-/** Lowercase; strip honorifics as whole words; collapse punctuation/whitespace. */
 function normalizeName(name) {
   if (typeof name !== "string") return "";
   const s = name.toLowerCase().replace(/[^a-z0-9\s]/g, " ");
@@ -189,7 +123,6 @@ function normalizeName(name) {
   return words.join(" ").trim();
 }
 
-/** Count of non-null/non-empty fields — used as the primary-selection tiebreaker. */
 function richness(c) {
   const scalarFields = [
     c.name,
@@ -207,8 +140,6 @@ function richness(c) {
   return score;
 }
 
-/** Returns [stronger, weaker] between two candidates: more trusted source
- * wins; ties broken by data richness (higher wins); still-tied keeps `a` first. */
 function orderByStrength(a, b) {
   const t = compareTrust(a && a.source, b && b.source);
   if (t > 0) return [a, b];
@@ -229,7 +160,6 @@ function distinctiveTokens(c) {
   return new Set(words.filter((w) => w.length >= MIN_TOKEN_LEN && !STOPWORDS.has(w)));
 }
 
-/** Count of independent corroborating signals between two same-name candidates. */
 function corroborationCount(a, b) {
   let count = 0;
 
@@ -261,7 +191,6 @@ function corroborationCount(a, b) {
   return count;
 }
 
-/** Case-insensitive dedupe of a list of strings, preserving first-seen casing. */
 function unionCaseInsensitive(values) {
   const seen = new Map();
   for (const v of values) {
@@ -272,8 +201,6 @@ function unionCaseInsensitive(values) {
   return [...seen.values()];
 }
 
-/** Merge a group of 2+ same-person records into one. `corroborated` controls
- * whether `mergedFrom` is stamped (tier 2) or left off (tier 1, silent). */
 function mergeGroup(members, corroborated) {
   let primary = members[0];
   for (let i = 1; i < members.length; i++) {
@@ -333,7 +260,6 @@ export function dedupeCandidates(candidates) {
 
   const valid = candidates.filter((c) => c && typeof c === "object");
 
-  // ---- Tier 1: identical normalized sourceUrl -> silent auto-merge ----
   const urlGroups = new Map();
   const noUrl = [];
   for (const c of valid) {
@@ -356,33 +282,12 @@ export function dedupeCandidates(candidates) {
       continue;
     }
 
-    // STRUCTURAL GATE (docs/DATA_QUALITY_PLAN.md P2): a shared sourceUrl only
-    // proves identity if every candidate in the group came from a provider
-    // that DECLARES its sourceUrl identifies one person. Several providers
-    // (sebi_ria, nmc) legitimately stamp every record with the same
-    // registry/search-page URL because the underlying site has no per-person
-    // permalink; open_web's URL is LLM-supplied and has been caught pointing
-    // at pages that don't name the person it was attached to. Verified live:
-    // sebi_ria returned 25 distinct advisers and nmc 20 distinct doctors,
-    // each sharing ONE url — blind url-merging collapsed them to a single
-    // candidate, silently deleting real distinct people. That is precisely
-    // the over-merge failure this module is built to avoid — now made
-    // structurally impossible rather than merely patched by the
-    // name-conflict guard below.
     if (!members.every((m) => traitsFor(m && m.source).sourceUrlIdentifiesPerson === true)) {
       afterUrlMerge.push(...members);
       untrustedUrlGroups += 1;
       continue;
     }
 
-    // DEFENSE IN DEPTH: even for a group that passed the trait gate above (so
-    // every member's provider vouches for its sourceUrl), a provider could
-    // still mis-declare, or two genuinely different people could coincidentally
-    // share a URL. Partition the url group by normalized name. Records whose
-    // names agree (or where one side has no name) still auto-merge — that is
-    // the genuine "same person found twice" case. Records with conflicting
-    // names are NOT merged here; they fall through to the name-based tiers
-    // below, which require independent corroboration.
     const byName = new Map();
     for (const m of members) {
       const nameKey = normalizeName(m.name) || "";
@@ -392,8 +297,6 @@ export function dedupeCandidates(candidates) {
 
     if (byName.size > 1) nonIdentifyingUrls += 1;
 
-    // Fold the unnamed bucket into a single named bucket only when there is
-    // exactly one, so an anonymous record can still attach to its person.
     const unnamed = byName.get("") || [];
     const namedKeys = [...byName.keys()].filter((k) => k !== "");
     if (unnamed.length && namedKeys.length === 1) {
@@ -422,13 +325,10 @@ export function dedupeCandidates(candidates) {
     );
   }
 
-  // ---- Tiers 2/3: normalized-name groups -> corroborated merge or flag ----
   const nameGroups = new Map();
   for (const c of afterUrlMerge) {
     const key = normalizeName(c.name);
     if (!key) {
-      // No usable name means no basis for name-based corroboration at all;
-      // keep it fully isolated rather than risk grouping unnamed records.
       nameGroups.set(Symbol("noname"), [c]);
       continue;
     }
@@ -446,7 +346,6 @@ export function dedupeCandidates(candidates) {
       continue;
     }
 
-    // Union-find: connect pairs with >=2 corroborating signals.
     const parent = members.map((_, i) => i);
     const find = (x) => {
       while (parent[x] !== x) {
@@ -488,9 +387,6 @@ export function dedupeCandidates(candidates) {
       continue;
     }
 
-    // Same normalized name, but fewer than 2 corroborating signals between
-    // clusters -> never merge. Flag the weaker record(s) against the
-    // strongest kept record in the group; the recruiter decides.
     let anchor = keptRecords[0];
     for (let i = 1; i < keptRecords.length; i++) {
       const [stronger] = orderByStrength(anchor, keptRecords[i]);

@@ -1,36 +1,3 @@
-// lib/providers/openWeb.js
-//
-// The genuinely "agentic" provider: an LLM in a multi-turn tool-calling loop
-// that searches the open web and reads pages ON ITS OWN to find real
-// candidates for ANY field/location — not a fixed integration like the other
-// providers. This is the closest thing in the app to "browse the web and
-// find whoever fits," which is what agentic search actually requires:
-// dynamic decisions, not a hardcoded query.
-//
-// Two SEPARATE free keys are required (this provider needs both):
-//   - An LLM to drive the reasoning loop: ANTHROPIC_API_KEY / GROQ_API_KEY /
-//     GEMINI_API_KEY (same auto-detection as lib/scoring/llm.js — reused
-//     here via activeLLMProvider()).
-//   - TAVILY_API_KEY — Tavily (tavily.com) is a free, no-card, web
-//     search+extract API purpose-built for AI agents (1000 free
-//     searches/month). Generic public search engines (DuckDuckGo, public
-//     SearXNG instances) were tested and reject automated/sandboxed
-//     traffic with bot-detection challenges — verified before choosing
-//     Tavily instead of building against something that would fail.
-//
-// Without BOTH keys, this provider returns [] — same graceful-degradation
-// contract as every other provider. It never touches ToS-gated sites
-// (LinkedIn, etc.) — the agent only sees what Tavily's search index surfaces,
-// and Tavily itself respects standard web crawling norms.
-//
-// Loop: give the model `web_search` and `web_extract` tools plus a
-// `submit_candidates` tool; let it decide how many searches/reads to do
-// (capped) before submitting. Three LLM backends, three different
-// tool-calling wire formats — see the per-provider step functions below.
-//
-// Exports:
-//   provider   { key:"open_web", label, fields:["*"], search(jobSpec, options) }
-
 import { normalizeCandidate } from "../normalize.js";
 import { activeLLMProvider } from "../scoring/llm.js";
 
@@ -48,8 +15,8 @@ const TAVILY_SEARCH_URL = "https://api.tavily.com/search";
 const TAVILY_EXTRACT_URL = "https://api.tavily.com/extract";
 
 const REQUEST_TIMEOUT_MS = 25_000;
-const MAX_TURNS = 6; // hard cap on agent loop iterations — bounds cost/latency
-const MAX_CANDIDATES = 10; // fewer than structured sources — this is noisier data
+const MAX_TURNS = 6;
+const MAX_CANDIDATES = 10;
 
 export function hasTavilyKey() {
   return typeof process.env.TAVILY_API_KEY === "string" && process.env.TAVILY_API_KEY.length > 0;
@@ -59,12 +26,6 @@ export function hasTavilyKey() {
 export function openWebAvailable() {
   return activeLLMProvider() !== null && hasTavilyKey();
 }
-
-// --- Budget resolution -------------------------------------------------------
-// Pure, network-free clamping logic so it's directly unit-testable
-// (test/openWebBudget.test.js). Anything that isn't a finite positive number
-// (NaN, null, a string, negative, zero) falls back to the module default;
-// valid numbers are clamped into [min, max].
 
 function clampBudgetValue(value, min, max, fallback) {
   if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return fallback;
@@ -92,8 +53,6 @@ async function fetchWithTimeout(url, options, timeoutMs = REQUEST_TIMEOUT_MS) {
     clearTimeout(timer);
   }
 }
-
-// --- Tavily tools (shared across all three LLM backends) -------------------
 
 async function tavilySearch(query, timeoutMs) {
   const res = await fetchWithTimeout(
@@ -132,10 +91,6 @@ async function tavilyExtract(url, timeoutMs) {
   return result?.raw_content ? result.raw_content.slice(0, 4000) : "(no content extracted)";
 }
 
-/** Execute a tool call by name, returning a string result for the model.
- * Never throws — a failed tool call becomes a result the model can react to
- * (real agentic behavior: it can try something else instead of the whole
- * search failing). */
 async function runTool(name, args, timeoutMs, corpus) {
   try {
     let out;
@@ -147,30 +102,12 @@ async function runTool(name, args, timeoutMs, corpus) {
     } else {
       return `Unknown tool: ${name}`;
     }
-    // Record everything the model actually SAW, so submitted candidates can be
-    // checked against it (see assertNameWasSeen). Grounding beats trusting.
     if (Array.isArray(corpus)) corpus.push(out);
     return out;
   } catch (err) {
     return `Tool "${name}" failed: ${err.message}`;
   }
 }
-
-// --- Anti-fabrication grounding check ---------------------------------------
-//
-// WHY THIS IS STRUCTURAL, NOT A PROMPT RULE:
-// The submit_candidates schema REQUIRES a `name`. When the model reaches its
-// last turn holding only a company/agency page that names no individual, that
-// required field pressures it into producing one anyway. Verified live twice:
-//   - "Tej Shah" attached to planahead.in  (no personal names on that page)
-//   - "Avinash Luthria" attached to nswealth.in/financial-advisor-mumbai
-//     (page names only Vibhuti Jyotish and Dilshad Patell)
-// The second case is the nastier one: Avinash Luthria is a REAL SEBI-registered
-// adviser, so the model recalled a real person from training data and bound
-// them to a page they do not appear on. Strengthening the prompt was tried and
-// did NOT hold — an instruction cannot guarantee a schema-required field stays
-// empty. So we verify instead of asking, mirroring how llm.js recomputes weight
-// math locally rather than trusting model-reported totals.
 
 function normalizeForGrounding(str) {
   return String(str || "")
@@ -180,14 +117,6 @@ function normalizeForGrounding(str) {
     .trim();
 }
 
-/**
- * Shared token-membership check: true only if every significant token
- * (length >= 3) of `text` demonstrably appears in `corpusText`. Tolerates
- * reordering/punctuation ("Priya R Sharma" vs "Sharma, Priya") while
- * rejecting text that was never actually read. A single-token string is
- * accepted only on an exact match. This is the primitive both nameWasSeen
- * and the field-grounding helpers below (P4) are built on.
- */
 function tokensWereSeen(text, corpusText) {
   const n = normalizeForGrounding(text);
   if (!n) return false;
@@ -205,19 +134,6 @@ function tokensWereSeen(text, corpusText) {
 export function nameWasSeen(name, corpusText) {
   return tokensWereSeen(name, corpusText);
 }
-
-// --- Field grounding beyond `name` (docs/DATA_QUALITY_PLAN.md P4) ----------
-//
-// `nameWasSeen` above drops the WHOLE candidate when its name is ungrounded,
-// because a candidate built around a name nobody actually said is not a
-// candidate at all. `location` and `skills` are different: they're
-// attributes OF an already-grounded, real person, and a wrong or unverifiable
-// attribute doesn't mean the person is fake — a real adviser with a guessed
-// city is still a real lead. So these are scrubbed per-field (set to
-// null / filtered out of the array) rather than disqualifying the candidate.
-// `summary` is deliberately NOT grounded here — see FAIRNESS.md §12 for why
-// a free-text sentence can't be checked the same way a name/location/skill
-// token can.
 
 /**
  * Ground a submitted `location` against the corpus of pages the agent
@@ -318,8 +234,6 @@ const SUBMIT_CANDIDATES_SCHEMA = {
   required: ["candidates"],
 };
 
-// --- Per-backend agent loop --------------------------------------------------
-
 async function runAnthropicLoop(systemPrompt, budget, corpus) {
   const tools = [
     { name: "web_search", description: "Search the web.", input_schema: { type: "object", properties: { query: { type: "string" } }, required: ["query"] } },
@@ -349,7 +263,7 @@ async function runAnthropicLoop(systemPrompt, budget, corpus) {
     if (submit) return Array.isArray(submit.input?.candidates) ? submit.input.candidates : [];
 
     const toolUses = blocks.filter((b) => b.type === "tool_use");
-    if (toolUses.length === 0) break; // model stopped without submitting — give up gracefully
+    if (toolUses.length === 0) break;
 
     messages.push({ role: "assistant", content: blocks });
     const toolResults = await Promise.all(
@@ -406,7 +320,6 @@ async function runGroqLoop(systemPrompt, budget, corpus) {
       try {
         args = JSON.parse(t.function.arguments);
       } catch {
-        /* malformed args — runTool gets {} and reports appropriately via missing fields */
       }
       const result = await runTool(t.function.name, args, budget.timeoutMs, corpus);
       messages.push({ role: "tool", tool_call_id: t.id, content: result });
@@ -508,10 +421,6 @@ export const provider = {
   label: "Open Web Search (AI agent — needs 2 free keys)",
   fields: ["*"],
   traits: {
-    // The LLM supplies sourceUrl itself, and (Bug 3) has been caught
-    // attaching one person's name to a page that actually names someone
-    // else, or to a company page with no named individual at all. The URL
-    // alone can never be trusted to mean "same person" for this provider.
     sourceUrlIdentifiesPerson: false,
     nameIsHandle: false,
     dataIsLLMExtracted: true,
@@ -524,7 +433,6 @@ export const provider = {
       const budget = resolveBudget(options);
       const systemPrompt = buildSystemPrompt(jobSpec, budget.maxTurns);
       const backend = activeLLMProvider();
-      // Everything the agent actually read this run, for the grounding check.
       const corpus = [];
       let found;
       if (backend === "anthropic") found = await runAnthropicLoop(systemPrompt, budget, corpus);
@@ -533,10 +441,6 @@ export const provider = {
 
       const shaped = (Array.isArray(found) ? found : []).filter((f) => f && f.name && f.sourceUrl);
 
-      // GROUNDING GATE: drop any candidate whose name never appeared in what the
-      // agent read. Prefers a false negative (losing a real person) over a false
-      // positive (presenting an invented or misattributed one) — a recruiter
-      // emailing someone who isn't on that page is the worse outcome.
       const corpusText = corpus.join("\n");
       const grounded = [];
       for (const f of shaped) {
@@ -549,9 +453,6 @@ export const provider = {
         }
       }
 
-      // FIELD GROUNDING (P4): location/skills are attributes of an already-
-      // grounded, real person — scrub the individual field rather than drop
-      // the candidate. See the "Field grounding" comment above nameWasSeen.
       const fieldsGrounded = grounded.map((f) => {
         const originalLocation = String(f.location || "").trim();
         const location = groundLocation(f.location, corpusText);

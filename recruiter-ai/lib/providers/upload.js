@@ -1,13 +1,3 @@
-// lib/providers/upload.js
-//
-// Upload provider — parses recruiter-supplied CSV or JSON text (options.data)
-// into unified Candidates. No parsing libraries; hand-rolled CSV support.
-//
-// CSV expectations: first row = headers, columns map to
-// name/skills/experience/education/certifications/location/summary (case-
-// insensitive header match). skills & certifications may be ";"-separated.
-// Simple quoted fields ("...", with "" as an escaped quote) are supported.
-
 import { normalizeCandidate } from "../normalize.js";
 
 function parseCsvLine(line) {
@@ -84,9 +74,6 @@ export const provider = {
   label: "Upload CSV/JSON",
   fields: ["*"],
   traits: {
-    // CSV rows never carry a URL column at all; JSON input could set an
-    // arbitrary sourceUrl, but nothing here verifies what it points to —
-    // false is the safe default for an unverified, caller-supplied field.
     sourceUrlIdentifiesPerson: false,
     nameIsHandle: false,
     dataIsLLMExtracted: false,
